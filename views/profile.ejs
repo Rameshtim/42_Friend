@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Check Campus Status</title>
+</head>
+<body>
+  <h1>Welcome, <%= user.displayname %>!</h1>
+  <img src="<%= user.image.versions.small %>" alt="Your Profile Picture">
+
+  <h2>Check Your Friend's Campus Status</h2>
+  <form action="/check-user" method="POST">
+    <label for="username">Enter 42 Username:</label>
+    <input type="text" name="username" required>
+    <br>
+    <button type="submit">Check Status</button>
+  </form>
+
+  <% if (searchedUser) { %>
+    <h3>Result for <%= searchedUser.displayname %>:</h3>
+    <img src="<%= searchedUser.image.versions.small %>" alt="User Profile Picture">
+    
+    <% if (searchedUser.location !== null) { %>
+      <p style="color: green;"><%= searchedUser.displayname %> is currently on campus! ✅</p>
+    <% } else { %>
+      <p style="color: red;"><%= searchedUser.displayname %> is not on campus ❌</p>
+    <% } %>
+
+    <h3>Send Email Notification</h3>
+    <form action="/send-email" method="POST">
+      <input type="hidden" name="username" value="<%= searchedUser.displayname %>">
+      <label for="email">Your Email:</label>
+      <input type="email" name="email" required>
+      <br>
+      <input type="checkbox" name="sendEmail"> Send me an email
+      <br>
+      <button type="submit">Send</button>
+    </form>
+  <% } %>
+
+  <br>
+  <a href="/logout">Logout</a>
+</body>
+</html>
