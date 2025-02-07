@@ -69,6 +69,7 @@ The application uses OAuth 2.0 to authenticate with the 42 API.
 - 42 School for providing the API
 
 ## 📞 Contact
+Connect on [LinkedIn](https://www.linkedin.com/in/ramesh-timsina)
 Ramesh - [@rtimsina](https://github.com/Rameshtim)
 
 Project Link: [https://github.com/Rameshtim/42_Friend](https://github.com/Rameshtim/42_Friend)
