@@ -10,6 +10,7 @@
 - Integration with 42 API for accurate status checks
 
 ### Coming Soon
+- Get Notified for more than 1 Friend
 - Slack DM notifications when tracked users log in or log out
 - Email notification when tracked users log in or log out
 
@@ -22,6 +23,7 @@
 
 ## 📋 Prerequisites
 - Docker (Available in 42 Clusters)
+- 42 API (Simple Setup in intra, click [here to see](images/setup.md) detailed Instructions)
 
 
 ## 🚀 Getting Started
@@ -38,6 +40,8 @@ touch .env
 ```
 Edit `.env` file with your Email(Future Work):
 ```
+FT_CLIENT_ID=uid(as shown in intra)
+FT_CLIENT_SECRET=secret(as shown in intra)
 EMAIL_USER=your-gmail
 EMAIL_PASS=your-gmail-password
 ```
