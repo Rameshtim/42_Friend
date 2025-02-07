@@ -7,13 +7,15 @@ This guide explains how to set up the 42 API for use with the Online Friend Noti
 1. **Go to your 42 Intra profile:** [https://profile.intra.42.fr/]
 2. **Navigate to "API Credentials":**
 
-- settings
-![click on settings](image.png)
-- API
+- ### settings
+- ### API
 ![Register a New app](image-1.png)
-- Give Redirect URI and submit
+- ### Give Redirect URI and submit
 ![submit](image-2.png)
 
+3. ### Set Credentials in App
+- Copy uid as FT_CLIENT_ID in .env file
+- Copy secret as FT_CLIENT_SECRET in .env file
 
 ## Important Security Notes
 

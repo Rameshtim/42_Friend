@@ -28,13 +28,13 @@
 
 ## 🚀 Getting Started
 
-1. Clone the repository
+1. ### Clone the repository
 ```bash
 git clone https://github.com/Rameshtim/42_Friend
 cd 42_Friend
 ```
 
-2. Configure environment variables
+2. ### Configure environment variables
 ```bash
 touch .env
 ```
@@ -46,9 +46,18 @@ EMAIL_USER=your-gmail
 EMAIL_PASS=your-gmail-password
 ```
 
-3. Start the application
+3. ### Start/Stop the application using Docker
 ```Docker
 docker compose up --build
+```
+```
+docker compose down
+```
+4. ### Start/Stop using make
+```
+make build
+make down
+make clean
 ```
 
 ## 🔒 Authentication
