@@ -87,6 +87,39 @@ app.post("/check-user", async (req, res) => {
     }
 });
 
+// app.post("/check-user", async (req, res) => {
+//   if (!req.isAuthenticated()) {
+//       return res.status(401).json({ error: "Unauthorized. Please log in." });
+//   }
+
+//   const { username } = req.body;
+//   const accessToken = req.user.access_token;
+
+//   if (!accessToken) {
+//       return res.status(401).json({ error: "Session expired. Please log in again." });
+//   }
+
+//   try {
+//       const userResponse = await fetch(`https://api.intra.42.fr/v2/users/${username}`, {
+//           headers: { Authorization: `Bearer ${accessToken}` },
+//       });
+
+//       if (!userResponse.ok) {
+//           return res.status(404).json({ error: "User not found" });
+//       }
+
+//       const user = await userResponse.json();
+//       const location = user.location;
+//       const status_message = location ? `✅ ${username} is online (Location: ${location})` : `❌ ${username} is not on campus`;
+//       const online = !!location; // Boolean: true if online, false otherwise
+
+//       res.json({ status_message, online }); // Send online status as boolean
+//   } catch (error) {
+//       console.error("Error fetching user data:", error); // Log the error for debugging
+//       res.status(500).json({ error: "An error occurred while fetching user data." });
+//   }
+// });
+
 
 // Start Server
 const PORT = process.env.PORT || 3000;

@@ -10,8 +10,10 @@ router.post("/send-email", async (req, res) => {
     return res.redirect("/profile");
   }
 
+
   const userStatus = req.body.is_in_campus ? "on campus ✅" : "not on campus ❌";
 
+   console.log("this is req.body", req.body); 
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {

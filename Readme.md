@@ -35,16 +35,26 @@ cd 42_Friend
 ```
 
 2. ### Configure environment variables
+    - First Create .env file
 ```bash
 touch .env
 ```
-Edit `.env` file with your Email(Future Work):
+Edit `.env` file with your API Credentials:
 ```
 FT_CLIENT_ID=uid(as shown in intra)
 FT_CLIENT_SECRET=secret(as shown in intra)
-EMAIL_USER=your-gmail
-EMAIL_PASS=your-gmail-password
 ```
+    - For Future to send Email
+
+```
+EMAIL_USER=your-gmail
+EMAIL_PASS=your-gmail-App Passwords
+```
+#### Since Gmail will not allow you to log in with Username and Password you have to have App passwords
+#### 2FA Must be enabled to get App passwords
+- Go to your Google Account settings: https://myaccount.google.com/
+- Navigate to "Security."
+- Look for "App passwords" (you might need to search for it)
 
 3. ### Start/Stop the application using Docker
 ```Docker
@@ -69,7 +79,10 @@ The application uses OAuth 2.0 to authenticate with the 42 API.
 - 42 School for providing the API
 
 ## 📞 Contact
+
 Connect on [LinkedIn](https://www.linkedin.com/in/ramesh-timsina)
-Ramesh - [@rtimsina](https://github.com/Rameshtim)
+
+
+Github - [@rtimsina](https://github.com/Rameshtim)
 
 Project Link: [https://github.com/Rameshtim/42_Friend](https://github.com/Rameshtim/42_Friend)
