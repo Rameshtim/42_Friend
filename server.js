@@ -37,6 +37,7 @@ const authRoutes = require("./routes/auth");
 const emailRoutes = require("./routes/email");
 app.use(authRoutes);
 app.use(emailRoutes);
+app.use(express.static('images')); // Serve static files from 'public'
 
 const { StatusMonitor } = require('./routes/statusMonitor');
 const { EmailService } = require('./routes/emailService');
@@ -46,6 +47,7 @@ app.locals.monitor = monitor;
 
 // Add these event listeners after creating the monitor
 monitor.on('statusChange', async (status) => {
+    console.log("this monitor event is triggered in server js.");
     await emailService.sendStatusChangeEmail(status.email, status.username, status);
 });
 

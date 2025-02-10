@@ -31,7 +31,9 @@ class EmailService {
         };
 
         try {
-            await this.transporter.sendMail(mailOptions);
+            // console.log("Attempting to send email with these options:", mailOptions);
+            const resabout = await this.transporter.sendMail(mailOptions);
+            // console.log("Email sent successfully:", resabout);
             return true;
         } catch (error) {
             console.error('Error sending email:', error);

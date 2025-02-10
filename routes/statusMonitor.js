@@ -1,6 +1,7 @@
 const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const TokenManager = require('./tokenManager');
+const { stat } = require('fs');
 console.log("TokenManager:", TokenManager); // Crucial debugging step!
 
 class StatusMonitor extends EventEmitter {
@@ -32,6 +33,7 @@ class StatusMonitor extends EventEmitter {
             }
 
             const userData = await response.json();
+            console.log('this is from userData location', userData.location);
             return {
                 username,
                 location: userData.location,
@@ -55,7 +57,8 @@ class StatusMonitor extends EventEmitter {
         const monitor = {
             email,
             accessToken,
-            lastStatus: null,
+            lastStatus: { isOnline: null },
+            // lastStatus: null,
             startTime: Date.now(),
             // duration: 5 * 1000, // Convert minutes to milliseconds
             duration: duration * 60 * 1000, // Convert minutes to milliseconds
@@ -73,9 +76,14 @@ class StatusMonitor extends EventEmitter {
                 }
 
                 const status = await this.checkUserStatus(username, monitor.accessToken);
-                console.log("monitoring started for given time.");
+                console.log("monitoring started for given time for ", username);
+                console.log("is available at ", status.location);
+                // console.log("this will be checked --", monitor.lastStatus);
+                console.log("this will be checked status --", status.isOnline);
                 // Only emit if status changed
-                if (!monitor.lastStatus || monitor.lastStatus.isOnline !== status.isOnline) {
+                // if (!monitor.lastStatus || monitor.lastStatus.isOnline !== status.isOnline) {
+                if (monitor.lastStatus.isOnline !== null && monitor.lastStatus.isOnline !== status.isOnline) {
+                    console.log('status has changed for email', status.isOnline);
                     this.emit('statusChange', {
                         ...status,
                         email: monitor.email
@@ -83,6 +91,7 @@ class StatusMonitor extends EventEmitter {
                 }
                 
                 monitor.lastStatus = status;
+                console.log("laststatus this will be checked --", monitor.lastStatus.isOnline);
 
             } catch (error) {
                 this.emit('error', { username, error });

@@ -66,8 +66,8 @@
           <div>
             <h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
             <form action="/send-email" method="POST" class="mt-2">
-              <input type="hidden" name="username" value="<%= searchedUser.username %>">
-              <input type="hidden" name="email" value="<%= user.email %>">
+              <input type="hidden" name="username" value="<%= searchedUser.login %>">
+              <input type="hidden" name="email" value="ramesh_5tim@yahoo.com">
               <input type="hidden" name="location" value="<%= searchedUser.location %>">
               <input type="hidden" name="accessToken" value="<%= user.access_token %>">
     
