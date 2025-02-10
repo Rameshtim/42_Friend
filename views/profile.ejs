@@ -15,13 +15,26 @@
         <div class="flex justify-center my-4">
           <img class="w-full h-64 object-contain rounded-lg border-4 border-gray-600" src="<%= user.image.versions.medium %>" alt="Your Profile Picture">
         </div>
+        <div>
+          <a href="/debug">Click to debug</a>
+        </div>
+
         <h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
         <form action="/send-email" method="POST" class="mt-2">
           <input type="hidden" name="username" value="<%= user.displayname %>">
-          <label for="email" class="block">Your Email:</label>
-          <input type="email" name="email" required class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <input type="hidden" name="email" value="<%= user.email %>">
+          <input type="hidden" name="location" value="<%= user.location %>">
+          <input type="hidden" name="accessToken" value="<%= user.access_token %>">
+
+          <label for="duration">Monitor for:</label>
+          <select name="duration" id="duration" class="bg-gray-700 text-white p-2 rounded-lg">
+            <option value="30min">30 Minutes</option>
+            <option value="1hour" selected>1 Hour</option>
+            <option value="2hours">2 Hours</option>
+            <option value="4hours">4 Hours</option>
+          </select>
           <div class="flex items-center mt-2">
-            <input type="checkbox" name="sendEmail" id="sendEmail" class="mr-2">
+            <input type="checkbox" name="sendEmail" value="on" id="sendEmail" class="mr-2">
             <label for="sendEmail">Send me an email</label>
           </div>
           <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">Send</button>
@@ -41,7 +54,7 @@
           <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
             <h3 class="text-lg font-semibold">Result for <%= searchedUser.displayname %>:</h3>
             <div class="flex justify-center my-2">
-              <img class="w-full h-40 object-contain rounded-lg border-2 border-gray-500" src="<%= searchedUser.image.versions.small %>" alt="User Profile Picture">
+              <img class="w-full h-40 object-contain rounded-lg border-2 border-gray-500" src="<%= searchedUser.image.versions.medium %>" alt="User Profile Picture">
             </div>
             
             <% if (searchedUser.location !== null) { %>
@@ -49,6 +62,28 @@
             <% } else { %>
               <p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname %> is not on campus</p>
             <% } %>
+          </div>
+          <div>
+            <h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
+            <form action="/send-email" method="POST" class="mt-2">
+              <input type="hidden" name="username" value="<%= searchedUser.username %>">
+              <input type="hidden" name="email" value="<%= user.email %>">
+              <input type="hidden" name="location" value="<%= searchedUser.location %>">
+              <input type="hidden" name="accessToken" value="<%= user.access_token %>">
+    
+              <label for="duration">Monitor for:</label>
+              <select name="duration" id="1duration" class="bg-gray-700 text-white p-2 rounded-lg">
+                <option value="30min">30 Minutes</option>
+                <option value="1hour" selected>1 Hour</option>
+                <option value="2hours">2 Hours</option>
+                <option value="4hours">4 Hours</option>
+              </select>
+              <div class="flex items-center mt-2">
+                <input type="checkbox" name="sendEmail" value="on" id="sendEmail" class="mr-2">
+                <label for="sendEmail">Send me an email</label>
+              </div>
+              <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">Send</button>
+            </form>
           </div>
         <% } %>
       </div>
@@ -58,5 +93,69 @@
       <a href="/logout" class="text-red-400 font-semibold hover:underline">Logout</a>
     </div>
   </div>
+  <script>
+
+// Add this to your existing script tag
+    // document.querySelector('form[action="/send-email"]').addEventListener('submit', async (event) => {
+    //     event.preventDefault();
+        
+    //     const form = event.target;
+    //     const formData = new FormData(form);
+        
+    //     try {
+    //         const response = await fetch('/send-email', {
+    //             method: 'POST',
+    //             body: formData
+    //         });
+            
+    //         const data = await response.json();
+    //         showPopup(data.message, data.success);
+            
+    //         if (data.success) {
+    //             // Disable the form to prevent multiple monitoring sessions
+    //             form.querySelector('button[type="submit"]').disabled = true;
+    //             setTimeout(() => {
+    //                 form.querySelector('button[type="submit"]').disabled = false;
+    //             }, parseInt(formData.get('duration')) * 60 * 1000);
+    //         }
+    //     } catch (error) {
+    //         showPopup('Failed to start monitoring', false);
+    //     }
+    // });
+
+    async function sendEmail(event) {
+      event.preventDefault();
+  
+      const form = event.target;
+      const formData = new FormData(form);
+  
+      const response = await fetch("/send-email", {
+        method: "POST",
+        body: formData
+      });
+  
+      const data = await response.json();
+      showPopup(data.message, data.success);
+      if (data.success) {
+          // Disable the form to prevent multiple monitoring sessions
+          form.querySelector('button[type="submit"]').disabled = true;
+          setTimeout(() => {
+              form.querySelector('button[type="submit"]').disabled = false;
+          }, parseInt(formData.get('duration')) * 60 * 1000);
+      }
+    }
+  
+    function showPopup(message, success) {
+      const popup = document.createElement("div");
+      popup.innerText = message;
+      popup.className = `fixed top-5 right-5 p-4 rounded-lg text-white ${success ? "bg-green-500" : "bg-red-500"}`;
+      document.body.appendChild(popup);
+  
+      setTimeout(() => {
+        popup.remove();
+      }, 10000);
+    }
+  </script>
+  
 </body>
 </html>

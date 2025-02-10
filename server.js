@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const MemoryStore = require("express-session").MemoryStore;
 const passport = require("passport");
 const bodyParser = require("body-parser");
 require("dotenv").config();
@@ -7,19 +8,28 @@ require("./config/passport");
 const fetch = require("node-fetch");
 const app = express();
 
+
 // Middleware
 app.use(express.static("public"));
+app.use(express.json()); // Add this to parse JSON body properly
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(
-  session({
-    secret: "mysecret",
-    resave: false,
-    saveUninitialized: true,
-  })
-);
 
+
+const sessionMiddleware = session({
+  store: new MemoryStore(),  // ✅ Ensures sessions are stored
+  secret: "supersecret",
+  resave: false,
+  saveUninitialized: false, 
+  cookie: {
+    secure: false,  
+    httpOnly: true,
+    sameSite: 'lax',
+  },
+});
+
+app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -28,13 +38,58 @@ const emailRoutes = require("./routes/email");
 app.use(authRoutes);
 app.use(emailRoutes);
 
+const { StatusMonitor } = require('./routes/statusMonitor');
+const { EmailService } = require('./routes/emailService');
+const monitor = new StatusMonitor();
+const emailService = new EmailService();
+app.locals.monitor = monitor;
+
+// Add these event listeners after creating the monitor
+monitor.on('statusChange', async (status) => {
+    await emailService.sendStatusChangeEmail(status.email, status.username, status);
+});
+
+monitor.on('monitoringExpired', async ({ username, email }) => {
+    await emailService.sendStatusChangeEmail(
+        email,
+        username,
+        { isOnline: false, message: 'Monitoring period has expired' }
+    );
+});
+
+monitor.on('error', (error) => {
+    console.error('Monitor error:', error);
+});
+
+// Clean up on server shutdown
+process.on('SIGINT', () => {
+    monitor.stopAll();
+    process.exit();
+});
+
+
+app.use((req, res, next) => {
+  console.log("📌 Incoming Request - Session Before Middleware:", req.session);
+  // console.log("Authenticated User:", req.user.displayname);
+  next();
+});
+
+
 // Home Route
 app.get("/", (req, res) => {
   res.render("home");
 });
 
+app.get('/debug', (req, res) => {
+  console.log("📌 Debug Session:", req.session);
+  res.json(req.session);
+});
+
+
 // Profile Route
 app.get("/profile", (req, res) => {
+  console.log("📌 Profile Route - Session Data:", req.session);
+  // console.log("📌 Profile Route - Authenticated User:", req.user.displayname);
   if (!req.isAuthenticated()) {
     return res.redirect("/");
   }
@@ -43,6 +98,7 @@ app.get("/profile", (req, res) => {
 
 app.post("/check-user", async (req, res) => {
     if (!req.isAuthenticated()) {
+        console.log("user is not authenticated////////////////");
         return res.redirect("/");
     }
 
@@ -72,6 +128,12 @@ app.post("/check-user", async (req, res) => {
         const user = await userResponse.json();
         console.log("User found:", user.location);
         console.log("type of response:", typeof user.location);
+        if (req.headers.accept && req.headers.accept.includes("application/json")) {
+          return res.json({ user });
+        }
+        if (req.query.json) {
+          return res.json({ user });
+        }
 
 
         if (typeof user.location === "string") {
@@ -86,6 +148,9 @@ app.post("/check-user", async (req, res) => {
         res.render("profile", { user: req.user, searchedUser: null, error: "User not found or an error occurred." });
     }
 });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // app.post("/check-user", async (req, res) => {
 //   if (!req.isAuthenticated()) {
@@ -122,5 +187,5 @@ app.post("/check-user", async (req, res) => {
 
 
 // Start Server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
