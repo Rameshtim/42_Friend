@@ -4,20 +4,14 @@ const router = express.Router();
 
 router.post("/send-email", async (req, res) => {
     if (!req.isAuthenticated()) {
-        return res.status(401).json({ 
-            success: false, 
-            message: "Authentication required" 
-        });
+      return res.redirect("/home?message=User not authenticated.");
     }
 
-    const { email, sendEmail, username, duration } = req.body;
+    const { email, sendEmail, username, duration, intervall } = req.body;
     console.log('this is sendEmail', req.body);
     
     if (sendEmail === undefined) {
-        return res.json({ 
-            success: false, 
-            message: "Email notification not enabled." 
-        });
+      return res.redirect("/profile?message=Email notification not enabled.");
     }
 
     const durations = {
@@ -26,6 +20,17 @@ router.post("/send-email", async (req, res) => {
         "2hours": 120,
         "4hours": 240
     };
+    
+    const intervalls = {
+        "5sec": 5,
+        "30sec": 30,
+        "1min": 60,
+        "5min": 300,
+        "10min": 600,
+        "30min": 1800
+    };
+
+    const selectedIntervall = intervalls[intervall] || 60;
 
     const selectedDuration = durations[duration] || 60;
 
@@ -34,29 +39,20 @@ router.post("/send-email", async (req, res) => {
             username,
             req.user.access_token,
             email,
-            selectedDuration
+            selectedDuration,
+            selectedIntervall
         );
 
         if (success) {
-            res.json({ 
-                success: true, 
-                message: `Monitoring started for ${selectedDuration} minutes.` 
-            });
-            // res.redirect('/profile');  // Redirect after saving session
-          } else {
-            res.json({ 
-              success: false, 
-              message: "Monitoring already active for this user." 
-            });
-            // res.redirect('/profile');  // Redirect after saving session
-          }
+          req.app.locals.monitor.stopMonitoring(username);
+          return res.redirect("/profile?message=Monitoring started successfully for" + username + " for " + selectedDuration + " minutes.");
+        } else {
+          // req.app.locals.monitor.stopMonitoring(username);
+          return res.redirect("/profile?error=Monitoring already active for " + username + " for " + selectedDuration + " minutes.");
+        }
         } catch (error) {
           console.error('Error starting monitoring:', error);
-          res.status(500).json({ 
-            success: false, 
-            message: "Failed to start monitoring." 
-          });
-          // res.redirect('/profile');  // Redirect after saving session
+          return res.redirect("/profile?error=Failed to start monitoring for " + username + " for " + selectedDuration + " minutes.");
     }
 });
 

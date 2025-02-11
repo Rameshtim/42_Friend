@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 const sessionMiddleware = session({
-  store: new MemoryStore(),  // ✅ Ensures sessions are stored
+  store: new MemoryStore(),
   secret: "supersecret",
   resave: false,
   saveUninitialized: false, 
@@ -37,7 +37,7 @@ const authRoutes = require("./routes/auth");
 const emailRoutes = require("./routes/email");
 app.use(authRoutes);
 app.use(emailRoutes);
-app.use(express.static('images')); // Serve static files from 'public'
+app.use(express.static('images')); 
 
 const { StatusMonitor } = require('./routes/statusMonitor');
 const { EmailService } = require('./routes/emailService');
@@ -70,21 +70,9 @@ process.on('SIGINT', () => {
 });
 
 
-app.use((req, res, next) => {
-  console.log("📌 Incoming Request - Session Before Middleware:", req.session);
-  // console.log("Authenticated User:", req.user.displayname);
-  next();
-});
-
-
 // Home Route
 app.get("/", (req, res) => {
   res.render("home");
-});
-
-app.get('/debug', (req, res) => {
-  console.log("📌 Debug Session:", req.session);
-  res.json(req.session);
 });
 
 
@@ -93,7 +81,7 @@ app.get("/profile", (req, res) => {
   console.log("📌 Profile Route - Session Data:", req.session);
   // console.log("📌 Profile Route - Authenticated User:", req.user.displayname);
   if (!req.isAuthenticated()) {
-    return res.redirect("/");
+    return res.redirect("/?message=User not authenticated.");
   }
   res.render("profile", { user: req.user, searchedUser: null }); // Ensure searchedUser is always defined
 });
@@ -101,8 +89,8 @@ app.get("/profile", (req, res) => {
 app.post("/check-user", async (req, res) => {
     if (!req.isAuthenticated()) {
         console.log("user is not authenticated////////////////");
-        return res.redirect("/");
-    }
+        return res.redirect("/?message=User not authenticated.");
+      }
 
     const { username } = req.body;
     const accessToken = req.user.access_token;
@@ -153,41 +141,3 @@ app.post("/check-user", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-// app.post("/check-user", async (req, res) => {
-//   if (!req.isAuthenticated()) {
-//       return res.status(401).json({ error: "Unauthorized. Please log in." });
-//   }
-
-//   const { username } = req.body;
-//   const accessToken = req.user.access_token;
-
-//   if (!accessToken) {
-//       return res.status(401).json({ error: "Session expired. Please log in again." });
-//   }
-
-//   try {
-//       const userResponse = await fetch(`https://api.intra.42.fr/v2/users/${username}`, {
-//           headers: { Authorization: `Bearer ${accessToken}` },
-//       });
-
-//       if (!userResponse.ok) {
-//           return res.status(404).json({ error: "User not found" });
-//       }
-
-//       const user = await userResponse.json();
-//       const location = user.location;
-//       const status_message = location ? `✅ ${username} is online (Location: ${location})` : `❌ ${username} is not on campus`;
-//       const online = !!location; // Boolean: true if online, false otherwise
-
-//       res.json({ status_message, online }); // Send online status as boolean
-//   } catch (error) {
-//       console.error("Error fetching user data:", error); // Log the error for debugging
-//       res.status(500).json({ error: "An error occurred while fetching user data." });
-//   }
-// });
-
-
-// Start Server
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

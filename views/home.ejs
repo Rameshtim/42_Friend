@@ -18,5 +18,35 @@
     <h1 class="text-4xl font-bold mb-6">Welcome</h1>
     <a href="/auth/42" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">Login with 42</a>
   </div>
+  <script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const message = urlParams.get("message");
+      const error = urlParams.get("error");
+  
+      if (message) {
+        showPopup(message, true);
+      } else if (error) {
+        showPopup(error, false);
+      }
+  
+      if (message || error) {
+        const newUrl = window.location.pathname; 
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    });
+    
+      function showPopup(message, success) {
+        const popup = document.createElement("div");
+        popup.innerText = message;
+        popup.className = `fixed top-5 right-5 p-4 rounded-lg text-white ${success ? "bg-green-500" : "bg-red-500"}`;
+        document.body.appendChild(popup);
+    
+        setTimeout(() => {
+          popup.remove();
+        }, 10000);
+      }
+    </script>
 </body>
 </html>

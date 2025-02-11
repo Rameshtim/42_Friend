@@ -47,7 +47,7 @@ class StatusMonitor extends EventEmitter {
         }
     }
 
-    async startMonitoring(username, accessToken, email, duration) {
+    async startMonitoring(username, accessToken, email, duration, intervall) {
         console.log('monitoring started in startMonitoring function for ', username);
         if (this.activeMonitors.has(username)) {
             return false;
@@ -96,7 +96,7 @@ class StatusMonitor extends EventEmitter {
             } catch (error) {
                 this.emit('error', { username, error });
             }
-        }, 5000); // Check every minute
+        }, intervall * 1000); // Check every minute
 
         this.activeMonitors.set(username, monitor);
         return true;
@@ -105,10 +105,12 @@ class StatusMonitor extends EventEmitter {
     stopMonitoring(username) {
         const monitor = this.activeMonitors.get(username);
         if (monitor) {
+            console.log('monitoring stopped for ', username);
             clearInterval(monitor.intervalId);
             this.activeMonitors.delete(username);
             return true;
         }
+        console.log('monitoring not found for ', username);
         return false;
     }
 
