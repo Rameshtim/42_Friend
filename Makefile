@@ -4,37 +4,57 @@ NAME    := Stalker
 
 # -----------\ Files \-------------------------------------------------------- #
 
-ENV_FILE = --env-file .env
+ENV_FILE = .env
 COMPOSE = docker-compose.yml
-COMPOSE_CMD = docker compose -f $(COMPOSE) $(ENV_FILE)  # Correct variable expansion
+COMPOSE_CMD = docker compose -f $(COMPOSE) --env-file $(ENV_FILE)
+
+# -----------\ Color Codes for Terminal Output \----------------------------- #
+
+RED   := \033[0;31m
+GREEN := \033[0;32m
+BOLD  := \033[1m
+RESET := \033[0m
 
 # -----------\ Rules \-------------------------------------------------------- #
 
 all: $(NAME)
 
-$(NAME):
-	@$(COMPOSE_CMD) up
+$(NAME): check_env
+		@$(COMPOSE_CMD) up
 
-run:
-	@$(COMPOSE_CMD) build
-	@$(COMPOSE_CMD) up
+run: check_env
+		@$(COMPOSE_CMD) build
+		@$(COMPOSE_CMD) up
 
-build:
-	@$(COMPOSE_CMD) up --build
+build: check_env
+		@$(COMPOSE_CMD) up --build
 
 down:
-	@$(COMPOSE_CMD) down
+		@$(COMPOSE_CMD) down
 
-# Use docker-compose down to remove this project-specific resources
 clean:
-	@$(COMPOSE_CMD) down  # Stop and remove containers defined in docker-compose.yml
-	@$(COMPOSE_CMD) rm -f # Remove stopped containers 
-	@docker image prune -a -f # Remove unused images
+		@$(COMPOSE_CMD) down
+		@$(COMPOSE_CMD) rm -f
+		@docker image prune -a -f
 
-# Use fclean only if desired to remove all Docker Containers from the system
 fclean: clean
-	docker system prune -f #Remove all unused containers, images, networks, and optionally, build caches
+		docker system prune -f
 
 re: clean all
 
-.PHONY: all build down re clean fclean
+# -----------\ ENV Check and Creation \--------------------------------------- #
+
+check_env:
+		@if [ ! -f "$(ENV_FILE)" ]; then \
+				echo -e "$(RED)$(BOLD)ERROR: .env file not found!$(RESET)"; \
+				echo "Creating .env file..."; \
+				echo "FT_CLIENT_ID=" >> $(ENV_FILE); \
+				echo "FT_CLIENT_SECRET=" >> $(ENV_FILE); \
+				echo "EMAIL_USER=" >> $(ENV_FILE); \
+				echo "EMAIL_PASS=" >> $(ENV_FILE); \
+				echo -e "$(GREEN).env file created. Please follow the instructions in the README file to add the appropriate values.$(RESET)"; \
+				echo -e "$(RED)Then run make build again$(RESET)"; \
+				exit 1; \
+		fi
+
+.PHONY: all build down re clean fclean check_env

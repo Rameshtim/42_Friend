@@ -44,7 +44,7 @@ router.post("/send-email", async (req, res) => {
         );
 
         if (success) {
-          req.app.locals.monitor.stopMonitoring(username);
+          // req.app.locals.monitor.stopMonitoring(username);
           return res.redirect("/profile?message=Monitoring started successfully for" + username + " for " + selectedDuration + " minutes.");
         } else {
           // req.app.locals.monitor.stopMonitoring(username);

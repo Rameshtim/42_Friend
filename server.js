@@ -49,6 +49,7 @@ app.locals.monitor = monitor;
 monitor.on('statusChange', async (status) => {
     console.log("this monitor event is triggered in server js.");
     await emailService.sendStatusChangeEmail(status.email, status.username, status);
+    app.locals.monitor.stopMonitoring(status.username);
 });
 
 monitor.on('monitoringExpired', async ({ username, email }) => {

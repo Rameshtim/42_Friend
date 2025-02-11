@@ -42,12 +42,12 @@ passport.use(
 
 
 passport.serializeUser((user, done) => {
-  console.log("Serializing user:", user.id);
+  console.log("Serializing user:");
   done(null, user);
 });
 
 passport.deserializeUser((user, done) => {
-    console.log("Deserializing user:", user.displayname);
+    console.log("Deserializing user:");
   done(null, user);
 });
 
