@@ -4,14 +4,14 @@ const router = express.Router();
 
 router.post("/send-email", async (req, res) => {
     if (!req.isAuthenticated()) {
-      return res.redirect("/home?message=User not authenticated.");
+      return res.redirect("/home?error=User not authenticated.");
     }
 
     const { email, sendEmail, username, duration, intervall } = req.body;
     console.log('this is sendEmail', req.body);
     
     if (sendEmail === undefined) {
-      return res.redirect("/profile?message=Email notification not enabled.");
+      return res.redirect("/profile?error=Email notification not enabled.");
     }
 
     const durations = {
