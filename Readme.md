@@ -6,13 +6,13 @@
 ## ✨ Features
 ### Current Features
 - Real-time tracking of user presence at 42 campus
+- Email notification when tracked users log in or log out
+- Get Notified for more than 1 Friend
 - User lookup by intra username
 - Integration with 42 API for accurate status checks
 
 ### Coming Soon
-- Get Notified for more than 1 Friend
 - Slack DM notifications when tracked users log in or log out
-- Email notification when tracked users log in or log out
 
 ## 🛠️ Technologies
 - Docker
@@ -23,7 +23,7 @@
 
 ## 📋 Prerequisites
 - Docker (Available in 42 Clusters)
-- 42 API (Simple Setup in intra, click [here to see](images/setup.md) detailed Instructions)
+- 42 API (Simple Setup in intra, [42 API Documentation](https://api.intra.42.fr/apidoc) or [click here](images/setup.md) for detailed Instructions)
 
 
 ## 🚀 Getting Started
@@ -35,16 +35,15 @@ cd 42_Friend
 ```
 
 2. ### Configure environment variables
-    - First Create .env file
-```bash
-touch .env
+    - #### First Update .env file
 ```
 Edit `.env` file with your API Credentials:
+```
 ```
 FT_CLIENT_ID=uid(as shown in intra)
 FT_CLIENT_SECRET=secret(as shown in intra)
 ```
-    - For Future to send Email
+    - #### For Future to send Email
 
 ```
 EMAIL_USER=your-gmail
