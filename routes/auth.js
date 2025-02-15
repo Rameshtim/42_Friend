@@ -10,9 +10,14 @@ router.get(
   "/auth/42/callback",
   passport.authenticate("oauth2", { failureRedirect: "/" }),
   (req, res) => {
-    res.redirect("/profile");
-  }
-);
+    req.session.save(err => {
+      if (err) {
+          console.error("❌ Error saving session:", err);
+      }
+      res.cookie('session_id', req.sessionID, { httpOnly: true }); // Store session ID in cookie
+      res.redirect('/profile');  // Redirect after saving session
+  });
+});
 
 // Logout
 router.get("/logout", (req, res) => {

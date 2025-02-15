@@ -1,62 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Check Campus Status</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Check Campus Status</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		body {
+		  background: url('/cat_stalk.jpeg') no-repeat center center fixed;
+		  background-size: cover;
+		}
+	  </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center min-h-screen p-4 text-white">
-  <div class="bg-gray-700 shadow-xl rounded-lg p-6 max-w-4xl w-full">
-    <div class="flex items-start space-x-8">
-      <!-- Current User Section -->
-      <div class="w-1/2 bg-gray-800 p-6 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold text-center">Welcome, <%= user.displayname %>!</h1>
-        <div class="flex justify-center my-4">
-          <img class="w-full h-64 object-contain rounded-lg border-4 border-gray-600" src="<%= user.image.versions.medium %>" alt="Your Profile Picture">
-        </div>
-        <h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
-        <form action="/send-email" method="POST" class="mt-2">
-          <input type="hidden" name="username" value="<%= user.displayname %>">
-          <label for="email" class="block">Your Email:</label>
-          <input type="email" name="email" required class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <div class="flex items-center mt-2">
-            <input type="checkbox" name="sendEmail" id="sendEmail" class="mr-2">
-            <label for="sendEmail">Send me an email</label>
-          </div>
-          <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">Send</button>
-        </form>
-      </div>
-      
-      <!-- Search User Section -->
-      <div class="w-1/2 bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
-        <form action="/check-user" method="POST" class="mt-4">
-          <label for="username" class="block">Enter 42 Username:</label>
-          <input type="text" name="username" required class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">Check Status</button>
-        </form>
-        
-        <% if (searchedUser) { %>
-          <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
-            <h3 class="text-lg font-semibold">Result for <%= searchedUser.displayname %>:</h3>
-            <div class="flex justify-center my-2">
-              <img class="w-full h-40 object-contain rounded-lg border-2 border-gray-500" src="<%= searchedUser.image.versions.small %>" alt="User Profile Picture">
-            </div>
-            
-            <% if (searchedUser.location !== null) { %>
-              <p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname %> is currently on campus!</p>
-            <% } else { %>
-              <p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname %> is not on campus</p>
-            <% } %>
-          </div>
-        <% } %>
-      </div>
-    </div>
-    
-    <div class="text-center mt-6">
-      <a href="/logout" class="text-red-400 font-semibold hover:underline">Logout</a>
-    </div>
-  </div>
+	<div class="bg-gray-700 shadow-xl rounded-lg p-6 max-w-4xl w-full">
+		<div class="flex items-start space-x-8">
+			<!-- Current User Section -->
+			<div class="w-1/2 bg-gray-800 p-6 rounded-lg shadow-md">
+				<h1 class="text-2xl font-bold text-center">Welcome, <%= user.displayname %>!</h1>
+				<div class="flex justify-center my-4">
+					<img class="w-full h-64 object-contain rounded-lg border-4 border-gray-600" src="<%= user.image.versions.medium %>" alt="Your Profile Picture">
+				</div>
+			</div>
+			
+			<!-- Search User Section -->
+			<div class="w-1/2 bg-gray-800 p-6 rounded-lg shadow-md">
+				<h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
+				<form action="/check-user" method="POST" class="mt-4">
+					<label for="username" class="block">Enter 42 Username:</label>
+					<input type="text" name="username" required class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+					<button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">Check Status</button>
+				</form>
+				
+				<% if (searchedUser) { %>
+					<div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
+						<h3 class="text-lg font-semibold">Result for <%= searchedUser.displayname %>:</h3>
+						<div class="flex justify-center my-2">
+							<img class="w-full h-40 object-contain rounded-lg border-2 border-gray-500" src="<%= searchedUser.image.versions.medium %>" alt="User Profile Picture">
+						</div>
+						
+						<% if (searchedUser.location !== null) { %>
+							<p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname %> is currently on campus!</p>
+						<% } else { %>
+							<p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname %> is not on campus</p>
+						<% } %>
+					</div>
+					<div>
+						<h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
+						<form action="/send-email" method="POST" class="mt-2">
+							<input type="hidden" name="username" value="<%= searchedUser.login %>">
+							<input type="hidden" name="email" value="<%= user.email %>">
+							<input type="hidden" name="location" value="<%= searchedUser.location %>">
+							<input type="hidden" name="accessToken" value="<%= user.access_token %>">
+		
+							<label for="duration">Monitor for:</label>
+							<select name="duration" id="1duration" class="bg-gray-700 text-white p-2 rounded-lg">
+								<option value="30min">30 Minutes</option>
+								<option value="1hour" selected>1 Hour</option>
+								<option value="2hours">2 Hours</option>
+								<option value="4hours">4 Hours</option>
+							</select>
+				<br>
+							<label for="intervall">Every      :</label>
+							<select name="intervall" id="intervall" class="bg-gray-700 text-white p-2 rounded-lg">
+								<option value="5sec">5 Seconds</option>
+								<option value="30sec">30 Seconds</option>
+								<option value="1min" selected>1 Minute</option>
+								<option value="5min">5 Minutes</option>
+								<option value="10min">10 Minutes</option>
+								<option value="30min">30 Minutes</option>
+							</select>
+							<div class="flex items-center mt-2">
+								<input type="checkbox" name="sendEmail" value="on" id="sendEmail" class="mr-2">
+								<label for="sendEmail">Send me an email</label>
+							</div>
+							<button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">Send</button>
+						</form>
+					</div>
+				<% } %>
+			</div>
+			<div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
+				<h3 class="text-lg font-semibold">Currently Monitored Users</h3>
+				<ul id="monitoredUsersList" class="mt-2 space-y-2">
+				  <% if (activeMonitors.length === 0) { %>
+					<p class="text-gray-400">No active monitoring sessions.</p>
+				  <% } else { %>
+					<% activeMonitors.forEach(username => { %>
+					  <li class="flex justify-between items-center bg-gray-800 p-2 rounded-lg shadow">
+						<span><%= username %></span>
+						<button onclick="stopMonitoring('<%= username %>')" 
+								class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg">
+						  Stop
+						</button>
+					  </li>
+					<% }) %>
+				  <% } %>
+				</ul>
+			</div>			  
+		</div>
+		
+		<div class="text-center mt-6">
+			<a href="/logout" class="text-red-400 font-semibold hover:underline">Logout</a>
+		</div>
+	</div>
+	<script>
+
+		document.addEventListener("DOMContentLoaded", () => {
+			const urlParams = new URLSearchParams(window.location.search);
+			const message = urlParams.get("message");
+			const error = urlParams.get("error");
+
+			if (message) {
+				showPopup(message, true);
+			} else if (error) {
+				showPopup(error, false);
+			}
+
+			if (message || error) {
+				const newUrl = window.location.pathname; 
+				window.history.replaceState({}, document.title, newUrl);
+			}
+		});
+
+		async function stopMonitoring(username) {
+			try {
+				const response = await fetch("/stop-monitoring", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ username })
+				});
+
+				const data = await response.json();
+				showPopup(data.message, data.success);
+
+				if (data.success) {
+					// Remove user from the UI
+					document.location.reload(); // Refresh page to update monitored list
+				}
+			} catch (error) {
+				showPopup("Failed to stop monitoring", false);
+			}
+		}
+		
+		function showPopup(message, success) {
+			const popup = document.createElement("div");
+			popup.innerText = message;
+			popup.className = `fixed top-5 right-5 p-4 rounded-lg text-white ${success ? "bg-green-500" : "bg-red-500"}`;
+			document.body.appendChild(popup);
+	
+			setTimeout(() => {
+				popup.remove();
+			}, 10000);
+		}
+	</script>
+	
 </body>
 </html>

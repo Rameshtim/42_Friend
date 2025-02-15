@@ -28,6 +28,7 @@ passport.use(
         // Store the access token inside the user object
         user.access_token = accessToken;
         user.refresh_token = refreshToken;
+        // localStorage.setItem("access_token", user.access_token);
 
         return done(null, user);
       } catch (error) {
@@ -38,12 +39,36 @@ passport.use(
   )
 );
 
+
+
 passport.serializeUser((user, done) => {
-  console.log("Serializing user:", user.displayname);
+  console.log("Serializing user:");
   done(null, user);
 });
 
-passport.deserializeUser((obj, done) => {
-  console.log("Deserializing user:");
-  done(null, obj);
+passport.deserializeUser((user, done) => {
+    console.log("Deserializing user:");
+  done(null, user);
 });
+
+
+
+  // passport.serializeUser((user, done) => {
+  //   console.log("Serializing user:", user.id);
+  //   done(null, { id: user.id, access_token: user.access_token });
+  // });
+  
+  // passport.deserializeUser(async (obj, done) => {
+  //   console.log("Deserializing user:", obj.id);
+  //   try {
+  //     const response = await fetch(`https://api.intra.42.fr/v2/users/${obj.id}`, {
+  //       headers: { Authorization: `Bearer ${obj.access_token}` },
+  //     });
+  //     const user = await response.json();
+  //     user.access_token = obj.access_token;
+  //     done(null, user);
+  //   } catch (error) {
+  //     console.error("❌ Error in deserialization:", error);
+  //     done(error, null);
+  //   }
+  // });
