@@ -49,7 +49,8 @@
 						<h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
 						<form action="/send-email" method="POST" class="mt-2">
 							<input type="hidden" name="username" value="<%= searchedUser.login %>">
-							<input type="hidden" name="reqUsername" value="<%= user.login %>">
+							<input type="hidden" name="displayname" value="<%= searchedUser.displayname %>">
+							<input type="hidden" name="reqUsername" value="<%= user.displayname %>">
 							<input type="hidden" name="email" value="<%= user.email %>">
 							<input type="hidden" name="searchedUserEmail" value="<%= searchedUser.email %>">
 							<input type="hidden" name="location" value="<%= searchedUser.location %>">
@@ -72,10 +73,10 @@
 								<option value="10min">10 Minutes</option>
 								<option value="30min">30 Minutes</option>
 							</select>
-							<div class="flex items-center mt-2">
+							<!-- <div class="flex items-center mt-2">
 								<input type="checkbox" name="sendSlack" value="on" id="sendSlack" class="mr-2">
 								<label for="sendSlack">🔔 Send me a Slack DM</label>
-							</div>
+							</div> -->
 							<div class="flex items-center mt-2">
 								<input type="checkbox" name="sendEmail" value="on" id="sendEmail" class="mr-2">
 								<label for="sendEmail">📧 Send me an email</label>

@@ -41,15 +41,15 @@ class EmailService {
         }
     }
 
-    async sendStatusChangeEmailAlso(username, to) {
-        const slackDMUrl = `https://slack.com/app_redirect?channel=@${username}`;
+    async sendStatusChangeEmailAlso(username, to, fromEmail, toName) {
+        const slackDMUrl = `https://slack.com/app_redirect?channel=@${fromEmail}`;
     
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to,
             subject: `📢 ${username} is now on campus at 42 School!`,
-            text: `Hey! ${username} just logged in at 42 School and is expecting you. Click here to DM them on Slack: ${slackDMUrl}`,
-            html: this.generateSlackDMEmailHTML(username, slackDMUrl)
+            text: `Hey! ${toName}, ${username} just logged in at 42 School and is expecting you. Click here to DM them on Slack: ${slackDMUrl}`,
+            html: this.generateSlackDMEmailHTML(username, slackDMUrl, toName)
         };
     
         try {
@@ -74,11 +74,11 @@ class EmailService {
         `;
     }
 
-    generateSlackDMEmailHTML(username, slackDMUrl) {
+    generateSlackDMEmailHTML(username, slackDMUrl, toName) {
         return `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
                 <h2 style="color: #2c3e50; text-align: center;">📢 ${username} is Now on Campus!</h2>
-                <p style="font-size: 16px; text-align: center;">Hey there! 👋</p>
+                <p style="font-size: 16px; text-align: center;">Hey ${toName}! 👋</p>
                 <p style="font-size: 16px; text-align: center;"><strong>${username}</strong> just logged into 42 School and is expecting you.</p>
                 <div style="text-align: center; margin-top: 20px;">
                     <a href="${slackDMUrl}" target="_blank" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: white; background-color: #4A154B; text-decoration: none; border-radius: 5px;">

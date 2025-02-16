@@ -9,7 +9,7 @@ router.post("/send-email", async (req, res) => {
       return res.redirect("/home?error=User not authenticated.");
     }
 
-    const { email, searchedUserEmail, sendEmail, sendSlack, alsoSendEmail, username, reqUsername, duration, intervall } = req.body;
+    const { email, searchedUserEmail, displayname, sendEmail, alsoSendEmail, username, reqUsername, duration, intervall } = req.body;
     console.log('this is sendEmail', req.body);
     
     if (sendEmail === undefined) {
@@ -17,7 +17,7 @@ router.post("/send-email", async (req, res) => {
     }
 
     if (alsoSendEmail) {
-      await emailService.sendStatusChangeEmailAlso(reqUsername, searchedUserEmail);
+      await emailService.sendStatusChangeEmailAlso(reqUsername, searchedUserEmail, email, displayname);
 
     }
 
@@ -53,7 +53,7 @@ router.post("/send-email", async (req, res) => {
 
         if (success) {
           // req.app.locals.monitor.stopMonitoring(username);
-          return res.redirect("/profile?message=Monitoring started successfully for" + username + " for " + selectedDuration + " minutes.");
+          return res.redirect("/profile?message=Monitoring started successfully for " + username + " for " + selectedDuration + " minutes.");
         } else {
           // req.app.locals.monitor.stopMonitoring(username);
           return res.redirect("/profile?error=Monitoring already active for " + username + " for " + selectedDuration + " minutes.");
