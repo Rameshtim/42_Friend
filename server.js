@@ -113,7 +113,7 @@ app.post("/stop-monitoring", (req, res) => {
 app.post("/check-user", async (req, res) => {
   if (!req.isAuthenticated()) {
       console.log("User is not authenticated");
-      return res.redirect("/?message=User not authenticated.");
+      return res.redirect("/?error=User not authenticated.");
   }
 
   const { username } = req.body;
@@ -141,7 +141,8 @@ app.post("/check-user", async (req, res) => {
       if (!userResponse.ok) {
           const errorText = await userResponse.text();
           console.error("Error response from 42 API:", errorText);
-          throw new Error("User not found");
+          return res.redirect(`/profile?error=**${username}** not found!`);
+          // throw new Error("User not found");
       }
 
       const user = await userResponse.json();
