@@ -41,6 +41,26 @@ class EmailService {
         }
     }
 
+    async sendStatusChangeEmailAlso(username, to) {
+        const slackDMUrl = `https://slack.com/app_redirect?channel=@${username}`;
+    
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to,
+            subject: `📢 ${username} is now on campus at 42 School!`,
+            text: `Hey! ${username} just logged in at 42 School and is expecting you. Click here to DM them on Slack: ${slackDMUrl}`,
+            html: this.generateSlackDMEmailHTML(username, slackDMUrl)
+        };
+    
+        try {
+            const response = await this.transporter.sendMail(mailOptions);
+            return true;
+        } catch (error) {
+            console.error('Error sending email:', error);
+            return false;
+        }
+    }    
+
     generateEmailHTML(username, status) {
         return `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -53,6 +73,23 @@ class EmailService {
             </div>
         `;
     }
+
+    generateSlackDMEmailHTML(username, slackDMUrl) {
+        return `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                <h2 style="color: #2c3e50; text-align: center;">📢 ${username} is Now on Campus!</h2>
+                <p style="font-size: 16px; text-align: center;">Hey there! 👋</p>
+                <p style="font-size: 16px; text-align: center;"><strong>${username}</strong> just logged into 42 School and is expecting you.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="${slackDMUrl}" target="_blank" style="display: inline-block; padding: 10px 20px; font-size: 16px; color: white; background-color: #4A154B; text-decoration: none; border-radius: 5px;">
+                        💬 Message ${username} on Slack
+                    </a>
+                </div>
+                <p style="text-align: center; font-size: 14px; color: #555; margin-top: 20px;">See you soon at 42! 🚀</p>
+            </div>
+        `;
+    }
+    
 }
 
 module.exports = {

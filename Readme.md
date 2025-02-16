@@ -43,7 +43,9 @@ Edit `.env` file with your API Credentials:
 FT_CLIENT_ID=uid(as shown in intra)
 FT_CLIENT_SECRET=secret(as shown in intra)
 ```
+
     - #### For Future to send Email
+
 
 ```
 EMAIL_USER=your-gmail
