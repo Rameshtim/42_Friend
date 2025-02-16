@@ -77,16 +77,6 @@ app.get("/", (req, res) => {
 });
 
 
-// Profile Route
-// app.get("/profile", (req, res) => {
-//   console.log("📌 Profile Route - Session Data:", req.session);
-//   // console.log("📌 Profile Route - Authenticated User:", req.user.displayname);
-//   if (!req.isAuthenticated()) {
-//     return res.redirect("/?message=User not authenticated.");
-//   }
-//   res.render("profile", { user: req.user, searchedUser: null }); // Ensure searchedUser is always defined
-// });
-
 app.get("/profile", (req, res) => {
   // console.log("📌 Profile Route - Session Data:", req.session);
 
@@ -119,60 +109,6 @@ app.post("/stop-monitoring", (req, res) => {
     res.json({ success: false, message: `Failed to stop monitoring ${username}` });
   }
 });
-
-
-// app.post("/check-user", async (req, res) => {
-//     if (!req.isAuthenticated()) {
-//         console.log("user is not authenticated////////////////");
-//         return res.redirect("/?message=User not authenticated.");
-//       }
-
-//     const { username } = req.body;
-//     const accessToken = req.user.access_token;
-
-//     console.log("Access Token:", accessToken);
-//     if (!accessToken) {
-//         console.error("❌ No access token found in session.");
-//         return res.render("profile", { user: req.user, searchedUser: null, error: "You need to log in again." });
-//     }
-
-//     try {
-//         console.log(`Fetching user data for: ${username}`);
-
-//         // Fetch user details from 42 API
-//         const userResponse = await fetch(`https://api.intra.42.fr/v2/users/${username}`, {
-//             headers: { Authorization: `Bearer ${accessToken}` },
-//         });
-
-//         if (!userResponse.ok) {
-//             const errorText = await userResponse.text();
-//             console.error("Error response from 42 API:", errorText);
-//             throw new Error("User not found");
-//         }
-
-//         const user = await userResponse.json();
-//         console.log("User found:", user.location);
-//         console.log("type of response:", typeof user.location);
-//         if (req.headers.accept && req.headers.accept.includes("application/json")) {
-//           return res.json({ user });
-//         }
-//         if (req.query.json) {
-//           return res.json({ user });
-//         }
-
-
-//         if (typeof user.location === "string") {
-//             user.status_message = `✅ ${username} is online (Location: ${user.location})`;
-//         } else {
-//             user.status_message = `❌ ${username} is not in campus`;
-//         }
-
-//         res.render("profile", { user: req.user, searchedUser: user });
-//     } catch (error) {
-//         console.error("Error fetching user data:", error.message);
-//         res.render("profile", { user: req.user, searchedUser: null, error: "User not found or an error occurred." });
-//     }
-// });
 
 app.post("/check-user", async (req, res) => {
   if (!req.isAuthenticated()) {

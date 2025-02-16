@@ -61,18 +61,21 @@ class EmailService {
         }
     }    
 
-    generateEmailHTML(username, status) {
+    generateEmailHTML(username, status, toName) {
         return `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #2c3e50;">42 Campus Status Update</h2>
-                <div style="background-color: ${status.isOnline ? '#27ae60' : '#c0392b'}; padding: 20px; border-radius: 5px; color: white;">
-                    <h3>${status.isOnline ? '✅ Campus Arrival' : '❌ Campus Departure'}</h3>
-                    <p><strong>${username}</strong> ${status.isOnline ? 'has arrived on campus!' : 'has left the campus'}</p>
-                    ${status.isOnline ? `<p>Location: ${status.location}</p>` : ''}
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f4f7fc;">
+                <h2 style="color: #2c3e50; text-align: center;">🚀 42 Campus Status Update</h2>
+                <p style="font-size: 16px; text-align: center;">Hey ${toName}! 👋</p>
+                <p style="font-size: 16px; text-align: center;"><strong>${username}</strong> ${status.isOnline ? 'has just arrived at' : 'has left'} <strong>42 Campus</strong>.</p>
+                <div style="background-color: ${status.isOnline ? '#4A90E2' : '#D72638'}; padding: 20px; border-radius: 8px; color: white; text-align: center; font-size: 16px;">
+                    <h3 style="margin: 0;">${status.isOnline ? '✅ Campus Arrival' : '❌ Campus Departure'}</h3>
+                    ${status.isOnline ? `<p>📍 Location: <strong>${status.location}</strong></p>` : ''}
                 </div>
+                <p style="text-align: center; font-size: 14px; color: #555; margin-top: 20px;">Stay connected and have a great time at 42! 🚀</p>
             </div>
         `;
     }
+    
 
     generateSlackDMEmailHTML(username, slackDMUrl, toName) {
         return `
