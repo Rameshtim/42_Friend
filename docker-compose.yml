@@ -7,3 +7,5 @@ services:
     env_file:
       - .env
     command: ["sh", "./start.sh"]
+    volumes:
+      - ./shared_data:/usr/src/app/shared_data

@@ -25,6 +25,22 @@
 						<img class="max-w-full max-h-64 object-contain rounded-lg" src="<%= user.image.versions.medium %>" alt="Your Profile Picture">
 					</div>
 				</div>
+				<!-- <a href="/fetch-users" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+					Find Advanced Peers
+				</a> -->
+				<!-- Loading Indicator -->
+				<div id="loadingIndicator" class="hidden text-center my-4">
+					<div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
+					<p class="text-gray-400 mt-2">Loading peers...</p>
+				</div>
+
+				<!-- Button -->
+				<a href="/fetch-users" id="findPeersButton" 
+				class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block"
+				onclick="showLoading()">
+					Find Advanced Peers
+				</a>
+				
 			</div>
 			
 			<!-- Search User Section -->
@@ -197,6 +213,11 @@
 			setTimeout(() => {
 				popup.remove();
 			}, 10000);
+		}
+
+		function showLoading() {
+			document.getElementById("loadingIndicator").classList.remove("hidden"); // Show loading spinner
+			document.getElementById("findPeersButton").classList.add("opacity-50", "cursor-not-allowed"); // Disable button
 		}
 	</script>
 	
