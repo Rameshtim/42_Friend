@@ -1,5 +1,6 @@
 # Logs
 *.txt
+shared_data/
 
 logs
 *.log

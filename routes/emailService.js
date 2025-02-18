@@ -1,4 +1,11 @@
 const nodemailer = require('nodemailer');
+// const sgMail = require('@sendgrid/mail')
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+// const FormData = require('form-data'); // If you are using an older version of form-data that does not support ES Modules
+// const Mailgun = require('mailgun.js');
+// import FormData from "form-data"; // form-data v4.0.1
+// import Mailgun from "mailgun.js"; // mailgun.js v11.1.0
+
 
 class EmailService {
     constructor() {
@@ -40,6 +47,30 @@ class EmailService {
             return false;
         }
     }
+    
+    // async sendStatusChangeEmailAlso(username, to, fromEmail, toName) {
+    //     const slackDMUrl = `https://slack.com/app_redirect?channel=@${fromEmail}`;
+    //     const mailgun = new Mailgun(FormData);
+    //     const mg = mailgun.client({
+    //         username: "api",
+    //         key: process.env.API_KEY || "API_KEY",
+    //         // When you have an EU-domain, you must specify the endpoint:
+    //         // url: "https://api.eu.mailgun.net/v3"
+    //     });
+    //     try {
+    //         const data = await mg.messages.create("sandboxd0178b192eee4f34860ab65f9a89c4ea.mailgun.org", {
+    //         from: "Mailgun Sandbox <postmaster@sandboxd0178b192eee4f34860ab65f9a89c4ea.mailgun.org>",
+    //         to,
+    //         subject: `📢 ${username} is now on campus at 42 School!`,
+    //         text: `Hey! ${toName}, ${username} just logged in at 42 School and is expecting you. Click here to DM them on Slack: ${slackDMUrl}`,
+    //         html: this.generateSlackDMEmailHTML(username, slackDMUrl, toName)
+    //     });
+
+    //         console.log(data); // logs response data
+    //     } catch (error) {
+    //         console.log(error); //logs any error
+    //     }
+    // }
 
     async sendStatusChangeEmailAlso(username, to, fromEmail, toName) {
         const slackDMUrl = `https://slack.com/app_redirect?channel=@${fromEmail}`;
@@ -53,6 +84,8 @@ class EmailService {
         };
     
         try {
+            // const response = await sgMail.send(mailOptions);
+            // console.log('Email sent successfully ', response);
             const response = await this.transporter.sendMail(mailOptions);
             return true;
         } catch (error) {

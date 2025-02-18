@@ -9,6 +9,7 @@ class StatusMonitor extends EventEmitter {
         super();
         this.activeMonitors = new Map();
         this.tokenManager = new TokenManager();
+        this.notifications = {};
     }
 
     async checkUserStatus(username, accessToken) {
@@ -88,6 +89,18 @@ class StatusMonitor extends EventEmitter {
                         ...status,
                         email: monitor.email
                     });
+                    const timestamp = new Date().toLocaleString();
+
+                    if (!this.notifications[username]) {
+                        this.notifications[username] = [];
+                    }
+
+                    this.notifications[username].push({
+                        message: `${username} is online`,
+                        timestamp
+                    });
+
+                    console.log(`Notification: ${username} came online at ${timestamp}`);
                 }
                 
                 monitor.lastStatus = status;
@@ -119,6 +132,9 @@ class StatusMonitor extends EventEmitter {
             clearInterval(monitor.intervalId);
         }
         this.activeMonitors.clear();
+    }
+    getNotifications(username) {
+        return this.notifications[username] || [];
     }
 }
 

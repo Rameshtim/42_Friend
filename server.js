@@ -114,6 +114,11 @@ app.post("/stop-monitoring", (req, res) => {
   }
 });
 
+app.get("/get-notifications", (req, res) => {
+    const user = req.query.user;
+    res.json(app.locals.monitor.getNotifications(user));
+});
+
 
 app.post("/run-command", (req, res) => {
     if (!req.isAuthenticated()) {
@@ -147,7 +152,7 @@ app.get("/fetch-users", async (req, res) => {
         let users = [];
         let page = 1;
         const perPage = 100;
-        const delay = 1200; // 600ms delay to stay within rate limits
+        const delay = 1200;
         
         while (true) {
             const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=51&filter%5Bcursus_id%5D=21&range%5Blevel%5D=10,100&page=${page}&per_page=${perPage}`, {
@@ -166,45 +171,39 @@ app.get("/fetch-users", async (req, res) => {
             await sleep(delay); // Introduce delay to respect API limits
         }
         
+        // const filePath = "/usr/src/app/shared_data/fetched_users.json"; // Save inside shared volume
+        // fs.writeFileSync(filePath, JSON.stringify(users, null, 2), "utf-8");
+        // console.log(`✅ Users saved at ${filePath}`);
 
-        // Save all fetched users to a file for debugging
-        // fs.writeFileSync("fetched_users.json", JSON.stringify(users, null, 2), "utf-8");
-        const filePath = "/usr/src/app/shared_data/fetched_users.json"; // Save inside shared volume
-        fs.writeFileSync(filePath, JSON.stringify(users, null, 2), "utf-8");
-        console.log(`✅ Users saved at ${filePath}`);
-
-
-        // Filter out users with null location
-        // const filteredUsers = users.filter(user => user.user.location !== null).map(user => ({
-        //     username: user.user.login,
-        //     displayname: user.user.displayname,
-        //     image: user.user.image.versions.medium
-        // }));
-        
-        // res.render("peers", { 
-        //     user: req.user, 
-        //     peers: filteredUsers 
-        // });
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const now = new Date();
+
         
         // Filter users who are currently on campus
         const onlineUsers = users.filter(user => user.user.location !== null).map(user => ({
             username: user.user.login,
             displayname: user.user.displayname,
-            image: user.user.image.versions.medium
+            image: user.user.image.versions.medium,
+            grade: user.user.grade
         }));
         
         // Filter users who were active in the last 7 days
         const recentUsers = users.filter(user => {
             const updatedAt = new Date(user.user.updated_at);
             return updatedAt >= sevenDaysAgo;
-        }).map(user => ({
-            username: user.user.login,
-            displayname: user.user.displayname,
-            image: user.user.image.versions.medium,
-            last_seen: new Date(user.user.updated_at).toLocaleDateString("en-GB") // Format as DD-MM-YYYY
-            })).sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen));
+        }).map(user => {
+            const updatedAt = new Date(user.user.updated_at);
+            const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24)); // Calculate days ago
+            return {
+                username: user.user.login,
+                displayname: user.user.displayname,
+                image: user.user.image.versions.medium,
+                last_seen: updatedAt.toLocaleDateString("en-GB"), // Format as DD-MM-YYYY
+                days_ago: daysAgo,
+                grade: user.grade // Store grade for color coding
+            };
+        }).sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen)); // Sort by most recent
         
         res.render("peers", { 
             user: req.user, 
@@ -217,48 +216,6 @@ app.get("/fetch-users", async (req, res) => {
     }
 });
 
-
-
-// Add this route to fetch users from the 42 API
-// app.get("/fetch-users", async (req, res) => {
-//   if (!req.isAuthenticated()) {
-//       return res.redirect("/profile?error=User not authenticated.");
-//   }
-  
-//   const accessToken = req.user.access_token;
-//   if (!accessToken) {
-//       return res.redirect("/profile?error=Access token missing. Please log in again.");
-//   }
-  
-//   try {
-//       const response = await fetch("https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=51&filter%5Bcursus_id%5D=21&range%5Blevel%5D=10,100", {
-//           headers: { Authorization: `Bearer ${accessToken}` }
-//       });
-      
-//       if (!response.ok) {
-//           throw new Error("Failed to fetch users from 42 API");
-//       }
-      
-//       const users = await response.json();
-      
-//       // Filter out users with null location
-//       const filteredUsers = users.filter(user => user.user.location !== null).map(user => ({
-//           username: user.user.login,
-//           displayname: user.user.displayname,
-//           image: user.user.image.versions.medium
-//       }));
-      
-//       res.render("profile", { 
-//           user: req.user, 
-//           searchedUser: null, 
-//           activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()),
-//           advancedPeers: filteredUsers
-//       });
-//   } catch (error) {
-//       console.error("Error fetching users:", error.message);
-//       return res.redirect("/profile?error=Internal server error.");
-//   }
-// });
 
 
 app.post("/check-user", async (req, res) => {
