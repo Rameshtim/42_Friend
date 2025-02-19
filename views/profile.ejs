@@ -222,7 +222,7 @@
 		}
 
 		async function fetchNotifications() {
-		const response = await fetch(`/get-notifications?user=<%= user.displayname %>`);
+		const response = await fetch(`/get-notifications?user=<%= user.login %>`);
 		const notifications = await response.json();
 		
 		const notificationList = document.getElementById("notificationList");

@@ -7,40 +7,62 @@
     <link rel="icon" href="/favicon.ico" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-6">
-    <h1 class="text-2xl font-bold mb-4">Online Peers</h1>
-    
-    <ul class="w-full max-w-3xl space-y-4">
-        <% peers.forEach(peer => { %>
-            <li class="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
-                <div class="flex items-center space-x-4">
-                    <img src="<%= peer.image %>" alt="Profile Picture" class="w-12 h-12 rounded-full">
-                    <div>
-                        <h2 class="text-lg font-semibold"><%= peer.displayname %></h2>
-                        <p class="text-gray-400">@<%= peer.username %></p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <span class="w-4 h-4 bg-green-500 rounded-full"></span> <!-- Online Indicator -->
-                    <button onclick="openSlack('<%= peer.username %>')" 
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
-                        Message on Slack
-                    </button>
-                </div>
-            </li>
-        <% }); %>
-    </ul>
+<body class="bg-gray-900 text-white min-h-screen p-6">
 
-    <% if (peers.length === 0) { %>
-        <div class="text-center text-gray-400 mt-6">
-            <p class="text-xl">😢 It seems no one is at school.</p>
-            <button onclick="toggleRecentPeers()" 
-                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">
-                Show Recently Active Users
-            </button>
+    <div class="flex justify-between items-start mb-4">  <a href="/profile" class="text-blue-500 hover:text-blue-700 font-bold">Back to Profile</a>
+        <div>
+            <h3 class="text-lg font-semibold">Live Notifications</h3>
+            <ul id="notificationList" class="mt-2 space-y-2"></ul>
         </div>
-    
-        <div id="recentPeersSection" class="hidden mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
+    </div>
+
+
+    <h1 class="text-2xl font-bold mb-4 text-center">Online Peers</h1>
+
+    <div class="flex flex-col items-center w-full">  <ul class="w-full max-w-3xl space-y-4">
+            <% peers.forEach(peer => { %>
+                <li class="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
+                    <div class="flex items-center space-x-4">
+                        <img src="<%= peer.image %>" alt="Profile Picture" class="w-12 h-12 rounded-full">
+                        <div>
+                            <h2 class="text-lg font-semibold"><%= peer.displayname %></h2>
+                            <p class="text-gray-400">@<%= peer.username %></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="w-4 h-4 rounded-full" 
+                            style="background-color: <%= peer.grade === 'Member' ? 'green' : 'yellow' %>;"
+                            title="<%= peer.grade === 'Member' ? 'Outer Circle' : 'Still needs to pass the exam' %>">
+                        </span>
+                        <button onclick="startMonitoring('<%= peer.username %>')" 
+                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+                            Start Monitoring
+                        </button>
+                        <button onclick="openSlack('<%= peer.username %>')" 
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                            Message on Slack
+                        </button>
+                    </div>
+                </li>
+            <% }); %>
+        </ul>
+
+        <button onclick="toggleRecentPeers()" 
+            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">
+            Show Recently Active Users
+        </button>
+
+        <% if (peers.length === 0) { %>
+            <div class="text-center text-gray-400 mt-6">
+                <p class="text-xl">😢 It seems no one is at school.</p>
+                <button onclick="toggleRecentPeers()" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">
+                    Show Recently Active Users
+                </button>
+            </div>
+        <% } %>
+
+        <div id="recentPeersSection" class="hidden mt-6 p-4 bg-gray-700 rounded-lg shadow-inner w-full max-w-3xl">
             <h3 class="text-lg font-semibold">Recently Active Users (Last 7 Days)</h3>
             <ul class="mt-2 space-y-2">
                 <% recentPeers.forEach(user => { %>
@@ -56,6 +78,10 @@
                                 <p class="text-gray-400">@<%= user.username %> (Last Seen: <%= user.last_seen %>, <%= user.days_ago %> days ago)</p>
                             </div>
                         </div>
+                        <button onclick="startMonitoring('<%= user.username %>')" 
+                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+                            Start Monitoring
+                        </button>
                         <button onclick="openSlack('<%= user.username %>')" 
                             class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
                             Message on Slack
@@ -64,25 +90,79 @@
                 <% }); %>
             </ul>
         </div>
-    
-        <script>
-            function toggleRecentPeers() {
-                document.getElementById("recentPeersSection").classList.toggle("hidden");
-            }
-        </script>
-    <% } %>
-    
 
+    </div>    
     <script>
-        function openSlack(username) {
-            const message = encodeURIComponent("I saw you are online. Would you like to evaluate my project?");
-            const slackCommand = `xdg-open slack://user?team=T039P7U66&user=${username}`;
-            fetch('/run-command', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: slackCommand })
+        function startMonitoring(username) {
+            fetch("/send-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username })
+            })
+            .then(response => {
+                // Handle redirect manually without following it
+                if (response.redirected) {
+                    const urlParams = new URL(response.url).searchParams;
+                    const message = urlParams.get("message"); // Extract the success message
+                    const error = urlParams.get("error");
+                    if (message) {
+                        showPopup(message, true);
+                    } else if (error) {
+                        showPopup(error, false);
+                    }
+                }
+            })
+            .catch(error => {
+                showPopup("Error starting monitoring: " + error, false);
             });
         }
+
+        // Function to show a pop-up notification
+        function showPopup(message, success) {
+            const popup = document.createElement("div");
+            popup.innerText = message;
+            popup.className = `fixed top-5 right-5 p-4 rounded-lg text-white ${success ? "bg-green-500" : "bg-red-500"}`;
+            document.body.appendChild(popup);
+
+            setTimeout(() => {
+                popup.remove();
+            }, 5000);
+        }
+
+
+        function toggleRecentPeers() {
+            document.getElementById("recentPeersSection").classList.toggle("hidden");
+        }
+
+        function openSlack(slackUsername) {
+        //   const message = encodeURIComponent("I saw you are online. Would you like to evaluate my project?");
+          const slackUrl = `https://42born2code.slack.com/team/selected_team_id=T039P7U66&u=${slackUsername}`; // Include the message
+      
+          // No need for fetch or server-side command execution anymore!
+          window.open(slackUrl, '_blank'); // Open in a new tab/window
+        }
+        async function fetchNotifications() {
+		const response = await fetch(`/get-notifications?user=<%= user.login %>`);
+		const notifications = await response.json();
+		
+		const notificationList = document.getElementById("notificationList");
+		notificationList.innerHTML = ""; // Clear previous notifications
+
+		notifications.forEach((notif) => {
+			const li = document.createElement("li");
+			li.textContent = `${notif.message} at ${notif.timestamp}`;
+			li.className = "bg-gray-800 p-2 rounded-lg shadow";
+			notificationList.appendChild(li);
+		});
+		}
+
+		// Refresh notifications every 30 seconds
+		setInterval(fetchNotifications, 30000);
+		fetchNotifications();
+
     </script>
+    <div class="mt-6">
+        <a href="/profile" class="text-blue-400 font-semibold hover:underline">⬅ Back to Profile</a>
+    </div>
 </body>
 </html>

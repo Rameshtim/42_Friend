@@ -85,10 +85,12 @@ class StatusMonitor extends EventEmitter {
                 // if (!monitor.lastStatus || monitor.lastStatus.isOnline !== status.isOnline) {
                 if (monitor.lastStatus.isOnline !== null && monitor.lastStatus.isOnline !== status.isOnline) {
                     console.log('status has changed for email', status.isOnline);
-                    this.emit('statusChange', {
-                        ...status,
-                        email: monitor.email
-                    });
+                    if (monitor.email) {
+                        this.emit('statusChange', {
+                            ...status,
+                            email: monitor.email
+                        });
+                    }
                     const timestamp = new Date().toLocaleString();
 
                     if (!this.notifications[username]) {

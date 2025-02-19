@@ -72,8 +72,10 @@ class EmailService {
     //     }
     // }
 
+
     async sendStatusChangeEmailAlso(username, to, fromEmail, toName) {
-        const slackDMUrl = `https://slack.com/app_redirect?channel=@${fromEmail}`;
+        const slackUsername = fromEmail.split('@')[0];
+        const slackDMUrl = `https://42born2code.slack.com/team/selected_team_id=T039P7U66&u=${slackUsername}`;
     
         const mailOptions = {
             from: process.env.EMAIL_USER,

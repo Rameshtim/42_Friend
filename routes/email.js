@@ -10,10 +10,13 @@ router.post("/send-email", async (req, res) => {
     }
 
     const { email, searchedUserEmail, displayname, sendEmail, alsoSendEmail, username, reqUsername, duration, intervall } = req.body;
+    let finalEmail = email;
     console.log('this is sendEmail', req.body);
     
     if (sendEmail === undefined) {
-      return res.redirect("/profile?error=Email notification not enabled.");
+      // return res.redirect("/profile?error=Email notification not enabled.");
+      finalEmail = '';
+
     }
 
     if (alsoSendEmail) {
@@ -45,7 +48,7 @@ router.post("/send-email", async (req, res) => {
         const success = await req.app.locals.monitor.startMonitoring(
             username,
             req.user.access_token,
-            email,
+            finalEmail,
             searchedUserEmail,
             selectedDuration,
             selectedIntervall

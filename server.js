@@ -120,23 +120,6 @@ app.get("/get-notifications", (req, res) => {
 });
 
 
-app.post("/run-command", (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: "User not authenticated." });
-    }
-
-    const { command } = req.body;
-
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error executing command: ${error.message}`);
-            return res.status(500).json({ error: "Failed to execute command." });
-        }
-        res.json({ message: "Command executed successfully." });
-    });
-});
-
-
 // Add this route to fetch users from the 42 API
 app.get("/fetch-users", async (req, res) => {
     if (!req.isAuthenticated()) {
@@ -184,7 +167,7 @@ app.get("/fetch-users", async (req, res) => {
         const onlineUsers = users.filter(user => user.user.location !== null).map(user => ({
             username: user.user.login,
             displayname: user.user.displayname,
-            image: user.user.image.versions.medium,
+            image: user.user.image.versions.micro,
             grade: user.user.grade
         }));
         
@@ -198,7 +181,7 @@ app.get("/fetch-users", async (req, res) => {
             return {
                 username: user.user.login,
                 displayname: user.user.displayname,
-                image: user.user.image.versions.medium,
+                image: user.user.image.versions.micro,
                 last_seen: updatedAt.toLocaleDateString("en-GB"), // Format as DD-MM-YYYY
                 days_ago: daysAgo,
                 grade: user.grade // Store grade for color coding
@@ -240,7 +223,7 @@ app.post("/check-user", async (req, res) => {
   }
 
   try {
-      console.log(`Fetching user data for: ${username}`);
+      console.log(`Fetching user data for: ${user}`);
 
       // Fetch user details from 42 API
       const userResponse = await fetch(`https://api.intra.42.fr/v2/users/${username}`, {
