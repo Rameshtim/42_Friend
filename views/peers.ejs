@@ -55,10 +55,9 @@
         <% if (peers.length === 0) { %>
             <div class="text-center text-gray-400 mt-6">
                 <p class="text-xl">😢 It seems no one is at school.</p>
-                <button onclick="toggleRecentPeers()" 
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">
-                    Show Recently Active Users
-                </button>
+                <img src="/empty_classroom.avif" 
+                alt="Empty classroom with computers" 
+                class="mx-auto mt-4 rounded-lg shadow-lg">
             </div>
         <% } %>
 
@@ -106,7 +105,7 @@
                     const message = urlParams.get("message"); // Extract the success message
                     const error = urlParams.get("error");
                     if (message) {
-                        showPopup(message, true);
+                        showPopup(message + " and your active monitoring list will be shown in profile page.", true);
                     } else if (error) {
                         showPopup(error, false);
                     }
@@ -141,28 +140,39 @@
           // No need for fetch or server-side command execution anymore!
           window.open(slackUrl, '_blank'); // Open in a new tab/window
         }
+        let notificationInterval; // Store interval ID
+
         async function fetchNotifications() {
-		const response = await fetch(`/get-notifications?user=<%= user.login %>`);
-		const notifications = await response.json();
-		
-		const notificationList = document.getElementById("notificationList");
-		notificationList.innerHTML = ""; // Clear previous notifications
+            try {
+                const response = await fetch(`/get-notifications?user=<%= user.login %>`);
 
-		notifications.forEach((notif) => {
-			const li = document.createElement("li");
-			li.textContent = `${notif.message} at ${notif.timestamp}`;
-			li.className = "bg-gray-800 p-2 rounded-lg shadow";
-			notificationList.appendChild(li);
-		});
-		}
+                // If the server responds with an error, stop fetching
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
 
-		// Refresh notifications every 30 seconds
-		setInterval(fetchNotifications, 30000);
-		fetchNotifications();
+                const notifications = await response.json();
+                const notificationList = document.getElementById("notificationList");
+                notificationList.innerHTML = ""; // Clear previous notifications
+
+                notifications.forEach((notif) => {
+                    const li = document.createElement("li");
+                    li.textContent = `${notif.message} at ${notif.timestamp}`;
+                    li.className = "bg-gray-800 p-2 rounded-lg shadow";
+                    notificationList.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error("Failed to fetch notifications:", error);
+                clearInterval(notificationInterval); // Stop polling if the server is down
+                showPopup("Server is down. Stopping notifications.", false);
+            }
+        }
+
+        // Start fetching notifications every 30 seconds
+        notificationInterval = setInterval(fetchNotifications, 30000);
+        fetchNotifications();
 
     </script>
-    <div class="mt-6">
-        <a href="/profile" class="text-blue-400 font-semibold hover:underline">⬅ Back to Profile</a>
-    </div>
 </body>
 </html>

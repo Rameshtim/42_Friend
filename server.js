@@ -123,12 +123,12 @@ app.get("/get-notifications", (req, res) => {
 // Add this route to fetch users from the 42 API
 app.get("/fetch-users", async (req, res) => {
     if (!req.isAuthenticated()) {
-        return res.redirect("/profile?error=User not authenticated.");
+        return res.redirect("/?error=User not authenticated.");
     }
     
     const accessToken = req.user.access_token;
     if (!accessToken) {
-        return res.redirect("/profile?error=Access token missing. Please log in again.");
+        return res.redirect("/?error=Access token missing. Please log in again.");
     }
     
     try {
@@ -136,9 +136,10 @@ app.get("/fetch-users", async (req, res) => {
         let page = 1;
         const perPage = 100;
         const delay = 1200;
+        const campus_id = req.user.campus[0].id;
         
         while (true) {
-            const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=51&filter%5Bcursus_id%5D=21&range%5Blevel%5D=10,100&page=${page}&per_page=${perPage}`, {
+            const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=21&range%5Blevel%5D=10,100&page=${page}&per_page=${perPage}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             
@@ -211,7 +212,8 @@ app.post("/check-user", async (req, res) => {
   const accessToken = req.user.access_token;
 
   console.log("Access Token:", accessToken);
-  console.log("user Details : ", req.user);
+  console.log("user Name : ", req.user.displayname);
+  console.log("user Details and their campus : ", req.user.campus[0].id);
   if (!accessToken) {
       console.error("❌ No access token found in session.");
       return res.render("profile", { 
@@ -223,7 +225,7 @@ app.post("/check-user", async (req, res) => {
   }
 
   try {
-      console.log(`Fetching user data for: ${user}`);
+      console.log(`Fetching user data for: ${username}`);
 
       // Fetch user details from 42 API
       const userResponse = await fetch(`https://api.intra.42.fr/v2/users/${username}`, {
