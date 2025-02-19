@@ -211,9 +211,10 @@ app.post("/check-user", async (req, res) => {
   const { username } = req.body;
   const accessToken = req.user.access_token;
 
+
+
   console.log("Access Token:", accessToken);
   console.log("user Name : ", req.user.displayname);
-  console.log("user Details and their campus : ", req.user.campus[0].id);
   if (!accessToken) {
       console.error("❌ No access token found in session.");
       return res.render("profile", { 
@@ -242,23 +243,30 @@ app.post("/check-user", async (req, res) => {
       const user = await userResponse.json();
       console.log("User found:", user.location);
 
-      if (req.headers.accept && req.headers.accept.includes("application/json")) {
-          return res.json({ user });
-      }
-      if (req.query.json) {
-          return res.json({ user });
-      }
+    //   if (req.headers.accept && req.headers.accept.includes("application/json")) {
+    //       return res.json({ user });
+    //   }
+    //   if (req.query.json) {
+    //       return res.json({ user });
+    //   }
 
-      if (typeof user.location === "string") {
-          user.status_message = `✅ ${username} is online (Location: ${user.location})`;
-      } else {
-          user.status_message = `❌ ${username} is not on campus`;
-      }
+    //   if (typeof user.location === "string") {
+    //       user.status_message = `✅ ${username} is online (Location: ${user.location})`;
+    //   } else {
+    //       user.status_message = `❌ ${username} is not on campus`;
+    //   }
+
+      const updatedAt = new Date(user.updated_at);
+      const now = new Date();
+      const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24)); // Calculate days ago
 
       res.render("profile", { 
           user: req.user, 
           searchedUser: user, 
-          activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()) // Pass monitored users
+          activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()), // Pass monitored users
+          last_seen: updatedAt.toLocaleDateString("en-GB"), // Format as DD-MM-YYYY
+          days_ago: daysAgo
+
       });
 
   } catch (error) {

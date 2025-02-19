@@ -105,7 +105,7 @@
                     const message = urlParams.get("message"); // Extract the success message
                     const error = urlParams.get("error");
                     if (message) {
-                        showPopup(message + " and your active monitoring list will be shown in profile page.", true);
+                        showPopup(message + " <br> and your active monitoring list will be <br> shown in profile page.", true);
                     } else if (error) {
                         showPopup(error, false);
                     }
