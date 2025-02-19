@@ -53,7 +53,7 @@
         </button>
 
         <% if (peers.length === 0) { %>
-            <div class="text-center text-gray-400 mt-6">
+            <div id="imageSection" class="text-center text-gray-400 mt-6">
                 <p class="text-xl">😢 It seems no one is at school.</p>
                 <img src="/empty_classroom.avif" 
                 alt="Empty classroom with computers" 
@@ -131,6 +131,7 @@
 
         function toggleRecentPeers() {
             document.getElementById("recentPeersSection").classList.toggle("hidden");
+            document.getElementById("imageSection").style.display = "none";
         }
 
         function openSlack(slackUsername) {
