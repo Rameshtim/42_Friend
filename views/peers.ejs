@@ -19,9 +19,10 @@
 
     <h1 class="text-2xl font-bold mb-4 text-center">Online Peers</h1>
 
-    <div class="flex flex-col items-center w-full">  <ul class="w-full max-w-3xl space-y-4">
+    <div class="flex flex-col items-center w-full">
+        <ul class="w-full max-w-3xl space-y-4" id="peerList">
             <% peers.forEach(peer => { %>
-                <li class="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
+                <li class="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md peer-item" data-username="<%= peer.username %>">
                     <div class="flex items-center space-x-4">
                         <img src="<%= peer.image %>" alt="Profile Picture" class="w-12 h-12 rounded-full">
                         <div>
@@ -35,13 +36,14 @@
                             title="<%= peer.grade === 'Member' ? 'Outer Circle' : 'Still needs to pass the exam' %>">
                         </span>
                         <button onclick="startMonitoring('<%= peer.username %>')" 
-                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition">
                             Start Monitoring
                         </button>
+                        
                         <button onclick="openSlack('<%= peer.username %>')" 
-                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition">
                             Message on Slack
-                        </button>
+                        </button>                        
                     </div>
                 </li>
             <% }); %>
@@ -63,9 +65,9 @@
 
         <div id="recentPeersSection" class="hidden mt-6 p-4 bg-gray-700 rounded-lg shadow-inner w-full max-w-3xl">
             <h3 class="text-lg font-semibold">Recently Active Users (Last 7 Days)</h3>
-            <ul class="mt-2 space-y-2">
+            <ul class="mt-2 space-y-2" id="rpeerList">
                 <% recentPeers.forEach(user => { %>
-                    <li class="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
+                    <li class="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md rpeer-item" data-username="<%= user.username %>">
                         <div class="flex items-center space-x-4">
                             <span class="w-4 h-4 rounded-full" 
                                   style="background-color: <%= user.grade === 'Member' ? 'green' : 'yellow' %>;"
@@ -78,13 +80,14 @@
                             </div>
                         </div>
                         <button onclick="startMonitoring('<%= user.username %>')" 
-                            class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition">
                             Start Monitoring
                         </button>
+                        
                         <button onclick="openSlack('<%= user.username %>')" 
-                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition">
                             Message on Slack
-                        </button>
+                        </button>  
                     </li>
                 <% }); %>
             </ul>
@@ -109,6 +112,18 @@
                     } else if (error) {
                         showPopup(error, false);
                     }
+                }
+                const peerItem = document.querySelector(`.peer-item[data-username="${username}"]`);
+                const rpeerItem = document.querySelector(`.rpeer-item[data-username="${username}"]`);
+                if (peerItem) {
+                    console.log("hiding button for ", username);
+                    peerItem.style.opacity = "0"; // Fade out first
+                    setTimeout(() => peerItem.style.display = "none", 300); // Then hide it
+                }
+                if (rpeerItem) {
+                    console.log("hiding button for ", username);
+                    rpeerItem.style.opacity = "0"; // Fade out first
+                    setTimeout(() => rpeerItem.style.display = "none", 300); // Then hide it
                 }
             })
             .catch(error => {
@@ -135,10 +150,8 @@
         }
 
         function openSlack(slackUsername) {
-        //   const message = encodeURIComponent("I saw you are online. Would you like to evaluate my project?");
           const slackUrl = `https://42born2code.slack.com/team/selected_team_id=T039P7U66&u=${slackUsername}`; // Include the message
       
-          // No need for fetch or server-side command execution anymore!
           window.open(slackUrl, '_blank'); // Open in a new tab/window
         }
         let notificationInterval; // Store interval ID
@@ -147,7 +160,6 @@
             try {
                 const response = await fetch(`/get-notifications?user=<%= user.login %>`);
 
-                // If the server responds with an error, stop fetching
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
                 }
