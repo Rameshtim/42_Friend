@@ -108,7 +108,7 @@
                     const message = urlParams.get("message"); // Extract the success message
                     const error = urlParams.get("error");
                     if (message) {
-                        showPopup(message + " <br> and your active monitoring list will be <br> shown in profile page.", true);
+                        showPopup(message + ' <br> Your <b>monitoring list</b> will be shown in your <a href="/profile" style="font-size: 1.1em; font-weight: bold; color: white; text-decoration: underline;">profile page</a>.', true);
                     } else if (error) {
                         showPopup(error, false);
                     }
@@ -134,13 +134,13 @@
         // Function to show a pop-up notification
         function showPopup(message, success) {
             const popup = document.createElement("div");
-            popup.innerText = message;
+            popup.innerHTML = message;
             popup.className = `fixed top-5 right-5 p-4 rounded-lg text-white ${success ? "bg-green-500" : "bg-red-500"}`;
             document.body.appendChild(popup);
 
             setTimeout(() => {
                 popup.remove();
-            }, 5000);
+            }, 10000);
         }
 
 
