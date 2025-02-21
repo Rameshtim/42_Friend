@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const redisClient = redis.createClient({
     socket: {
-      host: "redis",
+      host: "redis_cache",
       port: 6379,
     },
   });
