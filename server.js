@@ -1,7 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const { exec } = require("child_process");
-const MemoryStore = require("express-session").MemoryStore;
+// const MemoryStore = require("express-session").MemoryStore;
 const passport = require("passport");
 const bodyParser = require("body-parser");
 require("dotenv").config();
@@ -11,7 +11,11 @@ const util = require("util");
 const sleep = util.promisify(setTimeout);
 const fs = require("fs");
 const app = express();
-
+// const RedisStore = require("connect-redis")(session);
+const redis = require("redis");
+const connectRedis = require("connect-redis");
+// const RedisStore = connectRedis(session);
+const RedisStore = connectRedis.RedisStore; // Correct import for v6+
 
 // Middleware
 app.use(express.static("public"));
@@ -19,19 +23,43 @@ app.use(express.json()); // Add this to parse JSON body properly
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const redisClient = redis.createClient({
+    socket: {
+      host: "redis",
+      port: 6379,
+    },
+  });
+  
+  redisClient.connect().catch(console.error);
+  
+  redisClient.on("error", (err) => {
+    console.error("❌ Redis Error:", err);
+  });
 
+// const sessionMiddleware = session({
+//   store: new MemoryStore(),
+//   secret: "supersecret",
+//   resave: false,
+//   saveUninitialized: false, 
+//   cookie: {
+//     secure: false,  
+//     httpOnly: true,
+//     sameSite: 'lax',
+//   },
+// });
 
 const sessionMiddleware = session({
-  store: new MemoryStore(),
-  secret: "supersecret",
-  resave: false,
-  saveUninitialized: false, 
-  cookie: {
-    secure: false,  
-    httpOnly: true,
-    sameSite: 'lax',
-  },
-});
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET,  // Use env variable for security
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",  // Secure in production
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
+    },
+  });
 
 app.use(sessionMiddleware);
 app.use(passport.initialize());

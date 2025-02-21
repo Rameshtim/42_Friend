@@ -4,8 +4,17 @@ services:
     build: .
     ports:
       - "3000:3000"
+    depends_on:
+      - redis
     env_file:
       - .env
     command: ["sh", "./start.sh"]
     # volumes:
     #   - ./shared_data:/usr/src/app/shared_data
+  redis:
+    image: redis:7.4.2-alpine
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
