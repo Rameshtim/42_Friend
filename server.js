@@ -80,6 +80,17 @@ app.get("/", (req, res) => {
   res.render("home");
 });
 
+app.get("/about", (req, res) => {
+    if (!req.isAuthenticated()) {
+        user = null;
+    } else {
+        user = req.user;
+    }
+  res.render("rtimsina", {
+    user
+  });
+});
+
 
 app.get("/profile", (req, res) => {
   // console.log("📌 Profile Route - Session Data:", req.session);
@@ -119,6 +130,34 @@ app.get("/get-notifications", (req, res) => {
     res.json(app.locals.monitor.getNotifications(user));
 });
 
+function getLevelRange(coreLevel) {
+    let l_level, u_level;
+
+    if (coreLevel < 1) {
+        l_level = 0.01;
+        u_level = l_level + 2;
+    } else if (coreLevel < 2.5) {
+        l_level = 1.05;
+        u_level = l_level + 2;
+    } else if (coreLevel < 3.6) {
+        l_level = 2.5;
+        u_level = l_level + 1.5;
+    } else if (coreLevel < 4.3) {
+        l_level = 3.6;
+        u_level = l_level + 1.5;
+    } else if (coreLevel < 5.5) {
+        l_level = 4.3;
+        u_level = l_level + 2;
+    } else if (coreLevel < 9) {
+        l_level = 5.5;
+        u_level = l_level + 4;
+    } else {
+        l_level = 10;
+        u_level = l_level * 10;
+    }
+
+    return { l_level, u_level };
+}
 
 // Add this route to fetch users from the 42 API
 app.get("/fetch-users", async (req, res) => {
@@ -127,6 +166,11 @@ app.get("/fetch-users", async (req, res) => {
     }
     
     const accessToken = req.user.access_token;
+    const coreCursus = req.user.cursus_users.find(cursus => cursus.cursus_id === 21);
+    // const coreLevel = coreCursus.level;
+    const coreLevel = 4.08;
+    const { l_level, u_level } = getLevelRange(coreLevel);
+    console.log(`This is lower level: ${l_level} and this is upper level: ${u_level}`);
     if (!accessToken) {
         return res.redirect("/?error=Access token missing. Please log in again.");
     }
@@ -139,7 +183,7 @@ app.get("/fetch-users", async (req, res) => {
         const campus_id = req.user.campus[0].id;
         
         while (true) {
-            const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=21&range%5Blevel%5D=10,100&page=${page}&per_page=${perPage}`, {
+            const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=21&range%5Blevel%5D=${l_level},${u_level}&page=${page}&per_page=${perPage}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             
@@ -168,31 +212,36 @@ app.get("/fetch-users", async (req, res) => {
         const onlineUsers = users.filter(user => user.user.location !== null).map(user => ({
             username: user.user.login,
             displayname: user.user.displayname,
-            image: user.user.image.versions.micro,
-            grade: user.user.grade
+            image: user.user.image.versions.small,
+            grade: user.grade,
+            level: user.level
         }));
         
         // Filter users who were active in the last 7 days
         const recentUsers = users.filter(user => {
             const updatedAt = new Date(user.user.updated_at);
-            return updatedAt >= sevenDaysAgo;
+            return updatedAt >= sevenDaysAgo && !onlineUsers.some(peer => peer.username === user.user.login);
         }).map(user => {
             const updatedAt = new Date(user.user.updated_at);
             const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24)); // Calculate days ago
             return {
                 username: user.user.login,
                 displayname: user.user.displayname,
-                image: user.user.image.versions.micro,
+                image: user.user.image.versions.small,
+                nlast_seen: updatedAt,
                 last_seen: updatedAt.toLocaleDateString("en-GB"), // Format as DD-MM-YYYY
+                formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }), // HH:MM (24-hour format)
                 days_ago: daysAgo,
+                level: user.level,
                 grade: user.grade // Store grade for color coding
             };
-        }).sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen)); // Sort by most recent
+        }).sort((a, b) => new Date(b.nlast_seen) - new Date(a.nlast_seen)); // Sort by most recent
         
         res.render("peers", { 
             user: req.user, 
             peers: onlineUsers,
-            recentPeers: recentUsers
+            recentPeers: recentUsers,
+            level: coreLevel
         });
     } catch (error) {
         console.error("Error fetching users:", error.message);
@@ -242,19 +291,9 @@ app.post("/check-user", async (req, res) => {
 
       const user = await userResponse.json();
       console.log("User found:", user.location);
-
-    //   if (req.headers.accept && req.headers.accept.includes("application/json")) {
-    //       return res.json({ user });
-    //   }
-    //   if (req.query.json) {
-    //       return res.json({ user });
-    //   }
-
-    //   if (typeof user.location === "string") {
-    //       user.status_message = `✅ ${username} is online (Location: ${user.location})`;
-    //   } else {
-    //       user.status_message = `❌ ${username} is not on campus`;
-    //   }
+    //   const coreCursus = user.cursus_users.find(cursus=> cursus.cursus_id === 21);
+    //   console.log('This is users cursus level ', coreCursus.level);
+    //   console.log("User cursus_user:", user.cursus_users);
 
       const updatedAt = new Date(user.updated_at);
       const now = new Date();
@@ -265,8 +304,9 @@ app.post("/check-user", async (req, res) => {
           searchedUser: user, 
           activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()), // Pass monitored users
           last_seen: updatedAt.toLocaleDateString("en-GB"), // Format as DD-MM-YYYY
-          days_ago: daysAgo
-
+          formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }), // HH:MM (24-hour format)
+          days_ago: daysAgo,
+          level: user.level,
       });
 
   } catch (error) {

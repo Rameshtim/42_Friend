@@ -12,9 +12,29 @@
 		}
 		</style>
 	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
 </head>
 
 <body class="bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center min-h-screen p-4 text-white">
+<!-- <body class="flex items-center justify-center min-h-screen text-white"> -->
+	<nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+		<div class="container mx-auto flex justify-between items-center">
+			<a href="/" class="text-lg font-bold">42_Friend</a>
+			<div class="space-x-6 flex items-center">
+				<a href="/about" class="hover:text-blue-400">About Me</a>
+				<a href="/" class="hover:text-blue-400">Home</a>
+				<a href="/fetch-users" class="hover:text-blue-400">Peers</a>
+				<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+				<a href="https://github.com/rameshtim/42_friend" target="_blank" 
+					class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+					<i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+				</a>
+			</div>
+		</div>
+	</nav>
+	<div class="pt-16">
+	
 	<div class="bg-gray-700 shadow-xl rounded-lg p-6 max-w-10xl w-full">
 		<div class="flex items-start space-x-8">
 			<!-- Current User Section -->
@@ -34,7 +54,7 @@
 				<a href="/fetch-users" id="findPeersButton" 
 				class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block"
 				onclick="showLoading()">
-					Find Advanced Peers
+					Find Me Peers
 				</a>
 				
 			</div>
@@ -66,10 +86,12 @@
 						</div>
 						
 						<% if (searchedUser.location !== null) { %>
-							<p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname %> is currently on campus!</p>
+							<p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname, , Level: <%= searchedUser.level %> is currently on campus!</p>
 						<% } else { %>
-							<p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname %> is not on campus</p>
-							<p class="text-red-400 font-semibold text-center">(Last Seen: <%= last_seen %>,  <%= days_ago %> days ago)</p>
+							<p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname, , Level: <%= searchedUser.level %> is not on campus</p>
+							<!-- <p class="text-red-400 font-semibold text-center">(Last Seen: <%= last_seen %>,  <%= days_ago %> days ago)</p> -->
+							<p class="text-red-400 font-semibold text-center">(Last Seen: <%= searchedUser.last_seen %>, <%= searchedUser.days_ago %> days ago)
+                                at <%= searchedUser.formatted_time %></p>
 						<% } %>
 					</div>
 					<div>
@@ -209,13 +231,35 @@
 		function showPopup(message, success) {
 			const popup = document.createElement("div");
 			popup.innerText = message;
-			popup.className = `fixed top-5 right-5 p-4 rounded-lg text-white ${success ? "bg-green-500" : "bg-red-500"}`;
+
+			popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
+				${success ? "bg-green-500" : "bg-red-500"} opacity-0`;
+
 			document.body.appendChild(popup);
-	
+
+			// Fade in effect
 			setTimeout(() => {
-				popup.remove();
-			}, 10000);
+				popup.classList.add("opacity-100");
+			}, 50);
+
+			// Remove after timeout
+			setTimeout(() => {
+				popup.classList.remove("opacity-100");
+				setTimeout(() => popup.remove(), 300);
+			}, 3000);
 		}
+
+		// function showPopup(message, success) {
+		// 	const popup = document.createElement("div");
+		// 	popup.innerText = message;
+		// 	// popup.className = `fixed top-5 right-5 p-4 rounded-lg text-white ${success ? "bg-green-500" : "bg-red-500"}`;
+		// popup.className = `fixed top-16 left-1/2 transform -translate-x-1/2 p-4 rounded-lg text-white shadow-lg ${success ? "bg-green-500" : "bg-red-500"}`;
+		// 	document.body.appendChild(popup);
+	
+		// 	setTimeout(() => {
+		// 		popup.remove();
+		// 	}, 10000);
+		// }
 
 		function showLoading() {
 			document.getElementById("loadingIndicator").classList.remove("hidden"); // Show loading spinner

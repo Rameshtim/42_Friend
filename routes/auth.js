@@ -1,6 +1,9 @@
 const express = require("express");
 const passport = require("passport");
 const router = express.Router();
+// const { StatusMonitor } = require('./statusMonitor');
+// const monitor = new StatusMonitor;
+
 
 // Redirect user to 42 OAuth login
 router.get("/auth/42", passport.authenticate("oauth2"));
@@ -22,6 +25,7 @@ router.get(
 // Logout
 router.get("/logout", (req, res) => {
   req.logout(() => {
+    req.app.locals.monitor.stopAll();
     res.redirect("/");
   });
 });

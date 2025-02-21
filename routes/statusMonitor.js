@@ -2,7 +2,6 @@ const EventEmitter = require('events');
 const fetch = require('node-fetch');
 const TokenManager = require('./tokenManager');
 const { stat } = require('fs');
-console.log("TokenManager:", TokenManager); // Crucial debugging step!
 
 class StatusMonitor extends EventEmitter {
     constructor() {
@@ -17,8 +16,6 @@ class StatusMonitor extends EventEmitter {
             const response = await fetch(`https://api.intra.42.fr/v2/users/${username}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
-            // console.log('This is acces token: ', accessToken);
-            // console.log('This is response: ', response);
 
             if (response.status === 401) {
                 // Token expired, try to refresh
@@ -134,6 +131,7 @@ class StatusMonitor extends EventEmitter {
             clearInterval(monitor.intervalId);
         }
         this.activeMonitors.clear();
+        // console.log("stopping all active monitors")
     }
     getNotifications(username) {
         return this.notifications[username] || [];

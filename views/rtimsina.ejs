@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me - Ramesh Timsina</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/home" class="text-lg font-bold">42_Friend</a>
+            <div class="space-x-6 flex items-center">
+                <a href="/" class="hover:text-blue-400">Home</a>
+                <a href="/profile" class="hover:text-blue-400">Profile</a>
+                <a href="/fetch-users" class="hover:text-blue-400">Peers</a>
+
+                <!-- Dynamic Login/Logout Button -->
+                <% if (user) { %>
+                    <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+                <% } else { %>
+                    <a href="/auth/42" class="text-green-400 hover:text-green-600">Login</a>
+                <% } %>
+
+                <!-- GitHub Contribute Button -->
+                <a href="https://github.com/rameshtim/42_friend" target="_blank" 
+                    class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+                    <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative text-center pt-28 pb-16">
+        <div class="flex flex-col items-center">
+            <div class="w-44 h-44 rounded-full overflow-hidden border-4 border-blue-400 shadow-lg">
+                <img src="/rtimsina.jpg" alt="Ramesh Timsina" class="w-full h-full object-cover">
+            </div>
+            <h1 class="text-4xl font-extrabold mt-4">Ramesh Timsina</h1>
+            <p class="text-lg text-gray-400">Software Developer | Software Engineering Student @ 42 Berlin</p>
+        </div>
+
+        <!-- Animated Scroll Down Indicator -->
+        <div class="animate-bounce mt-6">
+            <i class="ph ph-arrow-down text-4xl text-blue-400"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="container mx-auto px-6 py-12">
+        <div class="text-center">
+            <h2 class="text-3xl font-semibold border-b-2 border-blue-400 inline-block pb-2">Who Am I?</h2>
+        </div>
+        <div class="mt-6 text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p>
+                Hi! I'm <strong>Ramesh Timsina</strong>, a passionate software developer with a strong background in 
+                building scalable and efficient applications. Currently pursuing Software Engineering at <strong>42 Berlin</strong>,
+                I thrive in solving complex problems and developing user-friendly solutions.
+            </p>
+            <p class="mt-4">
+                With over 2 years of hands-on experience, I specialize in both frontend and backend development, 
+                particularly in **C, C++, Node.js, JavaScript, Python, and Django REST Framework**. I enjoy collaborating on 
+                meaningful projects and constantly improving my craft.
+            </p>
+        </div>
+    </section>
+
+    <!-- Experience & Skills Section -->
+    <section class="bg-gray-800 py-12">
+        <div class="container mx-auto px-6">
+            <div class="text-center">
+                <h2 class="text-3xl font-semibold border-b-2 border-blue-400 inline-block pb-2">What I Do</h2>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6 mt-8">
+                <!-- Skills -->
+                <div class="bg-gray-900 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-blue-400 mb-4 flex items-center">
+                        <i class="ph ph-code text-3xl mr-2"></i> Skills & Technologies
+                    </h3>
+                    <p class="text-gray-300">
+                        I have expertise in modern web technologies and backend systems. My key skills include:
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div class="bg-gray-700 p-3 rounded-lg">C / C++ (42 Berlin projects)</div>
+                        <div class="bg-gray-700 p-3 rounded-lg">Node.js & Express.js</div>
+                        <div class="bg-gray-700 p-3 rounded-lg">JavaScript & Python</div>
+                        <div class="bg-gray-700 p-3 rounded-lg">Django REST & PostgreSQL</div>
+                        <div class="bg-gray-700 p-3 rounded-lg">OAuth2 & Authentication</div>
+                        <div class="bg-gray-700 p-3 rounded-lg">Docker & DevOps</div>
+                    </div>
+                </div>
+
+                <!-- Experience -->
+                <div class="bg-gray-900 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-blue-400 mb-4 flex items-center">
+                        <i class="ph ph-briefcase text-3xl mr-2"></i> Work Experience
+                    </h3>
+                    <p class="text-gray-300">
+                        I’ve worked on various projects and internships, where I’ve gained practical experience in 
+                        software development, automation, and database management.
+                    </p>
+                    <ul class="mt-4 space-y-3">
+                        <li><strong>Software Developer Intern @ Newz & Co. UG</strong> - Built automation tools using LLaMA 3.1 & OCR.</li>
+                        <li><strong>IT Specialist - Comcave.College</strong> - Developed applications & designed databases.</li>
+                        <li><strong>Software Engineering Student - 42 Berlin</strong> - Specialized in C, C++, and algorithms.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="text-center py-12">
+        <h2 class="text-3xl font-semibold border-b-2 border-blue-400 inline-block pb-2">Let's Connect</h2>
+        <div class="flex justify-center space-x-4 mt-6">
+            <a href="https://github.com/rameshtim" class="text-blue-400 text-3xl hover:text-blue-500"><i class="ph ph-github-logo"></i></a>
+            <a href="https://linkedin.com/in/ramesh-timsina" class="text-blue-400 text-3xl hover:text-blue-500"><i class="ph ph-linkedin-logo"></i></a>
+        </div>
+    </section>
+
+</body>
+</html>

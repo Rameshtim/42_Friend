@@ -5,13 +5,16 @@
 
 ## ✨ Features
 ### Current Features
-- Real-time tracking of user presence at 42 campus
-- Email notification when tracked users log in or log out
-- Get Notified for more than 1 Friend
+- Users greater than level 10 can see and track active Users in Campus
+- Real-time tracking of user who are almost at same level presence at 42 campus
+- Recent Users (Who has logged in past seven days) around same level
+- Email notification or Normal Notification when tracked users log in or log out
+- Monitor and Get Notified for more than 1 Friend
 - User lookup by intra username
+- User profile or Slack Profile with one click
 - Integration with 42 API for accurate status checks
 
-### Coming Soon
+### Maybe
 - Slack DM notifications when tracked users log in or log out
 
 ## 🛠️ Technologies
@@ -24,6 +27,7 @@
 ## 📋 Prerequisites
 - Docker (Available in 42 Clusters)
 - 42 API (Simple Setup in intra, [42 API Documentation](https://api.intra.42.fr/apidoc) or [click here](images/setup.md) for detailed Instructions)
+- Email setup (Optional)
 
 
 ## 🚀 Getting Started
@@ -32,6 +36,9 @@
 ```bash
 git clone https://github.com/Rameshtim/42_Friend
 cd 42_Friend
+make build # If .env file is not present will get created
+# Then after updating .env file run
+make build #again
 ```
 
 2. ### Configure environment variables
@@ -40,11 +47,11 @@ cd 42_Friend
 Edit `.env` file with your API Credentials:
 ```
 ```
-FT_CLIENT_ID=uid(as shown in intra)
-FT_CLIENT_SECRET=secret(as shown in intra)
+FT_CLIENT_ID="u-s4t2ud..."      uid(as shown in intra)
+FT_CLIENT_SECRET="s-s4t2ud..."  secret(as shown in intra)
 ```
 
-    - #### For Future to send Email
+- #### Optional to send Email (Only Gmail tested)
 
 
 ```

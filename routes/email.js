@@ -11,7 +11,7 @@ router.post("/send-email", async (req, res) => {
 
     const { email, searchedUserEmail, displayname, sendEmail, alsoSendEmail, username, reqUsername, duration, intervall } = req.body;
     let finalEmail = email;
-    console.log('this is sendEmail', req.body);
+    // console.log('this is sendEmail', req.body);
     
     if (sendEmail === undefined) {
       // return res.redirect("/profile?error=Email notification not enabled.");

@@ -14,6 +14,16 @@
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen text-white">
+  <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+		<div class="container mx-auto flex justify-between items-center">
+			<a href="/" class="text-lg font-bold">42_Friend</a>
+			<div class="space-x-6">
+				<a href="/about" class="hover:text-blue-400">About Me</a>
+				<a href="/auth/42" class="text-red-400 hover:text-red-600">Login </a>
+			</div>
+		</div>
+	</nav>
+	<div class="pt-16">
   <div class="bg-gray-800 bg-opacity-75 p-10 rounded-lg shadow-xl text-center">
     <h1 class="text-4xl font-bold mb-6">Welcome</h1>
     <a href="/auth/42" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">Login with 42</a>
