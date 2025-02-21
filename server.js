@@ -167,8 +167,8 @@ app.get("/fetch-users", async (req, res) => {
     
     const accessToken = req.user.access_token;
     const coreCursus = req.user.cursus_users.find(cursus => cursus.cursus_id === 21);
-    // const coreLevel = coreCursus.level;
-    const coreLevel = 4.08;
+    const coreLevel = coreCursus.level;
+    // const coreLevel = 4.08;
     const { l_level, u_level } = getLevelRange(coreLevel);
     console.log(`This is lower level: ${l_level} and this is upper level: ${u_level}`);
     if (!accessToken) {
