@@ -86,12 +86,12 @@
 						</div>
 						
 						<% if (searchedUser.location !== null) { %>
-							<p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname, , Level: <%= searchedUser.level %> is currently on campus!</p>
+							<p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname %>, Level: <%= level %> is currently on campus!</p>
 						<% } else { %>
-							<p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname, , Level: <%= searchedUser.level %> is not on campus</p>
+							<p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname %>, Level: <%= level %> is not on campus</p>
 							<!-- <p class="text-red-400 font-semibold text-center">(Last Seen: <%= last_seen %>,  <%= days_ago %> days ago)</p> -->
-							<p class="text-red-400 font-semibold text-center">(Last Seen: <%= searchedUser.last_seen %>, <%= searchedUser.days_ago %> days ago)
-                                at <%= searchedUser.formatted_time %></p>
+							<p class="text-red-400 font-semibold text-center">(Last Seen: <%= last_seen %>, <%= days_ago %> days ago)
+                                at <%= formatted_time %></p>
 						<% } %>
 					</div>
 					<div>

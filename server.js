@@ -291,7 +291,7 @@ app.post("/check-user", async (req, res) => {
 
       const user = await userResponse.json();
       console.log("User found:", user.location);
-    //   const coreCursus = user.cursus_users.find(cursus=> cursus.cursus_id === 21);
+      const coreCursus = user.cursus_users.find(cursus=> cursus.cursus_id === 21);
     //   console.log('This is users cursus level ', coreCursus.level);
     //   console.log("User cursus_user:", user.cursus_users);
 
@@ -306,7 +306,7 @@ app.post("/check-user", async (req, res) => {
           last_seen: updatedAt.toLocaleDateString("en-GB"), // Format as DD-MM-YYYY
           formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }), // HH:MM (24-hour format)
           days_ago: daysAgo,
-          level: user.level,
+          level: coreCursus.level,
       });
 
   } catch (error) {
