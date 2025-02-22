@@ -1,26 +1,11 @@
+
 services:
   app:
     build: .
     ports:
       - "3000:3000"
-    depends_on:
-      - redis
     env_file:
       - .env
     command: ["sh", "./start.sh"]
-    networks:
-      - app-network  # Add this
-
-  redis:
-    image: redis:7.4.2-alpine
-    container_name: redis_cache
-    restart: always
-    ports:
-      - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
-    networks:
-      - app-network  # Add this
-
-networks:  # Add this section
-  app-network:
-    driver: bridge
+    # volumes:
+    #   - ./shared_data:/usr/src/app/shared_data

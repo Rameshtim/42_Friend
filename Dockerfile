@@ -1,6 +1,7 @@
 # Use the official Node.js image
 FROM node:23-alpine
 
+RUN apt-get update && apt-get install -y redis-server
 # Set the working directory
 WORKDIR /usr/src/app
 

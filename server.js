@@ -37,26 +37,37 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //     console.error("❌ Redis Error:", err);
 //   });
 
+// const redisClient = redis.createClient({
+//     socket: {
+//       host: "redis_cache",
+//       port: 6379,
+//     },
+//     retry_strategy: function(options) {
+//       if (options.error && options.error.code === 'ECONNREFUSED') {
+//         // End reconnecting on a specific error
+//         return new Error('The server refused the connection');
+//       }
+//       if (options.total_retry_time > 1000 * 60 * 60) {
+//         // End reconnecting after a specific timeout
+//         return new Error('Retry time exhausted');
+//       }
+//       if (options.attempt > 10) {
+//         // End reconnecting with built in error
+//         return undefined;
+//       }
+//       // reconnect after
+//       return Math.min(options.attempt * 100, 3000);
+//     }
+//   });
 const redisClient = redis.createClient({
+    url: 'redis://localhost:6379',
     socket: {
-      host: "redis_cache",
-      port: 6379,
-    },
-    retry_strategy: function(options) {
-      if (options.error && options.error.code === 'ECONNREFUSED') {
-        // End reconnecting on a specific error
-        return new Error('The server refused the connection');
+      reconnectStrategy: (retries) => {
+        if (retries > 10) {
+          return new Error('Max reconnection attempts reached');
+        }
+        return Math.min(retries * 100, 3000);
       }
-      if (options.total_retry_time > 1000 * 60 * 60) {
-        // End reconnecting after a specific timeout
-        return new Error('Retry time exhausted');
-      }
-      if (options.attempt > 10) {
-        // End reconnecting with built in error
-        return undefined;
-      }
-      // reconnect after
-      return Math.min(options.attempt * 100, 3000);
     }
   });
   
