@@ -117,8 +117,8 @@ const sessionMiddleware = session({
       httpOnly: true,
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
-      domain: '.ondigitalocean.app',  // Add this line
-      path: '/'  // Add this line
+    //   domain: '.ondigitalocean.app',  // Add this line
+    //   path: '/'  // Add this line
     },
   });
 
