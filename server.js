@@ -24,18 +24,64 @@ app.set("view engine", "ejs");
 app.set('trust proxy', 1);
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// const redisClient = redis.createClient({
+//     socket: {
+//       host: "redis_cache",
+//       port: 6379,
+//     },
+//   });
+  
+//   redisClient.connect().catch(console.error);
+  
+//   redisClient.on("error", (err) => {
+//     console.error("❌ Redis Error:", err);
+//   });
+
 const redisClient = redis.createClient({
     socket: {
       host: "redis_cache",
       port: 6379,
     },
+    retry_strategy: function(options) {
+      if (options.error && options.error.code === 'ECONNREFUSED') {
+        // End reconnecting on a specific error
+        return new Error('The server refused the connection');
+      }
+      if (options.total_retry_time > 1000 * 60 * 60) {
+        // End reconnecting after a specific timeout
+        return new Error('Retry time exhausted');
+      }
+      if (options.attempt > 10) {
+        // End reconnecting with built in error
+        return undefined;
+      }
+      // reconnect after
+      return Math.min(options.attempt * 100, 3000);
+    }
   });
   
-  redisClient.connect().catch(console.error);
-  
+  // Add error handling
   redisClient.on("error", (err) => {
     console.error("❌ Redis Error:", err);
   });
+  
+  // Add connection success logging
+  redisClient.on("connect", () => {
+    console.log("✅ Successfully connected to Redis");
+  });
+  
+  // Connect with async/await and proper error handling
+  async function connectToRedis() {
+    try {
+      await redisClient.connect();
+      console.log("✅ Redis connection established");
+    } catch (error) {
+      console.error("❌ Redis connection error:", error);
+      // You might want to implement some retry logic here
+    }
+  }
+  
+  connectToRedis();
 
 // const sessionMiddleware = session({
 //   store: new MemoryStore(),
