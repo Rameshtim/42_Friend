@@ -133,6 +133,7 @@
             fetch("/send-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: 'include',
                 body: JSON.stringify({ username })
             })
             .then(response => {
@@ -205,7 +206,9 @@
 
         async function fetchNotifications() {
             try {
-                const response = await fetch(`/get-notifications?user=<%= user.login %>`);
+                const response = await fetch(`/get-notifications?user=<%= user.login %>`, {
+                credentials: 'include'
+            });
 
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);

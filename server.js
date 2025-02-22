@@ -21,6 +21,7 @@ const RedisStore = connectRedis.RedisStore; // Correct import for v6+
 app.use(express.static("public"));
 app.use(express.json()); // Add this to parse JSON body properly
 app.set("view engine", "ejs");
+app.set('trust proxy', 1);
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const redisClient = redis.createClient({
@@ -55,11 +56,21 @@ const sessionMiddleware = session({
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",  // Secure in production
+    //   httpOnly: false,
       httpOnly: true,
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
+      domain: '.ondigitalocean.app',  // Add this line
+      path: '/'  // Add this line
     },
   });
+
+const cors = require('cors');
+
+app.use(cors({
+    origin: 'https://plankton-app-vmu7y.ondigitalocean.app',
+    credentials: true
+}));
 
 app.use(sessionMiddleware);
 app.use(passport.initialize());
@@ -121,9 +132,10 @@ app.get("/about", (req, res) => {
 
 
 app.get("/profile", (req, res) => {
-  // console.log("📌 Profile Route - Session Data:", req.session);
+  console.log("📌 Profile Route - Session Data:", req.session);
 
   if (!req.isAuthenticated()) {
+    console.log("user not authenticated", req.user);
     return res.redirect("/?error=User not authenticated.");
   }
 

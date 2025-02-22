@@ -193,6 +193,7 @@
 				const response = await fetch("/stop-monitoring", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
+					credentials: 'include',
 					body: JSON.stringify({ username })
 				});
 
@@ -270,7 +271,9 @@
 
 		async function fetchNotifications() {
 			try {
-				const response = await fetch(`/get-notifications?user=<%= user.login %>`);
+				const response = await fetch(`/get-notifications?user=<%= user.login %>`, {
+				credentials: 'include'
+			});
 
 				// If the server responds with an error, stop fetching
 				if (!response.ok) {
