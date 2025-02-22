@@ -9,7 +9,7 @@ passport.use(
       tokenURL: "https://api.intra.42.fr/oauth/token",
       clientID: process.env.FT_CLIENT_ID,
       clientSecret: process.env.FT_CLIENT_SECRET,
-      callbackURL: "https://plankton-app-vmu7y.ondigitalocean.app/auth/42/callback",
+      callbackURL: "https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback",
       // callbackURL: "http://localhost:3000/auth/42/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
