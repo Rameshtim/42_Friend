@@ -60,7 +60,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //     }
 //   });
 const redisClient = redis.createClient({
-    url: 'redis://localhost:6379',
+    url: 'redis://127.0.0.1:6379' ,
     socket: {
       reconnectStrategy: (retries) => {
         if (retries > 10) {
@@ -124,10 +124,26 @@ const sessionMiddleware = session({
 
 const cors = require('cors');
 
+const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
+
+// Update CORS configuration
 app.use(cors({
-    origin: 'https://plankton-app-vmu7y.ondigitalocean.app',
-    credentials: true
+    origin: `https://${DOMAIN}`,
+    credentials: true,
+    // Add the following to handle Cloudflare cookies
+    exposedHeaders: ['set-cookie'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
+
+app.use((req, res, next) => {
+  res.set({
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'X-XSS-Protection': '1; mode=block'
+  });
+  next();
+});
 
 app.use(sessionMiddleware);
 app.use(passport.initialize());
