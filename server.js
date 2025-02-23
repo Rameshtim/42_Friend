@@ -24,41 +24,7 @@ app.set("view engine", "ejs");
 app.set('trust proxy', 1);
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// const redisClient = redis.createClient({
-//     socket: {
-//       host: "redis_cache",
-//       port: 6379,
-//     },
-//   });
-  
-//   redisClient.connect().catch(console.error);
-  
-//   redisClient.on("error", (err) => {
-//     console.error("❌ Redis Error:", err);
-//   });
 
-// const redisClient = redis.createClient({
-//     socket: {
-//       host: "redis_cache",
-//       port: 6379,
-//     },
-//     retry_strategy: function(options) {
-//       if (options.error && options.error.code === 'ECONNREFUSED') {
-//         // End reconnecting on a specific error
-//         return new Error('The server refused the connection');
-//       }
-//       if (options.total_retry_time > 1000 * 60 * 60) {
-//         // End reconnecting after a specific timeout
-//         return new Error('Retry time exhausted');
-//       }
-//       if (options.attempt > 10) {
-//         // End reconnecting with built in error
-//         return undefined;
-//       }
-//       // reconnect after
-//       return Math.min(options.attempt * 100, 3000);
-//     }
-//   });
 const redisClient = redis.createClient({
     url: 'redis://127.0.0.1:6379' ,
     socket: {
@@ -70,55 +36,38 @@ const redisClient = redis.createClient({
       }
     }
   });
-  
-  // Add error handling
-  redisClient.on("error", (err) => {
+    redisClient.on("error", (err) => {
     console.error("❌ Redis Error:", err);
   });
   
-  // Add connection success logging
   redisClient.on("connect", () => {
     console.log("✅ Successfully connected to Redis");
   });
   
-  // Connect with async/await and proper error handling
   async function connectToRedis() {
     try {
       await redisClient.connect();
       console.log("✅ Redis connection established");
     } catch (error) {
       console.error("❌ Redis connection error:", error);
-      // You might want to implement some retry logic here
     }
   }
   
   connectToRedis();
 
-// const sessionMiddleware = session({
-//   store: new MemoryStore(),
-//   secret: "supersecret",
-//   resave: false,
-//   saveUninitialized: false, 
-//   cookie: {
-//     secure: false,  
-//     httpOnly: true,
-//     sameSite: 'lax',
-//   },
-// });
-
 const sessionMiddleware = session({
     store: new RedisStore({ client: redisClient }),
-    secret: process.env.SESSION_SECRET,  // Use env variable for security
+    secret: process.env.SESSION_SECRET, 
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",  // Secure in production
+      secure: process.env.NODE_ENV === "production",
     //   httpOnly: false,
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
-    //   domain: '.ondigitalocean.app',  // Add this line
-    //   path: '/'  // Add this line
+      domain: '.ondigitalocean.app',  // Add this line
+      path: '/'  // Add this line
     },
   });
 
@@ -126,13 +75,12 @@ const cors = require('cors');
 
 const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
 
-// Update CORS configuration
 app.use(cors({
     origin: `https://${DOMAIN}`,
     credentials: true,
-    // Add the following to handle Cloudflare cookies
     exposedHeaders: ['set-cookie'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
 }));
 
 app.use((req, res, next) => {
@@ -160,6 +108,22 @@ const { EmailService } = require('./routes/emailService');
 const monitor = new StatusMonitor();
 const emailService = new EmailService();
 app.locals.monitor = monitor;
+
+
+// Add this before your session middleware
+app.use((req, res, next) => {
+  console.log('Incoming request cookies:', req.headers.cookie);
+  next();
+});
+
+// Add this after your session middleware
+app.use((req, res, next) => {
+  console.log('Session ID:', req.sessionID);
+  console.log('Session:', req.session);
+  next();
+});
+
+
 
 // Add these event listeners after creating the monitor
 monitor.on('statusChange', async (status) => {
