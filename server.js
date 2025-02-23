@@ -123,7 +123,7 @@ const sessionConfig = {
       httpOnly: true,
       domain: DOMAIN,
       path: '/',
-      sameSite: 'lax',
+      sameSite: 'None',
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 };
