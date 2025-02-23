@@ -24,24 +24,6 @@ app.set("view engine", "ejs");
 app.set('trust proxy', 1);
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const sessionMiddleware = session({
-  store: new RedisStore({ client: redisClient }),
-  secret: process.env.SESSION_SECRET, 
-  name: 'session_id',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production",
-  //   httpOnly: false,
-    httpOnly: true,
-    sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
-    domain: '.ondigitalocean.app',  // Add this line
-    path: '/'  // Add this line
-  },
-});
-
-app.use(sessionMiddleware);
 
 const redisClient = redis.createClient({
     url: 'redis://127.0.0.1:6379' ,
@@ -62,6 +44,25 @@ const redisClient = redis.createClient({
     console.log("✅ Successfully connected to Redis");
   });
   
+  const sessionMiddleware = session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET, 
+    name: 'session_id',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+    //   httpOnly: false,
+      httpOnly: true,
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
+      domain: '.ondigitalocean.app',  // Add this line
+      path: '/'  // Add this line
+    },
+  });
+  
+  app.use(sessionMiddleware);
+
   async function connectToRedis() {
     try {
       await redisClient.connect();
