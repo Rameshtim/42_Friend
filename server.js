@@ -149,15 +149,31 @@ const cors = require('cors');
 // const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
 
 
-// CORS configuration
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production'
-        ? 'https://goldfish-app-fibzf.ondigitalocean.app'
-        : 'http://localhost:3000',
-    credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  origin: (origin, callback) => {
+      const allowedOrigins = [
+          'https://goldfish-app-fibzf.ondigitalocean.app',
+          'http://localhost:3000'
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+      } else {
+          callback(new Error('Not allowed by CORS'));
+      }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
+// CORS configuration
+// app.use(cors({
+//     origin: process.env.NODE_ENV === 'production'
+//         ? 'https://goldfish-app-fibzf.ondigitalocean.app'
+//         : 'http://localhost:3000',
+//     credentials: true,
+//     methods: ['GET', 'POST', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+// }));
 
 // // Update CORS configuration
 // app.use(cors({
@@ -175,16 +191,24 @@ app.use(cors({
 // });
 
 app.use((req, res, next) => {
-  res.set({
-      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'SAMEORIGIN',
-      'X-XSS-Protection': '1; mode=block'
-  });
-  res.setHeader('Accept-CH', 'Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version');
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.header('Access-Control-Allow-Origin', 'https://goldfish-app-fibzf.ondigitalocean.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
   next();
 });
+
+// app.use((req, res, next) => {
+//   res.set({
+//       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+//       'X-Content-Type-Options': 'nosniff',
+//       'X-Frame-Options': 'SAMEORIGIN',
+//       'X-XSS-Protection': '1; mode=block'
+//   });
+//   res.setHeader('Accept-CH', 'Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version');
+//   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+//   next();
+// });
 
 
 app.use((req, res, next) => {
