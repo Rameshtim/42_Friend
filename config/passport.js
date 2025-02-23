@@ -54,50 +54,6 @@ passport.deserializeUser((user, done) => {
 
 
 
-// const passport = require("passport");
-// const OAuth2Strategy = require("passport-oauth2");
-// require("dotenv").config();
-
-// // More robust session handling
-// passport.serializeUser((user, done) => {
-//     console.log("Serializing user:", user.id);
-//     // Store minimal data in session
-//     done(null, {
-//         id: user.id,
-//         access_token: user.access_token,
-//         displayname: user.displayname,
-//         email: user.email,
-//         image: user.image
-//     });
-// });
-
-// passport.deserializeUser(async (userData, done) => {
-//     try {
-//         console.log("Deserializing user:", userData.id);
-        
-//         // If we have all required user data in session, use it
-//         if (userData.id && userData.access_token) {
-//             return done(null, userData);
-//         }
-        
-//         // Otherwise, fetch fresh user data
-//         const response = await fetch(`https://api.intra.42.fr/v2/users/${userData.id}`, {
-//             headers: { Authorization: `Bearer ${userData.access_token}` },
-//         });
-
-//         if (!response.ok) {
-//             throw new Error('Failed to fetch user data');
-//         }
-
-//         const user = await response.json();
-//         user.access_token = userData.access_token;
-//         done(null, user);
-//     } catch (error) {
-//         console.error("❌ Deserialization error:", error);
-//         done(null, false);
-//     }
-// });
-
 // // Strategy configuration
 // const strategyConfig = {
 //     authorizationURL: "https://api.intra.42.fr/oauth/authorize",

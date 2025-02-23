@@ -16,8 +16,14 @@ router.get(
     req.session.save(err => {
       if (err) {
           console.error("❌ Error saving session:", err);
+          return res.redirect('/?error: Error saving Session');
       }
-      res.cookie('session_id', req.sessionID, { httpOnly: true }); // Store session ID in cookie
+      res.cookie('session_id', req.sessionID, { 
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'none',
+        domain: '.ondigitalocean.app'
+       }); // Store session ID in cookie
       res.redirect('/profile');  // Redirect after saving session
   });
 });
