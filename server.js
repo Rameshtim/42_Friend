@@ -114,7 +114,7 @@ const DOMAIN = process.env.NODE_ENV === 'production'
 const sessionConfig = {
   store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET,
-  name: 'sessionId', // Change session cookie name from default 'connect.sid'
+  // name: 'sessionId', // Change session cookie name from default 'connect.sid'
   resave: false,
   saveUninitialized: false,
   rolling: true, // Reset expiration on every response
@@ -149,31 +149,31 @@ const cors = require('cors');
 // const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
 
 
-app.use(cors({
-  origin: (origin, callback) => {
-      const allowedOrigins = [
-          'https://goldfish-app-fibzf.ondigitalocean.app',
-          'http://localhost:3000'
-      ];
-      if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-      } else {
-          callback(new Error('Not allowed by CORS'));
-      }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
-}));
-// CORS configuration
 // app.use(cors({
-//     origin: process.env.NODE_ENV === 'production'
-//         ? 'https://goldfish-app-fibzf.ondigitalocean.app'
-//         : 'http://localhost:3000',
-//     credentials: true,
-//     methods: ['GET', 'POST', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+//   origin: (origin, callback) => {
+//       const allowedOrigins = [
+//           'https://goldfish-app-fibzf.ondigitalocean.app',
+//           'http://localhost:3000'
+//       ];
+//       if (!origin || allowedOrigins.includes(origin)) {
+//           callback(null, true);
+//       } else {
+//           callback(new Error('Not allowed by CORS'));
+//       }
+//   },
+//   credentials: true,
+//   methods: ['GET', 'POST', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 // }));
+// CORS configuration
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production'
+        ? 'https://goldfish-app-fibzf.ondigitalocean.app'
+        : 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+}));
 
 // // Update CORS configuration
 // app.use(cors({
@@ -226,6 +226,12 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
+
+app.use((req, res, next) => {
+  res.setHeader("CF-Access-Bot-Detection", "false");
+  next();
+});
+
 
 app.use(session(sessionConfig));
 // app.use(sessionMiddleware);
