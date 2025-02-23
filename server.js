@@ -106,34 +106,73 @@ const redisClient = redis.createClient({
 //   },
 // });
 
-const sessionMiddleware = session({
-    store: new RedisStore({ client: redisClient }),
-    secret: process.env.SESSION_SECRET,  // Use env variable for security
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",  // Secure in production
-    //   httpOnly: false,
+const DOMAIN = process.env.NODE_ENV === 'production' 
+    ? '.ondigitalocean.app'  // Note the leading dot for wildcard subdomain support
+    : 'localhost';
+
+
+const sessionConfig = {
+  store: new RedisStore({ client: redisClient }),
+  secret: process.env.SESSION_SECRET,
+  name: 'sessionId', // Change session cookie name from default 'connect.sid'
+  resave: false,
+  saveUninitialized: false,
+  rolling: true, // Reset expiration on every response
+  cookie: {
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
-    //   domain: '.ondigitalocean.app',  // Add this line
-    //   path: '/'  // Add this line
-    },
-  });
+      domain: DOMAIN,
+      path: '/',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+};
+
+// const sessionMiddleware = session({
+//     store: new RedisStore({ client: redisClient }),
+//     secret: process.env.SESSION_SECRET,  // Use env variable for security
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: process.env.NODE_ENV === "production",  // Secure in production
+//     //   httpOnly: false,
+//       httpOnly: true,
+//       sameSite: "lax",
+//       maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
+//     //   domain: '.ondigitalocean.app',  // Add this line
+//     //   path: '/'  // Add this line
+//     },
+//   });
 
 const cors = require('cors');
 
-const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
+// const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
 
-// Update CORS configuration
+
+// CORS configuration
 app.use(cors({
-    origin: `https://${DOMAIN}`,
+    origin: process.env.NODE_ENV === 'production'
+        ? 'https://goldfish-app-fibzf.ondigitalocean.app'
+        : 'http://localhost:3000',
     credentials: true,
-    // Add the following to handle Cloudflare cookies
-    exposedHeaders: ['set-cookie'],
+    methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
+
+// // Update CORS configuration
+// app.use(cors({
+//     origin: `https://${DOMAIN}`,
+//     credentials: true,
+//     // Add the following to handle Cloudflare cookies
+//     exposedHeaders: ['set-cookie'],
+//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+// }));
+
+// app.use((req, res, next) => {
+//   res.setHeader('Accept-CH', 'Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version');
+//   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+//   next();
+// });
 
 app.use((req, res, next) => {
   res.set({
@@ -142,10 +181,30 @@ app.use((req, res, next) => {
       'X-Frame-Options': 'SAMEORIGIN',
       'X-XSS-Protection': '1; mode=block'
   });
+  res.setHeader('Accept-CH', 'Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   next();
 });
 
-app.use(sessionMiddleware);
+
+app.use((req, res, next) => {
+  console.log('Session ID:', req.sessionID);
+  console.log('Session Data:', req.session);
+  // console.log('Is Authenticated:', req.isAuthenticated());
+  next();
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  if (err.name === 'UnauthorizedError') {
+      return res.redirect('/?error=Session expired. Please login again.');
+  }
+  next(err);
+});
+
+app.use(session(sessionConfig));
+// app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
