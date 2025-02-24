@@ -43,7 +43,19 @@ const redisClient = redis.createClient({
   redisClient.on("connect", () => {
     console.log("✅ Successfully connected to Redis");
   });
+
+
+  async function connectToRedis() {
+    try {
+      await redisClient.connect();
+      console.log("✅ Redis connection established");
+    } catch (error) {
+      console.error("❌ Redis connection error:", error);
+    }
+  }
   
+  connectToRedis();
+
   const sessionMiddleware = session({
     store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET, 
@@ -61,69 +73,55 @@ const redisClient = redis.createClient({
     },
   });
   
-  app.use(sessionMiddleware);
-
-  async function connectToRedis() {
-    try {
-      await redisClient.connect();
-      console.log("✅ Redis connection established");
-    } catch (error) {
-      console.error("❌ Redis connection error:", error);
-    }
-  }
   
-  connectToRedis();
+  // const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
+  
+  // const cors = require('cors');
 
-
-const cors = require('cors');
-
-// const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
-
-
-app.use(cors({
-    origin: process.env.NODE_ENV === 'production'
-        ? 'https://goldfish-app-fibzf.ondigitalocean.app'
-        : 'http://localhost:3000',
-    credentials: true,
-    exposedHeaders: ['set-cookie'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
-}));
-
-// // Update CORS configuration
-// app.use(cors({
-//     origin: `https://${DOMAIN}`,
+  // app.use(cors({
+//     origin: process.env.NODE_ENV === 'production'
+//         ? 'https://goldfish-app-fibzf.ondigitalocean.app'
+//         : 'http://localhost:3000',
 //     credentials: true,
-//     // Add the following to handle Cloudflare cookies
 //     exposedHeaders: ['set-cookie'],
-//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
 // }));
 
+
 // app.use((req, res, next) => {
-//   res.setHeader('Accept-CH', 'Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version');
-//   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  //   res.header('Access-Control-Allow-Origin', 'https://goldfish-app-fibzf.ondigitalocean.app');
+  //   res.header('Access-Control-Allow-Credentials', 'true');
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
 //   next();
 // });
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://goldfish-app-fibzf.ondigitalocean.app');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
-  next();
-});
 
 // app.use((req, res, next) => {
-//   res.set({
-//       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-//       'X-Content-Type-Options': 'nosniff',
-//       'X-Frame-Options': 'SAMEORIGIN',
-//       'X-XSS-Protection': '1; mode=block'
-//   });
-//   res.setHeader('Accept-CH', 'Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version');
-//   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-//   next();
-// });
+  //   res.setHeader("CF-Access-Bot-Detection", "false");
+  //   next();
+  // });
+  
+  
+  // app.use(session(sessionConfig));
+app.use(sessionMiddleware);
+app.use(passport.initialize());
+app.use(passport.session());
+
+const authRoutes = require("./routes/auth");
+const emailRoutes = require("./routes/email");
+app.use(authRoutes);
+app.use(emailRoutes);
+app.use(express.static('images')); 
+
+const { StatusMonitor } = require('./routes/statusMonitor');
+const { EmailService } = require('./routes/emailService');
+const monitor = new StatusMonitor();
+const emailService = new EmailService();
+app.locals.monitor = monitor;
+
+
 
 
 app.use((req, res, next) => {
@@ -141,29 +139,6 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
-
-app.use((req, res, next) => {
-  res.setHeader("CF-Access-Bot-Detection", "false");
-  next();
-});
-
-
-// app.use(session(sessionConfig));
-app.use(passport.initialize());
-app.use(passport.session());
-
-const authRoutes = require("./routes/auth");
-const emailRoutes = require("./routes/email");
-app.use(authRoutes);
-app.use(emailRoutes);
-app.use(express.static('images')); 
-
-const { StatusMonitor } = require('./routes/statusMonitor');
-const { EmailService } = require('./routes/emailService');
-const monitor = new StatusMonitor();
-const emailService = new EmailService();
-app.locals.monitor = monitor;
-
 
 // Add this before your session middleware
 app.use((req, res, next) => {
