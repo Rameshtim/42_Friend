@@ -77,7 +77,7 @@ app.use((req, res, next) => {
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 4,  // 1 day session expiration
       // domain: '.ondigitalocean.app',  // Add this line
-      domain: 'goldfish-app-fibzf.ondigitalocean.app', // Force domain match
+      // domain: 'goldfish-app-fibzf.ondigitalocean.app', // Force domain match
       partitioned: true // Add support for CHIPS (Cookie Having Independent Partitioned State)
       // path: '/'  // Add this line
     },
