@@ -52,37 +52,3 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
-
-
-// // Strategy configuration
-// const strategyConfig = {
-//     authorizationURL: "https://api.intra.42.fr/oauth/authorize",
-//     tokenURL: "https://api.intra.42.fr/oauth/token",
-//     clientID: process.env.FT_CLIENT_ID,
-//     clientSecret: process.env.FT_CLIENT_SECRET,
-//     callbackURL: process.env.NODE_ENV === 'production'
-//         ? "https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback"
-//         : "http://localhost:3000/auth/42/callback",
-//     proxy: true
-// };
-
-// passport.use(new OAuth2Strategy(strategyConfig, async (accessToken, refreshToken, profile, done) => {
-//     try {
-//         const response = await fetch("https://api.intra.42.fr/v2/me", {
-//             headers: { Authorization: `Bearer ${accessToken}` },
-//         });
-
-//         if (!response.ok) {
-//             throw new Error('Failed to fetch user profile');
-//         }
-
-//         const user = await response.json();
-//         user.access_token = accessToken;
-//         user.refresh_token = refreshToken;
-        
-//         return done(null, user);
-//     } catch (error) {
-//         console.error("❌ OAuth callback error:", error);
-//         return done(error, null);
-//     }
-// }));

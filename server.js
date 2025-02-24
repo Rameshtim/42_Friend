@@ -59,6 +59,7 @@ const redisClient = redis.createClient({
   const sessionMiddleware = session({
     store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET, 
+    name: 'connect.sid',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -75,17 +76,27 @@ const redisClient = redis.createClient({
   
   // const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
   
-  // const cors = require('cors');
+  const cors = require('cors');
 
-  // app.use(cors({
-//     origin: process.env.NODE_ENV === 'production'
-//         ? 'https://goldfish-app-fibzf.ondigitalocean.app'
-//         : 'http://localhost:3000',
-//     credentials: true,
-//     exposedHeaders: ['set-cookie'],
-//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
-// }));
+  app.use(cors({
+    origin: process.env.NODE_ENV === 'production'
+        ? 'https://goldfish-app-fibzf.ondigitalocean.app'
+        : 'http://localhost:3000',
+    credentials: true,
+    exposedHeaders: ['set-cookie'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
+}));
+
+app.use((req, res, next) => {
+  res.set({
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'X-XSS-Protection': '1; mode=block'
+  });
+  next();
+});
 
 
 // app.use((req, res, next) => {
