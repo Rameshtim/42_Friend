@@ -56,6 +56,13 @@ const redisClient = redis.createClient({
   
   connectToRedis();
 
+// Add this before your session middleware
+app.use((req, res, next) => {
+  console.log('Incoming request cookies:', req.headers.cookie);
+  next();
+});
+
+
   const sessionMiddleware = session({
     store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET, 
@@ -70,6 +77,7 @@ const redisClient = redis.createClient({
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 4,  // 1 day session expiration
       // domain: '.ondigitalocean.app',  // Add this line
+      domain: 'goldfish-app-fibzf.ondigitalocean.app', // Force domain match
       partitioned: true // Add support for CHIPS (Cookie Having Independent Partitioned State)
       // path: '/'  // Add this line
     },
@@ -101,13 +109,13 @@ const redisClient = redis.createClient({
 // });
 
 
-// app.use((req, res, next) => {
-  //   res.header('Access-Control-Allow-Origin', 'https://goldfish-app-fibzf.ondigitalocean.app');
-  //   res.header('Access-Control-Allow-Credentials', 'true');
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
-//   next();
-// });
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://goldfish-app-fibzf.ondigitalocean.app');
+    res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
+  next();
+});
 
 
 // app.use((req, res, next) => {
@@ -150,11 +158,6 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-// Add this before your session middleware
-app.use((req, res, next) => {
-  console.log('Incoming request cookies:', req.headers.cookie);
-  next();
-});
 
 // Add this after your session middleware
 app.use((req, res, next) => {
