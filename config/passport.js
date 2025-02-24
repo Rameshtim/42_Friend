@@ -11,8 +11,8 @@ passport.use(
       clientSecret: process.env.FT_CLIENT_SECRET,
       callbackURL: "https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback",
       // callbackURL: "http://localhost:3000/auth/42/callback",
-      state: true,
-      pkce: true,
+      // state: true,
+      // pkce: true,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {

@@ -1,7 +1,6 @@
 const express = require("express");
 const session = require("express-session");
 const { exec } = require("child_process");
-const helmet = require('helmet');
 // const MemoryStore = require("express-session").MemoryStore;
 const passport = require("passport");
 const bodyParser = require("body-parser");
@@ -23,7 +22,6 @@ app.use(express.static("public"));
 app.use(express.json()); // Add this to parse JSON body properly
 app.set("view engine", "ejs");
 app.set('trust proxy', 1);
-app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
@@ -70,7 +68,7 @@ const redisClient = redis.createClient({
     //   httpOnly: false,
       httpOnly: true,
       sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
+      maxAge: 1000 * 60 * 60 * 4,  // 1 day session expiration
       domain: '.ondigitalocean.app',  // Add this line
       partitioned: true // Add support for CHIPS (Cookie Having Independent Partitioned State)
       // path: '/'  // Add this line
