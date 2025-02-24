@@ -22,8 +22,7 @@ passport.use(
 
         // Fetch user profile from 42 API
         const response = await fetch("https://api.intra.42.fr/v2/me", {
-          headers: { Authorization: `Bearer ${accessToken}`,
-                      'Cache-Control': 'no-store' },
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         const user = await response.json();
@@ -42,29 +41,6 @@ passport.use(
     }
   )
 );
-
-const refreshAccessToken = async (refreshToken) => {
-  const params = new URLSearchParams({
-    grant_type: 'refresh_token',
-    refresh_token: refreshToken,
-    client_id: process.env.FT_CLIENT_ID,
-    client_secret: process.env.FT_CLIENT_SECRET
-  });
-
-  const response = await fetch('https://api.intra.42.fr/oauth/token', {
-    method: 'POST',
-    body: params,
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error('Token refresh failed');
-  }
-
-  return response.json();
-};
 
 
 

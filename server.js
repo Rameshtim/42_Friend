@@ -69,7 +69,7 @@ const redisClient = redis.createClient({
       httpOnly: true,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 4,  // 1 day session expiration
-      domain: '.ondigitalocean.app',  // Add this line
+      // domain: '.ondigitalocean.app',  // Add this line
       partitioned: true // Add support for CHIPS (Cookie Having Independent Partitioned State)
       // path: '/'  // Add this line
     },
@@ -132,39 +132,6 @@ const { EmailService } = require('./routes/emailService');
 const monitor = new StatusMonitor();
 const emailService = new EmailService();
 app.locals.monitor = monitor;
-
-const tokenRefreshMiddleware = async (req, res, next) => {
-  if (!req.user?.refreshToken) {
-    return next();
-  }
-
-  // Check if access token needs refresh
-  try {
-    const response = await fetch("https://api.intra.42.fr/v2/me", {
-      headers: { Authorization: `Bearer ${req.user.accessToken}` },
-    });
-
-    if (response.status === 401) {
-      const tokens = await refreshAccessToken(req.user.refreshToken);
-      req.user.accessToken = tokens.access_token;
-      req.user.refreshToken = tokens.refresh_token;
-      await new Promise((resolve, reject) => {
-        req.session.save(err => err ? reject(err) : resolve());
-      });
-    }
-  } catch (error) {
-    console.error('Token refresh error:', error);
-    req.logout(() => {
-      res.redirect('/?error=Session expired');
-    });
-    return;
-  }
-
-  next();
-};
-
-// Apply the middleware to protected routes
-app.use('/profile', tokenRefreshMiddleware);
 
 
 app.use((req, res, next) => {
