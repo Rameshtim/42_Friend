@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const { exec } = require("child_process");
+const helmet = require('helmet');
 // const MemoryStore = require("express-session").MemoryStore;
 const passport = require("passport");
 const bodyParser = require("body-parser");
@@ -22,6 +23,7 @@ app.use(express.static("public"));
 app.use(express.json()); // Add this to parse JSON body properly
 app.set("view engine", "ejs");
 app.set('trust proxy', 1);
+app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
@@ -69,7 +71,8 @@ const redisClient = redis.createClient({
       httpOnly: true,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
-      // domain: '.ondigitalocean.app',  // Add this line
+      domain: '.ondigitalocean.app',  // Add this line
+      partitioned: true // Add support for CHIPS (Cookie Having Independent Partitioned State)
       // path: '/'  // Add this line
     },
   });
@@ -132,7 +135,38 @@ const monitor = new StatusMonitor();
 const emailService = new EmailService();
 app.locals.monitor = monitor;
 
+const tokenRefreshMiddleware = async (req, res, next) => {
+  if (!req.user?.refreshToken) {
+    return next();
+  }
 
+  // Check if access token needs refresh
+  try {
+    const response = await fetch("https://api.intra.42.fr/v2/me", {
+      headers: { Authorization: `Bearer ${req.user.accessToken}` },
+    });
+
+    if (response.status === 401) {
+      const tokens = await refreshAccessToken(req.user.refreshToken);
+      req.user.accessToken = tokens.access_token;
+      req.user.refreshToken = tokens.refresh_token;
+      await new Promise((resolve, reject) => {
+        req.session.save(err => err ? reject(err) : resolve());
+      });
+    }
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    req.logout(() => {
+      res.redirect('/?error=Session expired');
+    });
+    return;
+  }
+
+  next();
+};
+
+// Apply the middleware to protected routes
+app.use('/profile', tokenRefreshMiddleware);
 
 
 app.use((req, res, next) => {
