@@ -59,7 +59,6 @@ const redisClient = redis.createClient({
   const sessionMiddleware = session({
     store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET, 
-    name: 'session_id',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -68,8 +67,8 @@ const redisClient = redis.createClient({
       httpOnly: true,
       sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
-      domain: '.ondigitalocean.app',  // Add this line
-      path: '/'  // Add this line
+      // domain: '.ondigitalocean.app',  // Add this line
+      // path: '/'  // Add this line
     },
   });
   
