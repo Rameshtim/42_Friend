@@ -62,11 +62,12 @@ const redisClient = redis.createClient({
     name: 'connect.sid',
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
     //   httpOnly: false,
       httpOnly: true,
-      sameSite: "none",
+      sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24,  // 1 day session expiration
       // domain: '.ondigitalocean.app',  // Add this line
       // path: '/'  // Add this line
@@ -85,18 +86,18 @@ const redisClient = redis.createClient({
     credentials: true,
     exposedHeaders: ['set-cookie'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
 }));
 
-app.use((req, res, next) => {
-  res.set({
-      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'SAMEORIGIN',
-      'X-XSS-Protection': '1; mode=block'
-  });
-  next();
-});
+// app.use((req, res, next) => {
+//   res.set({
+//       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+//       'X-Content-Type-Options': 'nosniff',
+//       'X-Frame-Options': 'SAMEORIGIN',
+//       'X-XSS-Protection': '1; mode=block'
+//   });
+//   next();
+// });
 
 
 // app.use((req, res, next) => {
