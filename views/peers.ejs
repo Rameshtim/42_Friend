@@ -7,114 +7,110 @@
     <link rel="icon" href="/favicon.ico" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
 </head>
-<!-- <body class="bg-gray-900 text-white min-h-screen p-6"> -->
-    <body class="bg-gray-900 flex items-center justify-center min-h-screen text-white">
-        <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
-            <div class="container mx-auto flex justify-between items-center">
-                <a href="/" class="text-lg font-bold">42_Friend</a>
-                <div class="space-x-6 flex items-center">
-				    <a href="/about" class="hover:text-blue-400">About Me</a>
-                    <a href="/" class="hover:text-blue-400">Home</a>
-                    <a href="/profile" class="hover:text-blue-400">Profile</a>
-                    <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
-                    <a href="https://github.com/rameshtim/42_friend" target="_blank" 
-                        class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
-                        <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
-                    </a>
-                </div>
-            </div>
-        </nav>
-        <div class="pt-16">
+<body class="bg-gray-900 flex items-center justify-center min-h-screen text-white">
     
-
-    <div class="flex justify-between items-start mb-4">  <a href="/profile" class="text-blue-500 hover:text-blue-700 font-bold">Back to Profile</a>
-        <div>
-            <h3 class="text-lg font-semibold">Live Notifications</h3>
-            <ul id="notificationList" class="mt-2 space-y-2"></ul>
+    <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <a href="/" class="text-lg font-bold">42_Friend</a>
+            <div class="space-x-4 flex flex-wrap items-center">
+                <a href="/about" class="hover:text-blue-400">About Me</a>
+                <a href="/" class="hover:text-blue-400">Home</a>
+                <a href="/profile" class="hover:text-blue-400">Profile</a>
+                <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+                <a href="https://github.com/rameshtim/42_friend" target="_blank" 
+                    class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+                    <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+                </a>
+            </div>
         </div>
-    </div>
+    </nav>
 
-
-    
-    <div class="flex flex-col items-center w-full">
-        <h1 class="text-2xl font-bold mb-4 text-center">Online Peers</h1>
-        <ul class="w-full max-w-3xl space-y-4" id="peerList">
-            <% peers.forEach(peer => { %>
-                <li class="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md peer-item" data-username="<%= peer.username %>">
-                    <div class="flex items-center space-x-4 peer-link" data-username="<%= peer.username %>" style="cursor: pointer;">
-                        <img src="<%= peer.image %>" alt="Profile Picture" class="w-12 h-12 rounded-full">
-                        <div>
-                            <h2 class="text-lg font-semibold"><%= peer.displayname %></h2>
-                            <p class="text-gray-400">@<%= peer.username %>, Level: <%= peer.level %></p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <span class="w-4 h-4 rounded-full" 
-                            style="background-color: <%= peer.grade === 'Member' ? 'green' : 'yellow' %>;"
-                            title="<%= peer.grade === 'Member' ? 'Outer Circle' : 'Still needs to pass the exam' %>">
-                        </span>
-                        <button onclick="startMonitoring('<%= peer.username %>')" 
-                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition">
-                            Start Monitoring
-                        </button>
-                        
-                        <button onclick="openSlack('<%= peer.username %>')" 
-                            class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition">
-                            Message on Slack
-                        </button>                        
-                    </div>
-                </li>
-            <% }); %>
-        </ul>
-
-        <button onclick="toggleRecentPeers()" 
-            class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">
-            Show Recently Active Users
-        </button>
-
-        <% if (peers.length === 0) { %>
-            <div id="imageSection" class="text-center text-gray-400 mt-6">
-                <p class="text-xl">😢 It seems no one is at school.</p>
-                <img src="/empty_classroom.avif" 
-                alt="Empty classroom with computers" 
-                class="mx-auto mt-4 rounded-lg shadow-lg">
+    <div class="pt-20 w-full max-w-4xl px-4">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start mb-4">
+            <a href="/profile" class="text-blue-500 hover:text-blue-700 font-bold">Back to Profile</a>
+            <div>
+                <h3 class="text-lg font-semibold">Live Notifications</h3>
+                <ul id="notificationList" class="mt-2 space-y-2"></ul>
             </div>
-        <% } %>
-    <!-- </div> -->
+        </div>
 
-    <div id="recentPeersSection" class="hidden mt-6 p-4 bg-gray-700 rounded-lg shadow-inner w-full max-w-3xl">
-        <h3 class="text-lg font-semibold">Recently Active Users (Last 7 Days)</h3>
-        <ul class="mt-2 space-y-2" id="rpeerList">
-            <% recentPeers.forEach(user => { %>
-                <li class="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md rpeer-item" data-username="<%= user.username %>">
-                    <div class="flex items-center space-x-4 user-link" data-username="<%= user.username %>" style="cursor: pointer;">
-                        <span class="w-4 h-4 rounded-full" 
-                                style="background-color: <%= user.grade === 'Member' ? 'green' : 'yellow' %>;"
-                                title="<%= user.grade === 'Member' ? 'Outer Circle' : 'Still needs to pass the exam' %>">
-                        </span>
-                        <img src="<%= user.image %>" class="w-12 h-12 rounded-full" alt="<%= user.username %>">
-                        <div>
-                            <h2 class="text-lg font-semibold"><%= user.displayname %></h2>
-                            <p class="text-gray-400">@<%= user.username %>, Level: <%= user.level %> <br> (Last Seen: <%= user.last_seen %>, <%= user.days_ago %> days ago)
-                                at <%= user.formatted_time %>
-                            </p>
+        <div class="flex flex-col items-center w-full">
+            <h1 class="text-2xl font-bold mb-4 text-center">Online Peers</h1>
+            <ul class="w-full max-w-3xl space-y-4 overflow-x-auto" id="peerList">
+                <% peers.forEach(peer => { %>
+                    <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md peer-item space-y-2 sm:space-y-0" data-username="<%= peer.username %>">
+                        <div class="flex items-center space-x-4 peer-link cursor-pointer" data-username="<%= peer.username %>">
+                            <img src="<%= peer.image %>" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
+                            <div class="text-center sm:text-left">
+                                <h2 class="text-lg font-semibold"><%= peer.displayname %></h2>
+                                <p class="text-gray-400">@<%= peer.username %>, Level: <%= peer.level %></p>
+                            </div>
                         </div>
-                    </div>
-                    <button onclick="startMonitoring('<%= user.username %>')" 
-                        class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition">
-                        Start Monitoring
-                    </button>
-                    
-                    <button onclick="openSlack('<%= user.username %>')" 
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition">
-                        Message on Slack
-                    </button>  
-                </li>
-            <% }); %>
-        </ul>
-    </div>
+                        <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
+                            <span class="w-4 h-4 rounded-full"
+                                style="background-color: <%= peer.grade === 'Member' ? 'green' : 'yellow' %>;"
+                                title="<%= peer.grade === 'Member' ? 'Outer Circle' : 'Still needs to pass the exam' %>">
+                            </span>
+                            <button onclick="startMonitoring('<%= peer.username %>')" 
+                                class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                Start Monitoring
+                            </button>
+                            <button onclick="openSlack('<%= peer.username %>')" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                Message on Slack
+                            </button>
+                        </div>
+                    </li>
+                <% }); %>
+            </ul>
+
+            <button onclick="toggleRecentPeers()" 
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition w-full sm:w-auto">
+                Show Recently Active Users
+            </button>
+
+            <% if (peers.length === 0) { %>
+                <div id="imageSection" class="text-center text-gray-400 mt-6">
+                    <p class="text-xl">😢 It seems no one is at school.</p>
+                    <img src="/empty_classroom.avif" 
+                    alt="Empty classroom with computers" 
+                    class="mx-auto mt-4 rounded-lg shadow-lg">
+                </div>
+            <% } %>
+        </div>
+
+        <div id="recentPeersSection" class="hidden mt-6 p-4 bg-gray-700 rounded-lg shadow-inner w-full max-w-3xl">
+            <h3 class="text-lg font-semibold">Recently Active Users (Last 7 Days)</h3>
+            <ul class="mt-2 space-y-2 overflow-x-auto" id="rpeerList">
+                <% recentPeers.forEach(user => { %>
+                    <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md rpeer-item space-y-2 sm:space-y-0" data-username="<%= user.username %>">
+                        <div class="flex items-center space-x-4 user-link cursor-pointer" data-username="<%= user.username %>">
+                            <span class="w-4 h-4 rounded-full" 
+                                    style="background-color: <%= user.grade === 'Member' ? 'green' : 'yellow' %>;"
+                                    title="<%= user.grade === 'Member' ? 'Outer Circle' : 'Still needs to pass the exam' %>">
+                            </span>
+                            <img src="<%= user.image %>" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full" alt="<%= user.username %>">
+                            <div class="text-center sm:text-left">
+                                <h2 class="text-lg font-semibold"><%= user.displayname %></h2>
+                                <p class="text-gray-400">@<%= user.username %>, Level: <%= user.level %> <br> (Last Seen: <%= user.last_seen %>, <%= user.days_ago %> days ago) at <%= user.formatted_time %></p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
+                            <button onclick="startMonitoring('<%= user.username %>')" 
+                                class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                Start Monitoring
+                            </button>
+                            <button onclick="openSlack('<%= user.username %>')" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                Message on Slack
+                            </button>
+                        </div>
+                    </li>
+                <% }); %>
+            </ul>
+        </div>
     </div>
 
     <script>

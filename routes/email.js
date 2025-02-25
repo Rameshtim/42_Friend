@@ -6,7 +6,7 @@ const emailService = new EmailService();
 
 router.post("/send-email", async (req, res) => {
     if (!req.isAuthenticated()) {
-      return res.redirect("/home?error=User not authenticated.");
+      return res.redirect("/?error=User not authenticated.");
     }
 
     const { email, searchedUserEmail, displayname, sendEmail, alsoSendEmail, username, reqUsername, duration, intervall } = req.body;

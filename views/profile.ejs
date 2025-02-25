@@ -1,99 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Check Campus Status</title>
-	<link rel="icon" href="/favicon.ico" type="image/png">
-	<style>
-		body {
-			background: url('/cat_stalk.jpeg') no-repeat center center fixed;
-			background-size: cover;
-		}
-		</style>
-	<script src="https://cdn.tailwindcss.com"></script>
-	<script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Campus Status</title>
+    <link rel="icon" href="/favicon.ico" type="image/png">
+    <style>
+        body {
+            background: url('/cat_stalk.jpeg') no-repeat center center fixed;
+            background-size: cover;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
-<body class="bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center min-h-screen p-4 text-white">
-<!-- <body class="flex items-center justify-center min-h-screen text-white"> -->
-	<nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
-		<div class="container mx-auto flex justify-between items-center">
-			<a href="/" class="text-lg font-bold">42_Friend</a>
-			<div class="space-x-6 flex items-center">
-				<a href="/about" class="hover:text-blue-400">About Me</a>
-				<a href="/" class="hover:text-blue-400">Home</a>
-				<a href="/fetch-users" class="hover:text-blue-400">Peers</a>
-				<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
-				<a href="https://github.com/rameshtim/42_friend" target="_blank" 
-					class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
-					<i class="ph ph-github-logo text-xl mr-2"></i>Contribute
-				</a>
-			</div>
-		</div>
-	</nav>
-	<div class="pt-16">
-	
-	<div class="bg-gray-700 shadow-xl rounded-lg p-6 max-w-10xl w-full">
-		<div class="flex items-start space-x-8">
-			<!-- Current User Section -->
-			<div class="w-1/3 bg-gray-800 p-6 rounded-lg shadow-md">
-				<h1 class="text-2xl font-bold text-center">Welcome, <%= user.displayname %>!</h1>
-				<div class="flex justify-center my-4">
-					<div class="inline-block border-4 border-gray-600 rounded-lg">
-						<img class="max-w-full max-h-64 object-contain rounded-lg" src="<%= user.image.versions.medium %>" alt="Your Profile Picture">
-					</div>
-				</div>
-				<div id="loadingIndicator" class="hidden text-center my-4">
-					<div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
-					<p class="text-gray-400 mt-2">Loading peers...</p>
-				</div>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center min-h-screen p-4 text-white">
+    <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-lg font-bold">42_Friend</a>
+            <div class="space-x-6 flex items-center">
+                <a href="/about" class="hover:text-blue-400">About Me</a>
+                <a href="/" class="hover:text-blue-400">Home</a>
+                <a href="/fetch-users" class="hover:text-blue-400">Peers</a>
+                <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+                <a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+                    <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+                </a>
+            </div>
+        </div>
+    </nav>
 
-				<!-- Button -->
-				<a href="/fetch-users" id="findPeersButton" 
-				class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block"
-				onclick="showLoading()">
-					Find Online Peers
-				</a>
-				
-			</div>
-			
-			<!-- Search User Section -->
-			<div class="w-1/2 bg-gray-800 p-6 rounded-lg shadow-md">
-				<h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
-				<form action="/check-user" method="POST" class="mt-4" onsubmit="return validateUsername()">
-					<label for="username" class="block">Enter 42 Username:</label>
-					<input 
-						type="text" 
-						name="username" 
-						id="username"
-						required 
-						pattern="[a-z]+" 
-						title="Only lowercase letters (a-z) are allowed."
-						class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-						oninput="checkInput(this)">
-					<button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition"> Check Status	</button>
-				</form>
-				
-				<% if (searchedUser) { %>
-					<div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
-						<h3 class="text-lg font-semibold">Result for <%= searchedUser.displayname %>:</h3>
-						<div class="flex justify-center my-2">
-							<div class="inline-block border-2 border-gray-500 rounded-lg">
-								<img class="max-w-full max-h-60 object-contain rounded-lg" src="<%= searchedUser.image.versions.large %>" alt="User Profile Picture">
-							</div>
-						</div>
-						
-						<% if (searchedUser.location !== null) { %>
-							<p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname %>, Level: <%= level %> is currently on campus!</p>
-						<% } else { %>
-							<p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname %>, Level: <%= level %> is not on campus</p>
-							<!-- <p class="text-red-400 font-semibold text-center">(Last Seen: <%= last_seen %>,  <%= days_ago %> days ago)</p> -->
-							<p class="text-red-400 font-semibold text-center">(Last Seen: <%= last_seen %>, <%= days_ago %> days ago)
-                                at <%= formatted_time %></p>
-						<% } %>
-					</div>
+    <div class="pt-20 w-full max-w-5xl">
+        <div class="bg-gray-700 shadow-xl rounded-lg p-6 w-full">
+            <div class="flex flex-col md:flex-row items-start space-y-6 md:space-x-8">
+                <!-- Current User Section -->
+                <div class="w-full md:w-1/3 bg-gray-800 p-6 rounded-lg shadow-md">
+                    <h1 class="text-2xl font-bold text-center">Welcome, <%= user.displayname %>!</h1>
+                    <div class="flex justify-center my-4">
+                        <div class="inline-block border-4 border-gray-600 rounded-lg">
+                            <img class="w-32 h-32 object-cover rounded-lg" src="<%= user.image.versions.medium %>" alt="Your Profile Picture">
+                        </div>
+                    </div>
+                    <div id="loadingIndicator" class="hidden text-center my-4">
+                        <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
+                        <p class="text-gray-400 mt-2">Loading peers...</p>
+                    </div>
+                    <a href="/fetch-users" id="findPeersButton" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block" onclick="showLoading()">
+                        Find Online Peers
+                    </a>
+                </div>
+
+                <!-- Search User Section -->
+                <div class="w-full md:w-2/3 bg-gray-800 p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
+                    <form action="/check-user" method="POST" class="mt-4" onsubmit="return validateUsername()">
+                        <label for="username" class="block">Enter 42 Username:</label>
+                        <input type="text" name="username" id="username" required pattern="[a-z]+" title="Only lowercase letters (a-z) are allowed." class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">
+                            Check Status
+                        </button>
+                    </form>
+
+                    <% if (searchedUser) { %>
+                    <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
+                        <h3 class="text-lg font-semibold">Result for <%= searchedUser.displayname %>:</h3>
+                        <div class="flex justify-center my-2">
+                            <div class="inline-block border-2 border-gray-500 rounded-lg">
+                                <img class="w-32 h-32 object-cover rounded-lg" src="<%= searchedUser.image.versions.large %>" alt="User Profile Picture">
+                            </div>
+                        </div>
+                        <% if (searchedUser.location !== null) { %>
+                        <p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname %> is currently on campus!</p>
+                        <% } else { %>
+                        <p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname %> is not on campus</p>
+                        <p class="text-red-400 font-semibold text-center">(Last Seen: <%= last_seen %>, <%= days_ago %> days ago at <%= formatted_time %>)</p>
+                        <% } %>
+                    </div>
 					<div>
 						<h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
 						<form action="/send-email" method="POST" class="mt-2">
@@ -138,37 +122,42 @@
 							<button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">Start Monitoring</button>
 						</form>
 					</div>
-				<% } %>
-			</div>
-			<div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
-				<h3 class="text-lg font-semibold">Currently Monitored Users</h3>
-				<ul id="monitoredUsersList" class="mt-2 space-y-2">
-				  <% if (activeMonitors.length === 0) { %>
-					<p class="text-gray-400">No active monitoring sessions.</p>
-				  <% } else { %>
-					<% activeMonitors.forEach(username => { %>
-					  <li class="flex justify-between items-center bg-gray-800 p-2 rounded-lg shadow">
-						<span><%= username %></span>
-						<button onclick="stopMonitoring('<%= username %>')" 
-								class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg">
-						  Stop
-						</button>
-					  </li>
-					<% }) %>
-				  <% } %>
-				</ul>
-			</div>
-			<div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
-				<h3 class="text-lg font-semibold">Live Notifications</h3>
-				<ul id="notificationList" class="mt-2 space-y-2"></ul>
-			</div>
-					  
-		</div>
-		
-		<div class="text-center mt-6">
-			<a href="/logout" class="text-red-400 font-semibold hover:underline">Logout</a>
-		</div>
-	</div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Monitoring Section -->
+            <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
+                <h3 class="text-lg font-semibold">Currently Monitored Users</h3>
+                <ul id="monitoredUsersList" class="mt-2 space-y-2">
+                    <% if (activeMonitors.length === 0) { %>
+                    <p class="text-gray-400">No active monitoring sessions.</p>
+                    <% } else { %>
+                    <% activeMonitors.forEach(username => { %>
+                    <li class="flex justify-between items-center bg-gray-800 p-2 rounded-lg shadow">
+                        <span><%= username %></span>
+                        <button onclick="stopMonitoring('<%= username %>')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg">
+                            Stop
+                        </button>
+                    </li>
+                    <% }) %>
+                    <% } %>
+                </ul>
+            </div>
+
+            <!-- Live Notifications Section -->
+            <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
+                <h3 class="text-lg font-semibold">Live Notifications</h3>
+                <ul id="notificationList" class="mt-2 space-y-2"></ul>
+            </div>
+
+            <!-- Logout -->
+            <div class="text-center mt-6">
+                <a href="/logout" class="text-red-400 font-semibold hover:underline">Logout</a>
+            </div>
+        </div>
+    </div>
+
 	<script>
 
 		document.addEventListener("DOMContentLoaded", () => {

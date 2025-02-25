@@ -9,7 +9,10 @@ passport.use(
       tokenURL: "https://api.intra.42.fr/oauth/token",
       clientID: process.env.FT_CLIENT_ID,
       clientSecret: process.env.FT_CLIENT_SECRET,
-      callbackURL: "https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback",
+      callbackURL: process.env.NODE_ENV === 'production'
+      ? 'https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback'
+      : 'http://localhost:3000/auth/42/callback',
+      // "https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback",
       // callbackURL: "http://localhost:3000/auth/42/callback",
       // state: true,
       // pkce: true,
