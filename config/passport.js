@@ -12,10 +12,6 @@ passport.use(
       callbackURL: process.env.NODE_ENV === 'production'
       ? 'https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback'
       : 'http://localhost:3000/auth/42/callback',
-      // "https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback",
-      // callbackURL: "http://localhost:3000/auth/42/callback",
-      // state: true,
-      // pkce: true,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -23,7 +19,6 @@ passport.use(
         console.log("Access Token:", accessToken);
         console.log("Refresh Token:", refreshToken);
 
-        // Fetch user profile from 42 API
         const response = await fetch("https://api.intra.42.fr/v2/me", {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
@@ -31,7 +26,6 @@ passport.use(
         const user = await response.json();
         console.log("User Profile:", user.displayname);
 
-        // Store the access token inside the user object
         user.access_token = accessToken;
         user.refresh_token = refreshToken;
         // localStorage.setItem("access_token", user.access_token);

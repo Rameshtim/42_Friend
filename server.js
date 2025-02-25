@@ -54,34 +54,50 @@ const redisClient = redis.createClient({
     }
   }
   
-  connectToRedis();
+  // connectToRedis();
 
 // Add this before your session middleware
-app.use((req, res, next) => {
-  console.log('Incoming request cookies:', req.headers.cookie);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log('Incoming request cookies:', req.headers.cookie);
+//   next();
+// });
 
 
-  const sessionMiddleware = session({
+// Session middleware
+app.use(
+  session({
     store: new RedisStore({ client: redisClient }),
-    secret: process.env.SESSION_SECRET, 
-    name: 'connect.sid',
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    proxy: true,
     cookie: {
-      secure: true,
-    //   httpOnly: false,
+      secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false locally
       httpOnly: true,
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 4,  // 1 day session expiration
-      // domain: '.ondigitalocean.app',  // Add this line
-      // domain: 'goldfish-app-fibzf.ondigitalocean.app', // Force domain match
-      partitioned: true // Add support for CHIPS (Cookie Having Independent Partitioned State)
-      // path: '/'  // Add this line
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Required for cross-origin requests
+      maxAge: 4 * 60 * 60 * 1000, // 4 hours, matches your logs
     },
-  });
+  })
+);
+
+  // const sessionMiddleware = session({
+  //   store: new RedisStore({ client: redisClient }),
+  //   secret: process.env.SESSION_SECRET, 
+  //   name: 'connect.sid',
+  //   resave: false,
+  //   saveUninitialized: false,
+  //   proxy: true,
+  //   cookie: {
+  //     secure: true,
+  //   //   httpOnly: false,
+  //     httpOnly: true,
+  //     sameSite: 'none',
+  //     maxAge: 1000 * 60 * 60 * 4,  // 1 day session expiration
+  //     // domain: '.ondigitalocean.app',  // Add this line
+  //     // domain: 'goldfish-app-fibzf.ondigitalocean.app', // Force domain match
+  //     partitioned: true // Add support for CHIPS (Cookie Having Independent Partitioned State)
+  //     // path: '/'  // Add this line
+  //   },
+  // });
   
   
   // const DOMAIN = 'goldfish-app-fibzf.ondigitalocean.app';
@@ -109,13 +125,13 @@ app.use((req, res, next) => {
 // });
 
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://goldfish-app-fibzf.ondigitalocean.app');
-    res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
-  next();
-});
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', 'https://goldfish-app-fibzf.ondigitalocean.app');
+//     res.header('Access-Control-Allow-Credentials', 'true');
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
+//   next();
+// });
 
 
 // app.use((req, res, next) => {
@@ -125,7 +141,7 @@ app.use((req, res, next) => {
   
   
   // app.use(session(sessionConfig));
-app.use(sessionMiddleware);
+// app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -156,14 +172,6 @@ app.use((err, req, res, next) => {
       return res.redirect('/?error=Session expired. Please login again.');
   }
   next(err);
-});
-
-
-// Add this after your session middleware
-app.use((req, res, next) => {
-  console.log('Session ID:', req.sessionID);
-  console.log('Session:', req.session);
-  next();
 });
 
 
@@ -441,5 +449,10 @@ app.post("/check-user", async (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+async function startServer() {
+  await connectToRedis();
+  app.listen(3000, () => {
+    console.log('Server running on port 3000');
+  });
+}
+startServer();
