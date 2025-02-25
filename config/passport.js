@@ -41,9 +41,22 @@ passport.use(
 
 
 
+// passport.serializeUser((user, done) => {
+//   console.log("Serializing user:");
+//   done(null, user);
+// });
+
 passport.serializeUser((user, done) => {
-  console.log("Serializing user:");
-  done(null, user);
+  done(null, {
+    id: user.id, // Keep ID for unique identification
+    displayname: user.displayname,
+    username: user.login, // Assuming 'login' is the username
+    image: user.image,
+    access_token: user.access_token,
+    refresh_token: user.refresh_token,
+    cursus_users: user.cursus_users,
+    campus_id: user.campus[0].id,
+  });
 });
 
 passport.deserializeUser((user, done) => {

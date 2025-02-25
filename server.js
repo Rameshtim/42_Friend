@@ -308,7 +308,7 @@ app.get("/fetch-users", async (req, res) => {
         let page = 1;
         const perPage = 100;
         const delay = 1200;
-        const campus_id = req.user.campus[0].id;
+        const campus_id = req.user.campus_id;
         
         while (true) {
             const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=21&range%5Blevel%5D=${l_level},${u_level}&page=${page}&per_page=${perPage}`, {
