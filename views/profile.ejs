@@ -258,38 +258,38 @@
 
 		let notificationInterval; // Store interval ID
 
-		async function fetchNotifications() {
-			try {
-				const response = await fetch(`/get-notifications?user=<%= user.login %>`, {
-				credentials: 'include'
-			});
+		// async function fetchNotifications() {
+		// 	try {
+		// 		const response = await fetch(`/get-notifications?user=<%= user.login %>`, {
+		// 		credentials: 'include'
+		// 	});
 
-				// If the server responds with an error, stop fetching
-				if (!response.ok) {
-					throw new Error(`Server error: ${response.status}`);
-				}
+		// 		// If the server responds with an error, stop fetching
+		// 		if (!response.ok) {
+		// 			throw new Error(`Server error: ${response.status}`);
+		// 		}
 
-				const notifications = await response.json();
-				const notificationList = document.getElementById("notificationList");
-				notificationList.innerHTML = ""; // Clear previous notifications
+		// 		const notifications = await response.json();
+		// 		const notificationList = document.getElementById("notificationList");
+		// 		notificationList.innerHTML = ""; // Clear previous notifications
 
-				notifications.forEach((notif) => {
-					const li = document.createElement("li");
-					li.textContent = `${notif.message} at ${notif.timestamp}`;
-					li.className = "bg-gray-800 p-2 rounded-lg shadow";
-					notificationList.appendChild(li);
-				});
+		// 		notifications.forEach((notif) => {
+		// 			const li = document.createElement("li");
+		// 			li.textContent = `${notif.message} at ${notif.timestamp}`;
+		// 			li.className = "bg-gray-800 p-2 rounded-lg shadow";
+		// 			notificationList.appendChild(li);
+		// 		});
 
-			} catch (error) {
-				console.error("Failed to fetch notifications:", error);
-				clearInterval(notificationInterval); // Stop polling if the server is down
-				showPopup("Server is down. Stopping notifications.", false);
-			}
-		}
+		// 	} catch (error) {
+		// 		console.error("Failed to fetch notifications:", error);
+		// 		clearInterval(notificationInterval); // Stop polling if the server is down
+		// 		showPopup("Server is down. Stopping notifications.", false);
+		// 	}
+		// }
 
 		// Start fetching notifications every 30 seconds
-		notificationInterval = setInterval(fetchNotifications, 30000);
-		fetchNotifications();
+		// notificationInterval = setInterval(fetchNotifications, 30000);
+		// fetchNotifications();
 
 		</script>
 		

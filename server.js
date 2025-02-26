@@ -17,9 +17,8 @@ const connectRedis = require("connect-redis");
 // const RedisStore = connectRedis(session);
 const RedisStore = connectRedis.RedisStore; // Correct import for v6+
 
-// Middleware
 app.use(express.static("public"));
-app.use(express.json()); // Add this to parse JSON body properly
+app.use(express.json());
 app.set("view engine", "ejs");
 app.set('trust proxy', 1);
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -176,7 +175,6 @@ app.use((err, req, res, next) => {
 
 
 
-// Add these event listeners after creating the monitor
 monitor.on('statusChange', async (status) => {
     console.log("this monitor event is triggered in server js.");
     await emailService.sendStatusChangeEmail(status.email, status.username, status);
@@ -195,14 +193,12 @@ monitor.on('error', (error) => {
     console.error('Monitor error:', error);
 });
 
-// Clean up on server shutdown
 process.on('SIGINT', () => {
     monitor.stopAll();
     process.exit();
 });
 
 
-// Home Route
 app.get("/", (req, res) => {
   res.render("home");
 });
@@ -227,8 +223,6 @@ app.get("/profile", (req, res) => {
     return res.redirect("/?error=User not authenticated.");
   }
 
-  // Get monitored users from the StatusMonitor class
-  // const activeMonitors = Array.from(app.locals.monitor.activeMonitors.keys()); // Get only usernames
   const activeMonitors = app.locals.monitor?.activeMonitors 
     ? Array.from(app.locals.monitor.activeMonitors.keys()) 
     : [];
@@ -255,6 +249,8 @@ app.post("/stop-monitoring", (req, res) => {
 
 app.get("/get-notifications", (req, res) => {
     const user = req.query.user;
+    console.log(`[${new Date().toISOString()}] /get-notifications - Session ID:`, req.sessionID);
+    console.log(`[${new Date().toISOString()}] /get-notifications - User:`, req.user?.username);
     res.json(app.locals.monitor.getNotifications(user));
 });
 
@@ -287,7 +283,6 @@ function getLevelRange(coreLevel) {
     return { l_level, u_level };
 }
 
-// Add this route to fetch users from the 42 API
 app.get("/fetch-users", async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.redirect("/?error=User not authenticated.");
@@ -336,7 +331,6 @@ app.get("/fetch-users", async (req, res) => {
         const now = new Date();
 
         
-        // Filter users who are currently on campus
         const onlineUsers = users.filter(user => user.user.location !== null).map(user => ({
             username: user.user.login,
             displayname: user.user.displayname,
@@ -345,7 +339,6 @@ app.get("/fetch-users", async (req, res) => {
             level: user.level
         }));
         
-        // Filter users who were active in the last 7 days
         const recentUsers = users.filter(user => {
             const updatedAt = new Date(user.user.updated_at);
             return updatedAt >= sevenDaysAgo && !onlineUsers.some(peer => peer.username === user.user.login);
@@ -361,9 +354,9 @@ app.get("/fetch-users", async (req, res) => {
                 formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }), // HH:MM (24-hour format)
                 days_ago: daysAgo,
                 level: user.level,
-                grade: user.grade // Store grade for color coding
+                grade: user.grade 
             };
-        }).sort((a, b) => new Date(b.nlast_seen) - new Date(a.nlast_seen)); // Sort by most recent
+        }).sort((a, b) => new Date(b.nlast_seen) - new Date(a.nlast_seen)); 
         
         res.render("peers", { 
             user: req.user, 
@@ -405,7 +398,6 @@ app.post("/check-user", async (req, res) => {
   try {
       console.log(`Fetching user data for: ${username}`);
 
-      // Fetch user details from 42 API
       const userResponse = await fetch(`https://api.intra.42.fr/v2/users/${username}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
       });
@@ -414,25 +406,22 @@ app.post("/check-user", async (req, res) => {
           const errorText = await userResponse.text();
           console.error("Error response from 42 API:", errorText);
           return res.redirect(`/profile?error=**${username}** not found!`);
-          // throw new Error("User not found");
       }
 
       const user = await userResponse.json();
       console.log("User found:", user.location);
       const coreCursus = user.cursus_users.find(cursus=> cursus.cursus_id === 21);
-    //   console.log('This is users cursus level ', coreCursus.level);
-    //   console.log("User cursus_user:", user.cursus_users);
 
       const updatedAt = new Date(user.updated_at);
       const now = new Date();
-      const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24)); // Calculate days ago
+      const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24)); 
 
       res.render("profile", { 
           user: req.user, 
           searchedUser: user, 
-          activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()), // Pass monitored users
-          last_seen: updatedAt.toLocaleDateString("en-GB"), // Format as DD-MM-YYYY
-          formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }), // HH:MM (24-hour format)
+          activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()), 
+          last_seen: updatedAt.toLocaleDateString("en-GB"),
+          formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
           days_ago: daysAgo,
           level: coreCursus.level,
       });
@@ -442,7 +431,7 @@ app.post("/check-user", async (req, res) => {
       res.render("profile", { 
           user: req.user, 
           searchedUser: null, 
-          activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()), // Ensure `activeMonitors` is passed
+          activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()),
           error: "User not found or an error occurred." 
       });
   }
