@@ -40,7 +40,8 @@ router.get(
         return next(err);
       }
       console.log("Session saved, redirecting to /profile");
-      res.redirect("/profile");
+      setTimeout(() => res.redirect("/profile"), 3000); // Small delay
+      // res.redirect("/profile");
     });
   }
 );
