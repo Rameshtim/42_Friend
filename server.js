@@ -11,11 +11,17 @@ const util = require("util");
 const sleep = util.promisify(setTimeout);
 const fs = require("fs");
 const app = express();
+
+const connectRedis = require('connect-redis'); // Explicit import for ES6
+const RedisStore = connectRedis.RedisStore;
+const Redis = require('ioredis');
 // const RedisStore = require("connect-redis")(session);
-const redis = require("redis");
-const connectRedis = require("connect-redis");
 // const RedisStore = connectRedis(session);
-const RedisStore = connectRedis.RedisStore; // Correct import for v6+
+
+
+// const redis = require("redis");
+// const connectRedis = require("connect-redis");
+// const RedisStore = connectRedis.RedisStore; // Correct import for v6+
 
 app.use(express.static("public"));
 app.use(express.json());
@@ -24,17 +30,29 @@ app.set('trust proxy', 1);
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-const redisClient = redis.createClient({
-    url: 'redis://127.0.0.1:6379' ,
-    socket: {
-      reconnectStrategy: (retries) => {
-        if (retries > 10) {
-          return new Error('Max reconnection attempts reached');
-        }
-        return Math.min(retries * 100, 3000);
-      }
-    }
-  });
+
+// const redisClient = redis.createClient({
+//     url: 'redis://127.0.0.1:6379' ,
+//     socket: {
+//       reconnectStrategy: (retries) => {
+//         if (retries > 10) {
+//           return new Error('Max reconnection attempts reached');
+//         }
+//         return Math.min(retries * 100, 3000);
+//       }
+//     }
+//   });
+
+
+
+const redisClient = new Redis({
+  host: 'redis', // "redis" service in docker-compose
+  port: 6379,
+  retryStrategy: (times) => {
+    if (times > 10) return null; // Stop retrying after 10 attempts
+    return Math.min(times * 200, 3000);
+  }
+});
   // redisClient.on("error", (err) => {
   //   console.error("❌ Redis Error:", err);
   // });
@@ -55,21 +73,19 @@ app.use((req, res, next) => {
   next();
 });
 
+const redisStore = new RedisStore({ client: redisClient, prefix: 'sess:', ttl: 14400 });
+
 app.use(
   session({
-    store: new RedisStore({ 
-      client: redisClient,
-      logErrors: (err) => console.error(`[${new Date().toISOString()}] Redis Store Error:`, err),
-      ttl: 14400,
-    }),
+    store: redisStore, // Use the properly initialized RedisStore,
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production', // Secure in production
       httpOnly: true,
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 4 * 60 * 60 * 1000,
+      maxAge: 4 * 60 * 60 * 1000, // 4 hours in milliseconds
     },
     genid: (req) => {
       const newId = require('crypto').randomBytes(16).toString('hex');
@@ -78,20 +94,43 @@ app.use(
     }
   })
 );
+// app.use(
+//   session({
+//     store: new RedisStore({ 
+//       client: redisClient,
+//       logErrors: (err) => console.error(`[${new Date().toISOString()}] Redis Store Error:`, err),
+//       ttl: 14400,
+//     }),
+//     secret: process.env.SESSION_SECRET || 'your-secret-key',
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: process.env.NODE_ENV === 'production',
+//       httpOnly: true,
+//       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+//       maxAge: 4 * 60 * 60 * 1000,
+//     },
+//     genid: (req) => {
+//       const newId = require('crypto').randomBytes(16).toString('hex');
+//       console.log(`[${new Date().toISOString()}] New Session ID Generated:`, newId);
+//       return newId;
+//     }
+//   })
+// );
 
 redisClient.on("error", (err) => console.error(`[${new Date().toISOString()}] Redis Client Error:`, err));
 redisClient.on("connect", () => console.log(`[${new Date().toISOString()}] Redis Connected`));
 redisClient.on("reconnecting", () => console.log(`[${new Date().toISOString()}] Redis Reconnecting`));
 
 
-async function connectToRedis() {
-  try {
-    await redisClient.connect();
-    console.log("✅ Redis connection established");
-  } catch (error) {
-    console.error("❌ Redis connection error:", error);
-  }
-}
+// async function connectToRedis() {
+//   try {
+//     await redisClient.connect();
+//     console.log("✅ Redis connection established");
+//   } catch (error) {
+//     console.error("❌ Redis connection error:", error);
+//   }
+// }
 // // Session middleware
 // app.use(
 //   session({
@@ -471,7 +510,7 @@ app.post("/check-user", async (req, res) => {
 
 
 async function startServer() {
-  await connectToRedis();
+  // await connectToRedis();
   app.listen(3000, () => {
     console.log('Server running on port 3000');
   });

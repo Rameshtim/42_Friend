@@ -2,7 +2,7 @@
 FROM node:23-alpine
 
 # RUN apt update && apt install -y redis-server
-RUN apk add --no-cache redis
+# RUN apk add --no-cache redis
 # Set the working directory
 WORKDIR /usr/src/app
 
