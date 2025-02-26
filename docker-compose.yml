@@ -5,33 +5,33 @@ services:
       - "3000:3000"
     env_file:
       - .env
-    depends_on:
-      - redis
+    # depends_on:
+    #   - redis
     command: ["sh", "./start.sh"]
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    networks:
-      - app_network
+#     environment:
+#       - REDIS_HOST=redis
+#       - REDIS_PORT=6379
+#     networks:
+#       - app_network
 
-  redis:
-    image: "redis:7.4.2-alpine"
-    restart: always
-    ports:
-      - "6379:6379"
-    command: redis-server --maxmemory 100mb --maxmemory-policy allkeys-lru --appendonly no --save "" --timeout 14400
-    environment:
-      - REDIS_MAXMEMORY=100mb
-      - REDIS_MAXMEMORY_POLICY=allkeys-lru
-    volumes:
-      - redis_data:/data
-    networks:
-      - app_network
+#   redis:
+#     image: "redis:7.4.2-alpine"
+#     restart: always
+#     ports:
+#       - "6379:6379"
+#     command: redis-server --maxmemory 100mb --maxmemory-policy allkeys-lru --appendonly no --save "" --timeout 14400
+#     environment:
+#       - REDIS_MAXMEMORY=100mb
+#       - REDIS_MAXMEMORY_POLICY=allkeys-lru
+#     volumes:
+#       - redis_data:/data
+#     networks:
+#       - app_network
 
-volumes:
-  redis_data:
-    driver: local
+# volumes:
+#   redis_data:
+#     driver: local
 
-networks:
-  app_network:
-    driver: bridge
+# networks:
+#   app_network:
+#     driver: bridge

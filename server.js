@@ -46,7 +46,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 const redisClient = new Redis({
-  host: 'redis', // "redis" service in docker-compose
+  host: 'localhost', // "redis" service in docker-compose
   port: 6379,
   retryStrategy: (times) => {
     if (times > 10) return null; // Stop retrying after 10 attempts
