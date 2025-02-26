@@ -61,8 +61,6 @@ const redisClient = redis.createClient({
 //   next();
 // });
 
-
-// Session middleware
 app.use(
   session({
     store: new RedisStore({ client: redisClient }),
@@ -70,13 +68,34 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false locally
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Required for cross-origin requests
-      maxAge: 4 * 60 * 60 * 1000, // 4 hours, matches your logs
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 4 * 60 * 60 * 1000,
     },
+    genid: (req) => {
+      const newId = require('crypto').randomBytes(16).toString('hex');
+      console.log(`[${new Date().toISOString()}] New Session ID Generated:`, newId);
+      return newId;
+    }
   })
 );
+
+// // Session middleware
+// app.use(
+//   session({
+//     store: new RedisStore({ client: redisClient }),
+//     secret: process.env.SESSION_SECRET || 'your-secret-key',
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: process.env.NODE_ENV === 'production', // true in production (HTTPS), false locally
+//       httpOnly: true,
+//       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Required for cross-origin requests
+//       maxAge: 4 * 60 * 60 * 1000, // 4 hours, matches your logs
+//     },
+//   })
+// );
 
   // const sessionMiddleware = session({
   //   store: new RedisStore({ client: redisClient }),
