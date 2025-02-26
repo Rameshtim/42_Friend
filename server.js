@@ -56,10 +56,11 @@ const redisClient = redis.createClient({
   // connectToRedis();
 
 // Add this before your session middleware
-// app.use((req, res, next) => {
-//   console.log('Incoming request cookies:', req.headers.cookie);
-//   next();
-// });
+
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - Cookies:`, req.headers.cookie || 'None');
+  next();
+});
 
 app.use(
   session({
@@ -235,7 +236,9 @@ app.get("/about", (req, res) => {
 
 
 app.get("/profile", (req, res) => {
-  console.log("📌 Profile Route - Session Data:", req.session);
+  // console.log("📌 Profile Route - Session Data:", req.session);
+  console.log(`[${new Date().toISOString()}] Profile Route - Session ID:`, req.sessionID);
+  console.log(`[${new Date().toISOString()}] Profile Route - Session Data:`, req.session);
 
   if (!req.isAuthenticated()) {
     console.log("user not authenticated", req.user);

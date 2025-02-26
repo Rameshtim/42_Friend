@@ -20,12 +20,28 @@ router.get("/auth/42", passport.authenticate("oauth2"));
 //   });
 // });
 
+// router.get(
+//   "/auth/42/callback",
+//   passport.authenticate("oauth2", { failureRedirect: "/" }),
+//   (req, res) => {
+//     console.log("Session after auth:", req.session); // Debug session
+//     res.redirect("/profile");
+//   }
+// );
+
 router.get(
   "/auth/42/callback",
   passport.authenticate("oauth2", { failureRedirect: "/" }),
-  (req, res) => {
-    console.log("Session after auth:", req.session); // Debug session
-    res.redirect("/profile");
+  (req, res, next) => {
+    console.log("Session after auth:", req.session);
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return next(err);
+      }
+      console.log("Session saved, redirecting to /profile");
+      res.redirect("/profile");
+    });
   }
 );
 
