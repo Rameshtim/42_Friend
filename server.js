@@ -35,23 +35,16 @@ const redisClient = redis.createClient({
       }
     }
   });
-    redisClient.on("error", (err) => {
-    console.error("❌ Redis Error:", err);
-  });
+  // redisClient.on("error", (err) => {
+  //   console.error("❌ Redis Error:", err);
+  // });
   
-  redisClient.on("connect", () => {
-    console.log("✅ Successfully connected to Redis");
-  });
+  // redisClient.on("connect", () => {
+  //   console.log("✅ Successfully connected to Redis");
+  // });
 
 
-  async function connectToRedis() {
-    try {
-      await redisClient.connect();
-      console.log("✅ Redis connection established");
-    } catch (error) {
-      console.error("❌ Redis connection error:", error);
-    }
-  }
+ 
   
   // connectToRedis();
 
@@ -64,7 +57,11 @@ app.use((req, res, next) => {
 
 app.use(
   session({
-    store: new RedisStore({ client: redisClient }),
+    store: new RedisStore({ 
+      client: redisClient,
+      logErrors: (err) => console.error(`[${new Date().toISOString()}] Redis Store Error:`, err),
+      ttl: 14400,
+    }),
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
@@ -82,6 +79,19 @@ app.use(
   })
 );
 
+redisClient.on("error", (err) => console.error(`[${new Date().toISOString()}] Redis Client Error:`, err));
+redisClient.on("connect", () => console.log(`[${new Date().toISOString()}] Redis Connected`));
+redisClient.on("reconnecting", () => console.log(`[${new Date().toISOString()}] Redis Reconnecting`));
+
+
+async function connectToRedis() {
+  try {
+    await redisClient.connect();
+    console.log("✅ Redis connection established");
+  } catch (error) {
+    console.error("❌ Redis connection error:", error);
+  }
+}
 // // Session middleware
 // app.use(
 //   session({
