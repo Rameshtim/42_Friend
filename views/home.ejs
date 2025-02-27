@@ -47,16 +47,26 @@
       }
     });
     
-      function showPopup(message, success) {
-        const popup = document.createElement("div");
-        popup.innerText = message;
-        popup.className = `fixed top-5 right-5 p-4 rounded-lg text-white ${success ? "bg-green-500" : "bg-red-500"}`;
-        document.body.appendChild(popup);
-    
-        setTimeout(() => {
-          popup.remove();
-        }, 10000);
-      }
+    function showPopup(message, success) {
+			const popup = document.createElement("div");
+			popup.innerText = message;
+
+			popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
+				${success ? "bg-green-500" : "bg-red-500"} opacity-0`;
+
+			document.body.appendChild(popup);
+
+			// Fade in effect
+			setTimeout(() => {
+				popup.classList.add("opacity-100");
+			}, 50);
+
+			// Remove after timeout
+			setTimeout(() => {
+				popup.classList.remove("opacity-100");
+				setTimeout(() => popup.remove(), 300);
+			}, 3000);
+		}
     </script>
 </body>
 </html>

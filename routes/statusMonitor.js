@@ -133,9 +133,9 @@ class StatusMonitor extends EventEmitter {
         this.activeMonitors.clear();
         // console.log("stopping all active monitors")
     }
-    // getNotifications(username) {
-    //     return this.notifications[username] || [];
-    // }
+    getNotifications(username) {
+        return this.notifications[username] || [];
+    }
 }
 
 
