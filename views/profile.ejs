@@ -6,12 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check Campus Status</title>
     <link rel="icon" href="/favicon.ico" type="image/png">
-    <style>
-        body {
-            background: url('/cat_stalk.jpeg') no-repeat center center fixed;
-            background-size: cover;
-        }
-    </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
@@ -107,10 +101,6 @@
 								<option value="10min">10 Minutes</option>
 								<option value="30min">30 Minutes</option>
 							</select>
-							<!-- <div class="flex items-center mt-2">
-								<input type="checkbox" name="sendSlack" value="on" id="sendSlack" class="mr-2">
-								<label for="sendSlack">🔔 Send me a Slack DM</label>
-							</div> -->
 							<div class="flex items-center mt-2">
 								<input type="checkbox" name="sendEmail" value="on" id="sendEmail" class="mr-2">
 								<label for="sendEmail">📧 Send me an email</label>
@@ -159,7 +149,6 @@
     </div>
 
 	<script>
-
 		let notificationInterval; // Store interval ID
 
 		document.addEventListener("DOMContentLoaded", () => {
@@ -177,12 +166,67 @@
 				const newUrl = window.location.pathname; 
 				window.history.replaceState({}, document.title, newUrl);
 			}
-			    // Start fetching notifications only if monitoring is active
+			
+			// Start fetching notifications only if monitoring is active
+			const activeMonitors = <%= JSON.stringify(activeMonitors || []) %>;
 			const isMonitoringActive = activeMonitors.length > 0;
 			if (isMonitoringActive) {
 				startFetchingNotifications();
 			}
+			
+			// Add event listeners to all internal links
+			addCredentialsToLinks();
 		});
+
+		// Function to add click event listeners to all internal links
+		function addCredentialsToLinks() {
+			// Get all anchor tags
+			const links = document.querySelectorAll('a');
+			
+			links.forEach(link => {
+				// Skip external links or links with target="_blank"
+				if (link.getAttribute('target') === '_blank' || link.href.startsWith('http') && !link.href.includes(window.location.hostname)) {
+					return;
+				}
+				
+				// Handle internal links
+				link.addEventListener('click', function(e) {
+					// Prevent default navigation
+					e.preventDefault();
+					
+					const href = this.getAttribute('href');
+					
+					// Skip if it's a JavaScript function or empty href
+					if (!href || href === '#' || href.startsWith('javascript:')) {
+						return;
+					}
+					
+					// Make a fetch request with credentials
+					fetch(href, {
+						method: 'GET',
+						credentials: 'include'
+					})
+					.then(response => {
+						// If it's an HTML response, navigate to the page
+						if (response.headers.get('content-type')?.includes('text/html')) {
+							window.location.href = href;
+						} else {
+							// For API endpoints that return JSON
+							return response.json().then(data => {
+								// Handle JSON response if needed
+								console.log('Received data:', data);
+								window.location.href = href;
+							});
+						}
+					})
+					.catch(error => {
+						console.error('Navigation error:', error);
+						// Fallback to regular navigation if fetch fails
+						window.location.href = href;
+					});
+				});
+			});
+		}
 
 		async function stopMonitoring(username) {
 			try {
@@ -251,12 +295,11 @@
 			document.getElementById("findPeersButton").classList.add("opacity-50", "cursor-not-allowed"); // Disable button
 		}
 
-
 		async function fetchNotifications() {
 			try {
 				const response = await fetch(`/get-notifications?user=<%= user.login %>`, {
-				credentials: 'include'
-			});
+					credentials: 'include'
+				});
 
 				// If the server responds with an error, stop fetching
 				if (!response.ok) {
@@ -281,14 +324,12 @@
 			}
 		}
 
-			function startFetchingNotifications() {
-				if (notificationInterval) return; // Prevent multiple intervals
-					
-				notificationInterval = setInterval(fetchNotifications, 30000);
-				fetchNotifications(); // Fetch immediately
-			}
-
-		</script>
-		
-	</body>
+		function startFetchingNotifications() {
+			if (notificationInterval) return; // Prevent multiple intervals
+				
+			notificationInterval = setInterval(fetchNotifications, 30000);
+			fetchNotifications(); // Fetch immediately
+		}
+	</script>
+</body>
 </html>
