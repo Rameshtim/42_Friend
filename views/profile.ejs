@@ -121,16 +121,16 @@
                 <h3 class="text-lg font-semibold">Currently Monitored Users</h3>
                 <ul id="monitoredUsersList" class="mt-2 space-y-2">
                     <% if (activeMonitors.length === 0) { %>
-                    <p class="text-gray-400">No active monitoring sessions.</p>
+                    	<p class="text-gray-400">No active monitoring sessions.</p>
                     <% } else { %>
-                    <% activeMonitors.forEach(username => { %>
-                    <li class="flex justify-between items-center bg-gray-800 p-2 rounded-lg shadow">
-                        <span><%= username %></span>
-                        <button onclick="stopMonitoring('<%= username %>')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg">
-                            Stop
-                        </button>
-                    </li>
-                    <% }) %>
+						<% activeMonitors.forEach(username => { %>
+							<li class="flex justify-between items-center bg-gray-800 p-2 rounded-lg shadow">
+								<span><%= username %></span>
+								<button onclick="stopMonitoring('<%= username %>')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg">
+									Stop
+								</button>
+							</li>
+						<% }) %>
                     <% } %>
                 </ul>
             </div>
@@ -166,11 +166,9 @@
 				const newUrl = window.location.pathname; 
 				window.history.replaceState({}, document.title, newUrl);
 			}
-			
-			// Start fetching notifications only if monitoring is active
-			const activeMonitors = <%= JSON.stringify(activeMonitors || []) %>;
-			const isMonitoringActive = activeMonitors.length > 0;
-			if (isMonitoringActive) {
+			const activeMonitors = <%- typeof activeMonitors !== 'undefined' ? JSON.stringify(activeMonitors) : '[]' %>;
+			if (activeMonitors.length > 0) {
+				console.log("will start fetching notifications");
 				startFetchingNotifications();
 			}
 			
@@ -325,9 +323,11 @@
 		}
 
 		function startFetchingNotifications() {
+			console.log("***** starting to fetch notification ***********");
 			if (notificationInterval) return; // Prevent multiple intervals
 				
 			notificationInterval = setInterval(fetchNotifications, 30000);
+			console.log("----------- fetched every : ", notificationInterval);
 			fetchNotifications(); // Fetch immediately
 		}
 	</script>
