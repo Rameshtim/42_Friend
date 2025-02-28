@@ -51,7 +51,17 @@ const redisClient = new Redis({
   retryStrategy: (times) => {
     if (times > 10) return null; // Stop retrying after 10 attempts
     return Math.min(times * 200, 3000);
-  }
+  },
+  commandTimeout: 10000, // Adjust as needed
+    reconnectOnError: (err) => {
+        const targetError = 'READONLY';
+        if (err.message.slice(0, targetError.length) === targetError) {
+          // Only reconnect when the error contains "READONLY"
+          return true;
+        }
+        return false;
+      },
+    enableOfflineQueue: false
 });
   // redisClient.on("error", (err) => {
   //   console.error("❌ Redis Error:", err);
@@ -121,7 +131,25 @@ app.use(
 redisClient.on("error", (err) => console.error(`[${new Date().toISOString()}] Redis Client Error:`, err));
 redisClient.on("connect", () => console.log(`[${new Date().toISOString()}] Redis Connected`));
 redisClient.on("reconnecting", () => console.log(`[${new Date().toISOString()}] Redis Reconnecting`));
+redisClient.on('ready', () => {
+  console.log(`[${new Date().toISOString()}] Redis Ready`);
+});
 
+redisClient.on('close', () => {
+  console.log(`[${new Date().toISOString()}] Redis Connection Closed`);
+});
+
+redisClient.on('end', () => {
+  console.log(`[${new Date().toISOString()}] Redis Connection Ended`);
+});
+
+redisClient.on('wait', () => {
+  console.log(`[${new Date().toISOString()}] Redis Wait`);
+});
+
+redisClient.on('drain', () => {
+  console.log(`[${new Date().toISOString()}] Redis Drain`);
+});
 
 // async function connectToRedis() {
 //   try {
@@ -228,7 +256,7 @@ app.locals.monitor = monitor;
 
 app.use((req, res, next) => {
   console.log('Session ID:', req.sessionID);
-  console.log('Session Data:', req.session);
+  // console.log('Session Data:', req.session);
   // console.log('Is Authenticated:', req.isAuthenticated());
   next();
 });
@@ -287,7 +315,7 @@ app.get("/about", (req, res) => {
 app.get("/profile", (req, res) => {
   // console.log("📌 Profile Route - Session Data:", req.session);
   console.log(`[${new Date().toISOString()}] Profile Route - Session ID:`, req.sessionID);
-  console.log(`[${new Date().toISOString()}] Profile Route - Session Data:`, req.session);
+  // console.log(`[${new Date().toISOString()}] Profile Route - Session Data:`, req.session);
 
   if (!req.isAuthenticated()) {
     console.log("user not authenticated", req.user);

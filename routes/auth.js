@@ -33,7 +33,7 @@ router.get(
   "/auth/42/callback",
   passport.authenticate("oauth2", { failureRedirect: "/" }),
   (req, res, next) => {
-    console.log("Session after auth:", req.session);
+    console.log("Session after auth:", req.sessionID);
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
