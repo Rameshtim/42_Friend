@@ -8,6 +8,7 @@
     <link rel="icon" href="/favicon.ico" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
 <body class="bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center min-h-screen p-4 text-white">
@@ -17,7 +18,7 @@
             <div class="space-x-6 flex items-center">
                 <a href="/about" class="hover:text-blue-400">About Me</a>
                 <a href="/" class="hover:text-blue-400">Home</a>
-                <a href="/fetch-users" class="hover:text-blue-400">Peers</a>
+                <a href="/fetch-users" class="hover:text-blue-400" onclick="showLoading()">Peers</a>
                 <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
                 <a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
                     <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
@@ -44,18 +45,160 @@
                     <a href="/fetch-users" id="findPeersButton" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block" onclick="showLoading()">
                         Find Online Peers
                     </a>
+					
+                    <div class="w-full bg-gray-800 p-6 rounded-lg shadow-md">
+						<form action="/fetch-users-campus" method="POST" class="mt-4 space-y-4" id="fetchUsersForm">
+							<button type="button" onclick="toggleAdvancedSearch()" 
+									class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center">
+								<svg class="w-5 h-5 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16l4-4 4 4M8 8l4 4 4-4"></path>
+								</svg>
+								Advanced Search
+							</button>
+					
+							<!-- Advanced Search Section (Hidden by Default) -->
+							<div id="advancedSearch" class="hidden space-y-4">
+								<!-- Searchable Campus Selection -->
+								<div x-data="{ search: '', campuses: [
+									{ id: 43, name: 'Abu Dhabi' },
+									{ id: 36, name: 'Adelaide' },
+									{ id: 14, name: 'Amsterdam' },
+									{ id: 31, name: 'Angouleme' },
+									{ id: 35, name: 'Amman' },
+									{ id: 65, name: 'Antananarivo' },
+									{ id: 46, name: 'Barcelona' },
+									{ id: 71, name: 'Beirut' },
+									{ id: 61, name: 'Belo Horizonte' },
+									{ id: 21, name: 'Benguerir' },
+									{ id: 51, name: 'Berlin' },
+									{ id: 33, name: 'Bangkok' },
+									{ id: 54, name: '42 Central' },
+									{ id: 42, name: '42Network' },
+									{ id: 52, name: 'Florence' },
+									{ id: 66, name: 'Forty2' },
+									{ id: 69, name: 'Gyeongsan' },
+									{ id: 39, name: 'Heilbronn' },
+									{ id: 13, name: 'Helsinki' },
+									{ id: 49, name: 'Istanbul' },
+									{ id: 73, name: 'IskandarPuteri' },
+									{ id: 50, name: 'Kocaeli' },
+									{ id: 16, name: 'Khouribga' },
+									{ id: 34, name: 'Kuala Lumpur' },
+									{ id: 47, name: 'Lausanne' },
+									{ id: 62, name: 'Le Havre' },
+									{ id: 38, name: 'Lisboa' },
+									{ id: 57, name: 'London' },
+									{ id: 68, name: 'Luanda' },
+									{ id: 59, name: 'Luxembourg' },
+									{ id: 9, name: 'Lyon' },
+									{ id: 22, name: 'Madrid' },
+									{ id: 37, name: 'Malaga' },
+									{ id: 72, name: 'Milano' },
+									{ id: 48, name: 'Mulhouse' },
+									{ id: 70, name: 'Nablus' },
+									{ id: 41, name: 'Nice' },
+									{ id: 1, name: 'Paris' },
+									{ id: 74, name: 'Penang' },
+									{ id: 60, name: 'Perpignan' },
+									{ id: 58, name: 'Porto' },
+									{ id: 56, name: 'Prague' },
+									{ id: 25, name: 'Quebec' },
+									{ id: 75, name: 'Rabat' },
+									{ id: 28, name: 'Rio de Janeiro' },
+									{ id: 30, name: 'Rome' },
+									{ id: 20, name: 'São-Paulo' },
+									{ id: 29, name: 'Seoul' },
+									{ id: 64, name: 'Singapore' },
+									{ id: 55, name: 'Tétouan' },
+									{ id: 26, name: 'Tokyo' },
+									{ id: 40, name: 'Urduliz' },
+									{ id: 53, name: 'Vienna' },
+									{ id: 67, name: 'Warsaw' },
+									{ id: 44, name: 'Wolfsburg' },
+									{ id: 32, name: 'Yerevan' },
+									{ id: 12, name: '19' }
+								] }">
+									<label for="campus_id" class="block text-white">Campus :</label>
+									<select id="campus_id" name="campus_id" 
+											class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
+												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+										<option value="">Choose your Campus</option>
+										<template x-for="campus in campuses.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))" :key="campus.id">
+											<option :value="campus.id" x-text="campus.name"></option>
+										</template>
+									</select>
+								</div>
+								<div>
+									<label for="l_level" class="block text-white">Level:</label>
+									<select id="l_level" name="l_level" required 
+											class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
+												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+										<option value="0">0</option>
+										<option value="1" selected>1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="6">6</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="10">10</option>
+									</select>
+								</div>
+					
+								<!-- Upper Level Selection -->
+								<div>
+									<label for="u_level" class="block text-white">Upper Level (optional):</label>
+									<select id="u_level" name="u_level" 
+											class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
+												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+										<option value="" selected>Any</option>
+										<option value="1">1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="6">6</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="100">10+</option>
+									</select>
+								</div>
+					
+							<!-- Submit Button -->
+								<button type="submit" 
+										class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition">
+									Find Peers
+								</button>
+							</div>
+						</form>
+					</div>					
+					
                 </div>
 
                 <!-- Search User Section -->
-                <div class="w-full md:w-2/3 bg-gray-800 p-6 rounded-lg shadow-md">
-                    <h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
-                    <form action="/check-user" method="POST" class="mt-4" onsubmit="return validateUsername()">
-                        <label for="username" class="block">Enter 42 Username:</label>
-                        <input type="text" name="username" id="username" required pattern="[a-z]+" title="Only lowercase letters (a-z) are allowed." class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">
-                            Check Status
-                        </button>
-                    </form>
+				<div class="w-full md:w-2/3 bg-gray-800 p-6 rounded-lg shadow-md">
+					<h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
+					<form action="/check-user" method="POST" class="mt-4" id="userForm" onsubmit="return startLoading()">
+						<label for="username" class="block">Enter 42 Username:</label>
+						<input type="text" name="username" id="username" required pattern="[a-z]+" 
+							title="Only lowercase letters (a-z) are allowed." 
+							class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
+								   focus:outline-none focus:ring-2 focus:ring-blue-500">
+						<button type="submit" id="submitButton" 
+							class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 
+								   rounded-lg mt-3 transition">
+							Check Status
+						</button>
+					</form>
+				
+					<!-- Loader: Hidden by Default -->
+					<div id="loadingSpinner" class="hidden flex justify-center items-center mt-4">
+						<div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+						<p class="ml-3 text-white font-semibold">Fetching Data...</p>
+					</div>
 
                     <% if (searchedUser) { %>
                     <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
@@ -65,12 +208,44 @@
                                 <img class="w-32 h-32 object-cover rounded-lg" src="<%= searchedUser.image.versions.large %>" alt="User Profile Picture">
                             </div>
                         </div>
-                        <% if (searchedUser.location !== null) { %>
-                        <p class="text-green-400 font-semibold text-center">✅ <%= searchedUser.displayname %> is currently on campus!</p>
-                        <% } else { %>
-                        <p class="text-red-400 font-semibold text-center">❌ <%= searchedUser.displayname %> is not on campus</p>
-                        <p class="text-red-400 font-semibold text-center">(Last Seen: <%= last_seen %>, <%= days_ago %> days ago at <%= formatted_time %>)</p>
-                        <% } %>
+						<% if (searchedUser.location !== null) { %>
+							<p class="text-green-400 font-semibold text-center text-lg">
+								✅ <%= searchedUser.displayname %> (Level: <%= level %>) is currently on campus since <%= formatted_time %> !
+							</p>
+							<p class="text-white font-semibold text-center mt-2"> 
+								<span class="underline">Current Project(s):</span> 
+							</p>
+							<ul class="mt-1 text-center">
+								<% projectsInfo.split(', ').forEach(project => { %>
+									<% let statusColor = project.includes("in_progress") ? "text-green-400" : 
+														project.includes("searching_a_group") ? "text-yellow-400" : 
+														"text-blue-400"; %>
+									<li class="<%= statusColor %> font-medium">
+										🔹 <%= project %>
+									</li>
+								<% }); %>
+							</ul>
+						<% } else { %>
+							<p class="text-red-400 font-semibold text-center text-lg">
+								❌ <%= searchedUser.displayname %> (Level: <%= level %>) is not on campus.
+							</p>
+							<p class="text-white font-semibold text-center mt-2"> 
+								<span class="underline">Current Project(s):</span> 
+							</p>
+							<ul class="mt-1 text-center">
+								<% projectsInfo.split(', ').forEach(project => { %>
+									<% let statusColor = project.includes("in_progress") ? "text-green-400" : 
+														project.includes("searching_a_group") ? "text-yellow-400" : 
+														"text-blue-400"; %>
+									<li class="<%= statusColor %> font-medium">
+										🔹 <%= project %>
+									</li>
+								<% }); %>
+							</ul>
+							<p class="text-gray-400 italic text-center mt-2">
+								(Last Seen: <%= last_seen %>, <%= days_ago %> days ago at <%= formatted_time %>)
+							</p>
+						<% } %>						
                     </div>
 					<div>
 						<h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
@@ -172,13 +347,15 @@
 				startFetchingNotifications();
 			}
 			
-			// Add event listeners to all internal links
 			addCredentialsToLinks();
 		});
 
-		// Function to add click event listeners to all internal links
+		function toggleAdvancedSearch() {
+			const advancedSearch = document.getElementById('advancedSearch');
+			advancedSearch.classList.toggle('hidden');
+		}
+
 		function addCredentialsToLinks() {
-			// Get all anchor tags
 			const links = document.querySelectorAll('a');
 			
 			links.forEach(link => {
@@ -189,7 +366,6 @@
 				
 				// Handle internal links
 				link.addEventListener('click', function(e) {
-					// Prevent default navigation
 					e.preventDefault();
 					
 					const href = this.getAttribute('href');
@@ -199,17 +375,14 @@
 						return;
 					}
 					
-					// Make a fetch request with credentials
 					fetch(href, {
 						method: 'GET',
 						credentials: 'include'
 					})
 					.then(response => {
-						// If it's an HTML response, navigate to the page
 						if (response.headers.get('content-type')?.includes('text/html')) {
 							window.location.href = href;
 						} else {
-							// For API endpoints that return JSON
 							return response.json().then(data => {
 								// Handle JSON response if needed
 								console.log('Received data:', data);
@@ -291,6 +464,7 @@
 		function showLoading() {
 			document.getElementById("loadingIndicator").classList.remove("hidden"); // Show loading spinner
 			document.getElementById("findPeersButton").classList.add("opacity-50", "cursor-not-allowed"); // Disable button
+			document.getElementById("findPeersButton1").classList.add("opacity-50", "cursor-not-allowed"); // Disable button
 		}
 
 		async function fetchNotifications() {
@@ -323,12 +497,17 @@
 		}
 
 		function startFetchingNotifications() {
-			console.log("***** starting to fetch notification ***********");
 			if (notificationInterval) return; // Prevent multiple intervals
 				
 			notificationInterval = setInterval(fetchNotifications, 30000);
-			console.log("----------- fetched every : ", notificationInterval);
 			fetchNotifications(); // Fetch immediately
+		}
+		function startLoading() {
+			document.getElementById("userForm").classList.add("hidden");
+			
+			document.getElementById("loadingSpinner").classList.remove("hidden");
+			
+			return true;
 		}
 	</script>
 </body>

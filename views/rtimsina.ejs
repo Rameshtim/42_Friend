@@ -16,7 +16,7 @@
             <div class="space-x-6 flex items-center">
                 <a href="/" class="hover:text-blue-400">Home</a>
                 <a href="/profile" class="hover:text-blue-400">Profile</a>
-                <a href="/fetch-users" class="hover:text-blue-400">Peers</a>
+                <a href="/fetch-users" class="hover:text-blue-400" onclick="showLoading()">Peers</a>
 
                 <!-- Dynamic Login/Logout Button -->
                 <% if (user) { %>
@@ -47,6 +47,10 @@
         <!-- Animated Scroll Down Indicator -->
         <div class="animate-bounce mt-6">
             <i class="ph ph-arrow-down text-4xl text-blue-400"></i>
+        </div>
+        <div id="loadingIndicator" class="hidden text-center my-4">
+            <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
+            <p class="text-gray-400 mt-2">Loading peers...</p>
         </div>
     </section>
 
@@ -121,6 +125,10 @@
             <a href="https://linkedin.com/in/ramesh-timsina" class="text-blue-400 text-3xl hover:text-blue-500"><i class="ph ph-linkedin-logo"></i></a>
         </div>
     </section>
-
+    <script>
+        function showLoading() {
+			document.getElementById("loadingIndicator").classList.remove("hidden"); // Show loading spinner
+		}
+    </script>
 </body>
 </html>

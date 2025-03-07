@@ -6,29 +6,6 @@ const router = express.Router();
 // Redirect user to 42 OAuth login
 router.get("/auth/42", passport.authenticate("oauth2"));
 
-// router.get(
-//   "/auth/42/callback",
-//   passport.authenticate("oauth2", { failureRedirect: "/" }),
-//   (req, res) => {
-//     req.session.save(err => {
-//       if (err) {
-//           console.error("❌ Error saving session:", err);
-//           return res.redirect('/?error: Error saving Session');
-//       }
-//       // res.cookie('session_id', req.sessionID, { httpOnly: true }); // Store session ID in cookie
-//       res.redirect('/profile');  // Redirect after saving session
-//   });
-// });
-
-// router.get(
-//   "/auth/42/callback",
-//   passport.authenticate("oauth2", { failureRedirect: "/" }),
-//   (req, res) => {
-//     console.log("Session after auth:", req.session); // Debug session
-//     res.redirect("/profile");
-//   }
-// );
-
 router.get(
   "/auth/42/callback",
   passport.authenticate("oauth2", { failureRedirect: "/" }),
@@ -40,7 +17,7 @@ router.get(
         return next(err);
       }
       console.log("Session saved, redirecting to /profile");
-      setTimeout(() => res.redirect("/profile"), 3000); // Small delay
+      setTimeout(() => res.redirect("/profile"), 30); // Small delay
       // res.redirect("/profile");
     });
   }
@@ -52,8 +29,9 @@ router.get("/logout", (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         console.error('Session destruction error:', err);
+        res.redirect("/?error=Session destruction error");
       }
-    res.redirect("/");
+    res.redirect("/?error=Successfully logged out");
     });
   });
 });

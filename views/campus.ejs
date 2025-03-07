@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Users</title>
+    <link rel="icon" href="/favicon.ico" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen text-white">
+    
+    <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <a href="/" class="text-lg font-bold">42_Friend</a>
+            <div class="space-x-4 flex flex-wrap items-center">
+                <a href="/about" class="hover:text-blue-400">About Me</a>
+                <a href="/" class="hover:text-blue-400">Home</a>
+                <a href="/profile" class="hover:text-blue-400">Profile</a>
+                <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+                <a href="https://github.com/rameshtim/42_friend" target="_blank" 
+                    class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+                    <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-20 w-full max-w-4xl px-4">
+        <div class="flex justify-between items-start mb-4">
+            <a href="/profile" class="text-blue-500 hover:text-blue-700 font-bold">Back to Profile</a>
+        </div>
+
+        <div class="flex flex-col items-center w-full">
+            <h1 class="text-2xl font-bold mb-4 text-center">All Users</h1>
+            <ul class="w-full max-w-3xl space-y-4 overflow-x-auto" id="userList">
+                <% allUsers.sort((a, b) => b.level - a.level).forEach(user => { %>
+                    <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md user-item space-y-2 sm:space-y-0" data-username="<%= user.username %>">
+                        <div class="flex items-center space-x-4 user-link cursor-pointer" data-username="<%= user.username %>">
+                            <span class="w-4 h-4 rounded-full" 
+                                  style="background-color: <%= user.location !== null ? 'green' : 'red' %>;"
+                                  title="<%= user.location !== null ? 'Online' : 'Offline' %>">
+                            </span>
+                            <img src="<%= user.image %>" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
+                            <div class="text-center sm:text-left">
+                                <h2 class="text-lg font-semibold"><%= user.displayname %></h2>
+                                <p class="text-gray-400">@<%= user.username %>, Level: <%= user.level %></p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
+                            <button onclick="openSlack('<%= user.username %>')" 
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                DM on Slack
+                            </button>
+                            <button onclick="checkUserProfile('<%= user.username %>', this)" 
+                                    class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                Check Projects
+                            </button>
+                            <div id="loadingIndicator" class="hidden text-center my-4 flex items-center space-x-2">
+                                <div class="animate-spin rounded-full h-6 w-6 border-t-4 border-blue-500"></div>
+                                <p class="text-gray-400">Loading Projects...</p>
+                            </div>
+                        </div>
+                    </li>
+                <% }); %>
+            </ul>
+
+            <% if (allUsers.length === 0) { %>
+                <div id="imageSection" class="text-center text-gray-400 mt-6">
+                    <p class="text-xl">😢 No users found.</p>
+                    <img src="/empty_classroom.avif" 
+                         alt="Empty classroom with computers" 
+                         class="mx-auto mt-4 rounded-lg shadow-lg">
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userLinks = document.querySelectorAll('.user-link');
+            userLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const username = this.dataset.username;
+                    window.open(`https://profile.intra.42.fr/users/${username}`, '_blank', 'noopener,noreferrer');
+                });
+            });
+        });
+
+        function openSlack(slackUsername) {
+            const slackUrl = `https://42born2code.slack.com/team/selected_team_id=T039P7U66&u=${slackUsername}`;
+            window.open(slackUrl, '_blank');
+        }
+
+        function checkUserProfile(username, button) {
+            const loadingIndicator = button.parentElement.querySelector('#loadingIndicator');
+            loadingIndicator.classList.remove("hidden");
+
+            fetch("/check-user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ username })
+            })
+            .then(response => response.text())
+            .then(html => {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, "text/html");
+                let projectElements = doc.querySelectorAll("ul.mt-1.text-center li");
+
+                loadingIndicator.classList.add("hidden");
+
+                if (projectElements.length === 0) {
+                    showPopupProj(button, "No active projects found.", false);
+                    return;
+                }
+
+                let projectList = Array.from(projectElements).map(el => el.outerHTML).join("");
+                let popupContent = `
+                    <div class="mt-2 p-3 bg-gray-700 rounded-lg shadow-lg text-white w-64">
+                        <h3 class="text-lg font-semibold text-center">Active Projects</h3>
+                        <ul class="mt-2">${projectList}</ul>
+                    </div>
+                `;
+                showPopupProj(button, popupContent, true);
+            })
+            .catch(error => {
+                loadingIndicator.classList.add("hidden");
+                showPopupProj(button, "Error fetching projects: " + error, false);
+            });
+        }
+
+        function showPopupProj(button, content, isHTML = false) {
+            document.querySelectorAll(".profile-popup").forEach(el => el.remove());
+
+            let popup = document.createElement("div");
+            popup.className = "absolute profile-popup bg-gray-800 text-white p-3 rounded-lg shadow-lg";
+            popup.style.position = "absolute";
+            popup.style.top = `${button.offsetTop - 60}px`;
+            popup.style.left = `${button.offsetLeft}px`;
+
+            if (isHTML) {
+                popup.innerHTML = content;
+            } else {
+                popup.innerText = content;
+            }
+
+            button.parentNode.appendChild(popup);
+            setTimeout(() => popup.remove(), 4000);
+        }
+    </script>
+</body>
+</html>

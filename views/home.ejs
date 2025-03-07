@@ -6,6 +6,8 @@
   <title>Home</title>
   <link rel="icon" href="/favicon.ico" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
   <style>
     body {
       background: url('/cat_stalk.jpeg') no-repeat center center fixed;
@@ -17,9 +19,11 @@
   <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
 		<div class="container mx-auto flex justify-between items-center">
 			<a href="/" class="text-lg font-bold">42_Friend</a>
-			<div class="space-x-6">
+      <div class="space-x-4 flex flex-wrap items-center">
 				<a href="/about" class="hover:text-blue-400">About Me</a>
-				<a href="/auth/42" class="text-red-400 hover:text-red-600">Login </a>
+        <a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+          <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+      </a>
 			</div>
 		</div>
 	</nav>

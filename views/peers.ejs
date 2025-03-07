@@ -35,6 +35,10 @@
                 <ul id="notificationList" class="mt-2 space-y-2"></ul>
             </div>
         </div>
+        <div id="profilePopup" class="fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg bg-gray-800 hidden w-80">
+            <button onclick="closePopup()" class="absolute top-2 right-2 text-red-400 hover:text-red-600">✖</button>
+            <div id="profileContent" class="p-2"></div>
+        </div>
 
         <div class="flex flex-col items-center w-full">
             <h1 class="text-2xl font-bold mb-4 text-center">Online Peers</h1>
@@ -59,13 +63,20 @@
                             </button>
                             <button onclick="openSlack('<%= peer.username %>')" 
                                 class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
-                                Message on Slack
+                                DM on Slack
                             </button>
+                            <button onclick="checkUserProfile('<%= peer.username %>', this, 1)" 
+                                class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                Check Projects
+                            </button>
+                            <div id="loadingIndicator1" class="hidden text-center my-4">
+                                <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
+                                <p class="text-gray-400 mt-2">Loading Projects...</p>
+                            </div>
                         </div>
                     </li>
                 <% }); %>
             </ul>
-
             <button onclick="toggleRecentPeers()" 
                 class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition w-full sm:w-auto">
                 Show Recently Active Users
@@ -104,8 +115,16 @@
                             </button>
                             <button onclick="openSlack('<%= user.username %>')" 
                                 class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
-                                Message on Slack
+                                DM on Slack
                             </button>
+                            <button onclick="checkUserProfile('<%= user.username %>', this, 2)" 
+                                class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                Check Projects
+                            </button>
+                            <div id="loadingIndicator2" class=" hidden text-center my-1 flex" >
+                                <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
+                                <p class="text-gray-400 mt-2">Loading Projects...</p>
+                            </div>
                         </div>
                     </li>
                 <% }); %>
@@ -197,6 +216,76 @@
           const slackUrl = `https://42born2code.slack.com/team/selected_team_id=T039P7U66&u=${slackUsername}`; // Include the message
       
           window.open(slackUrl, '_blank'); // Open in a new tab/window
+        }
+
+        function checkUserProfile(username, button, num) {
+            if (num === 1) {
+                button.parentElement.querySelector('#loadingIndicator1').classList.remove("hidden");
+            } else {
+                button.parentElement.querySelector('#loadingIndicator2').classList.remove("hidden");
+            }
+            fetch("/check-user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ username })
+            })
+            .then(response => response.text())  // Get the HTML response
+            .then(html => {
+                // Parse the HTML response
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, "text/html");
+
+                // Extract the projectsInfo data from the rendered HTML
+                let projectElements = doc.querySelectorAll("ul.mt-1.text-center li");
+                if (projectElements.length === 0) {
+                    showPopupProj(button, "No active projects found.", false);
+                    return;
+                }
+
+                // Convert project list into formatted HTML
+                let projectList = Array.from(projectElements).map(el => el.outerHTML).join("");
+
+                let popupContent = `
+                    <div class="mt-2 p-3 bg-gray-700 rounded-lg shadow-lg text-white w-64">
+                        <h3 class="text-lg font-semibold text-center">Active Projects</h3>
+                        <ul class="mt-2">${projectList}</ul>
+                    </div>
+                `;
+                if (num === 1) {
+                    button.parentElement.querySelector('#loadingIndicator1').classList.add("hidden");
+                } else {
+                    button.parentElement.querySelector('#loadingIndicator2').classList.add("hidden");
+                }
+                showPopupProj(button, popupContent, true);
+            })
+            .catch(error => {
+                document.getElementById("loadingIndicator1").classList.add("hidden"); // Show loading spinner
+                document.getElementById("loadingIndicator2").classList.add("hidden"); // Show loading spinner
+                showPopupProj(button, "Error fetching projects." + error, false);
+            });
+        }
+
+        function showPopupProj(button, content, isHTML = false) {
+            // Remove any existing popup
+            document.querySelectorAll(".profile-popup").forEach(el => el.remove());
+
+            let popup = document.createElement("div");
+            popup.className = "absolute profile-popup bg-gray-800 text-white p-3 rounded-lg shadow-lg";
+            popup.style.position = "absolute";
+            popup.style.top = `${button.offsetTop - 60}px`;
+            popup.style.left = `${button.offsetLeft}px`;
+
+            if (isHTML) {
+                popup.innerHTML = content;
+            } else {
+                popup.innerText = content;
+            }
+
+            button.parentNode.appendChild(popup);
+
+            // Remove popup after 4 seconds
+            setTimeout(() => popup.remove(), 4000);
         }
     </script>
 </body>

@@ -1,6 +1,8 @@
 # Logs
 *.txt
 shared_data/
+campus.json
+projects.json
 
 logs
 *.log
