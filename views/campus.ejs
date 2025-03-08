@@ -33,10 +33,33 @@
 
         <div class="flex flex-col items-center w-full">
             <h1 class="text-2xl font-bold mb-4 text-center">All Users</h1>
+            <!-- Show logged-in user's position if they exist in the list -->
+            <% const loggedInUser = allUsers.find(currentUser => currentUser.username === loggedUser); %>
+            <% if (loggedInUser) { %>
+                <div class="w-full max-w-3xl mb-4">
+                    <div class="flex items-center justify-between bg-blue-800 p-4 rounded-lg shadow-md">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-lg font-bold text-yellow-400">
+                                #<%= allUsers.sort((a, b) => b.level - a.level).findIndex(user => user.username === loggedUser) + 1 %>
+                            </span>
+                            <span class="w-4 h-4 rounded-full" 
+                                style="background-color: <%= loggedInUser.location !== null ? 'green' : 'red' %>;"
+                                title="<%= loggedInUser.location !== null ? 'Online' : 'Offline' %>">
+                            </span>
+                            <img src="<%= loggedInUser.image %>" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
+                            <div class="text-center sm:text-left">
+                                <h2 class="text-lg font-semibold"><%= loggedInUser.displayname %> (You)</h2>
+                                <p class="text-gray-400">@<%= loggedInUser.username %>, Level: <%= loggedInUser.level %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
             <ul class="w-full max-w-3xl space-y-4 overflow-x-auto" id="userList">
-                <% allUsers.sort((a, b) => b.level - a.level).forEach(user => { %>
+                <% allUsers.sort((a, b) => b.level - a.level).forEach((user, index) => { %>
                     <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md user-item space-y-2 sm:space-y-0" data-username="<%= user.username %>">
                         <div class="flex items-center space-x-4 user-link cursor-pointer" data-username="<%= user.username %>">
+                            <span class="text-lg font-bold text-gray-400">#<%= index + 1 %></span>
                             <span class="w-4 h-4 rounded-full" 
                                   style="background-color: <%= user.location !== null ? 'green' : 'red' %>;"
                                   title="<%= user.location !== null ? 'Online' : 'Offline' %>">

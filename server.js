@@ -222,6 +222,7 @@ app.get("/fetch-users", async (req, res) => {
 		const accessToken = req.user.access_token;
 		const coreCursus = req.user.cursus_users.find(cursus => cursus.cursus_id === 21);
 		const coreLevel = coreCursus.level;
+		// const coreLevel = 5.2;
 		const { l_level, u_level } = getLevelRange(coreLevel);
 		console.log(`This is lower level: ${l_level} and this is upper level: ${u_level}`);
 		if (!accessToken) {
@@ -351,37 +352,12 @@ app.post("/fetch-users-campus", async (req, res) => {
             image: user.user.image.versions.small,
             grade: user.grade,
             level: user.level,
-            location: user.user.location // Include location to show online/offline status if needed
+            location: user.user.location 
         }));
-
-		// page = 1;
-		// let campuses = [];
-		// while (true) {
-		// 	const response = await fetch(
-		// 		`https://api.intra.42.fr/v2/campus?page=${page}&per_page=${perPage}`,
-		// 		{
-		// 			headers: { Authorization: `Bearer ${accessToken}` }
-		// 		}
-		// 	);
-		// 	const campuser = await response.json();
-		// 	if (campuser.length === 0) break;
-
-        //     campuses = campuses.concat(campuser);
-        //     page++;
-        //     await sleep(delay); // Respect API rate limits
-		// }
-
-		// const activeCampuses = campuses
-        //     .filter(campus => campus.active === true)
-        //     .map(campus => ({
-        //         id: campus.id,
-        //         name: campus.name,
-        //         active: campus.active
-        //     }));
-		// console.log("all the campuses", activeCampuses);
 
         res.render("campus", { 
             user: req.user,
+			loggedUser: req.user.username,
             allUsers: allUsers
         });
 

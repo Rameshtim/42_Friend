@@ -40,12 +40,23 @@
             <div id="profileContent" class="p-2"></div>
         </div>
 
-        <div class="flex flex-col items-center w-full">
-            <h1 class="text-2xl font-bold mb-4 text-center">Online Peers</h1>
-            <ul class="w-full max-w-3xl space-y-4 overflow-x-auto" id="peerList">
+        <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner w-full max-w-3xl">
+            <h1 class="text-lg font-semibold">Online Peers</h1>
+            <ul class="mt-2 space-y-2 overflow-x-auto" id="peerList">
                 <% peers.forEach(peer => { %>
                     <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md peer-item space-y-2 sm:space-y-0" data-username="<%= peer.username %>">
                         <div class="flex items-center space-x-4 peer-link cursor-pointer" data-username="<%= peer.username %>">
+                            <% if (peer.level >= 10) { %>
+                                <% if (peer.grade === 'Member') { %>
+                                    <span class="text-green-500" title="Outer Circle">
+                                        &#10004; </span>
+                                <% } else { %>
+                                    <span class="text-yellow-500" title="Still needs to pass the exam">
+                                        &#x2753; </span>
+                                <% } %>
+                            <% } else { %>
+                                <span></span>
+                            <% } %>
                             <img src="<%= peer.image %>" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
                             <div class="text-center sm:text-left">
                                 <h2 class="text-lg font-semibold"><%= peer.displayname %></h2>
@@ -53,10 +64,6 @@
                             </div>
                         </div>
                         <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
-                            <span class="w-4 h-4 rounded-full"
-                                style="background-color: <%= peer.grade === 'Member' ? 'green' : 'yellow' %>;"
-                                title="<%= peer.grade === 'Member' ? 'Outer Circle' : 'Still needs to pass the exam' %>">
-                            </span>
                             <button onclick="startMonitoring('<%= peer.username %>')" 
                                 class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
                                 Start Monitoring
@@ -77,7 +84,7 @@
                     </li>
                 <% }); %>
             </ul>
-            <button onclick="toggleRecentPeers()" 
+            <button onclick="toggleRecentPeers(this)" 
                 class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition w-full sm:w-auto">
                 Show Recently Active Users
             </button>
@@ -98,10 +105,17 @@
                 <% recentPeers.forEach(user => { %>
                     <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md rpeer-item space-y-2 sm:space-y-0" data-username="<%= user.username %>">
                         <div class="flex items-center space-x-4 user-link cursor-pointer" data-username="<%= user.username %>">
-                            <span class="w-4 h-4 rounded-full" 
-                                    style="background-color: <%= user.grade === 'Member' ? 'green' : 'yellow' %>;"
-                                    title="<%= user.grade === 'Member' ? 'Outer Circle' : 'Still needs to pass the exam' %>">
-                            </span>
+                            <% if (user.level >= 10) { %>
+                                <% if (user.grade === 'Member') { %>
+                                    <span class="text-green-500" title="Outer Circle">
+                                        &#10004; </span>
+                                <% } else { %>
+                                    <span class="text-yellow-500" title="Still needs to pass the exam">
+                                        &#x2753; </span>
+                                <% } %>
+                            <% } else { %>
+                                <span></span>
+                            <% } %>
                             <img src="<%= user.image %>" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full" alt="<%= user.username %>">
                             <div class="text-center sm:text-left">
                                 <h2 class="text-lg font-semibold"><%= user.displayname %></h2>
@@ -204,11 +218,20 @@
 		}
 
 
-        function toggleRecentPeers() {
-            document.getElementById("recentPeersSection").classList.toggle("hidden");
+        function toggleRecentPeers(button) {
+            const recentPeersSection = document.getElementById("recentPeersSection");
             const imageSection = document.getElementById("imageSection");
-            if (imageSection) { // Check if imageSection exists
+
+            recentPeersSection.classList.toggle("hidden");
+
+            if (imageSection) {
                 imageSection.style.display = "none";
+            }
+
+            if (recentPeersSection.classList.contains("hidden")) {
+                button.textContent = "Show Recently Active Users";
+            } else {
+                button.textContent = "Hide Recently Active Users";
             }
         }
 
