@@ -64,10 +64,6 @@
                             </div>
                         </div>
                         <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
-                            <button onclick="startMonitoring('<%= peer.username %>')" 
-                                class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
-                                Start Monitoring
-                            </button>
                             <button onclick="openSlack('<%= peer.username %>')" 
                                 class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
                                 DM on Slack
@@ -290,7 +286,7 @@
         }
 
         function showPopupProj(button, content, isHTML = false) {
-            // Remove any existing popup
+            // Remove any existing popups
             document.querySelectorAll(".profile-popup").forEach(el => el.remove());
 
             let popup = document.createElement("div");
@@ -299,16 +295,33 @@
             popup.style.top = `${button.offsetTop - 60}px`;
             popup.style.left = `${button.offsetLeft}px`;
 
+            // Create close button
+            let closeButton = document.createElement("button");
+            closeButton.innerHTML = "&times;"; // "×" character
+            closeButton.className = "absolute top-1 right-1 text-red-500 hover:text-red-700 font-bold text-xl p-2 rounded-full bg-gray-700 bg-opacity-50";
+            closeButton.onclick = function() {
+                popup.remove();
+            };
+
+            // Add content
             if (isHTML) {
                 popup.innerHTML = content;
             } else {
                 popup.innerText = content;
             }
 
+            // Append close button and content to popup
+            popup.appendChild(closeButton);
             button.parentNode.appendChild(popup);
 
-            // Remove popup after 4 seconds
-            setTimeout(() => popup.remove(), 4000);
+            // Set timeout for automatic removal
+            let timeoutId = setTimeout(() => popup.remove(), 30000);
+
+            // Override the timeout if the close button is clicked.
+            closeButton.onclick = function() {
+                clearTimeout(timeoutId);
+                popup.remove();
+            };
         }
     </script>
 </body>
