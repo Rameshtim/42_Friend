@@ -1,7 +1,7 @@
 # Online Friend Notifier for 42 Campus
 
 ## 🎯 Overview
-42 Friend is a containerized application designed to enhance collaboration among 42 students working on group projects. By tracking campus presence of team members, it helps project teams coordinate their work sessions and maximize in-person collaboration opportunities.
+42 Friend is a containerized application designed initially to enhance collaboration among 42 students working on group projects. By tracking campus presence of team members, it helps project teams coordinate their work sessions and maximize in-person collaboration opportunities. After working some time on 42 API I find there is more information given in a single call which could be used to show other informations. I personally like "Find Online Peers" which roughly(meaning person with level 4.5 will see peers from level 3.5 till level 6) calculates the peers around the same level, which should find the peers who has recently finished the project or currently doing it or about to start.
 
 ## ✨ Features
 ### Current Features

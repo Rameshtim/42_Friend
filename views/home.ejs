@@ -19,6 +19,9 @@
   <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
 		<div class="container mx-auto flex justify-between items-center">
 			<a href="/" class="text-lg font-bold">42_Friend</a>
+      <div class="text-center">
+        Active Users: <%= totalActiveUser %>
+    </div>
       <div class="space-x-4 flex flex-wrap items-center">
 				<a href="/about" class="hover:text-blue-400">About Me</a>
         <a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
@@ -48,6 +51,25 @@
       if (message || error) {
         const newUrl = window.location.pathname; 
         window.history.replaceState({}, document.title, newUrl);
+      }
+      const totalActiveUser = <%= totalActiveUser %>;
+
+      // Select login button
+      const loginButton = document.querySelector("a[href='/auth/42']");
+
+      if (totalActiveUser > 100) {
+        // Disable login by removing href and adding a disabled style
+        loginButton.removeAttribute("href");
+        loginButton.classList.add("bg-gray-500", "cursor-not-allowed");
+        loginButton.classList.remove("bg-blue-500", "hover:bg-blue-600");
+
+        // Show tooltip or message
+        const warningText = document.createElement("p");
+        warningText.innerText = "Too many active users. Try again later.";
+        warningText.className = "text-red-400 text-2xl font-bold mb-6";
+
+        // Append message below the button
+        loginButton.parentNode.appendChild(warningText);
       }
     });
     

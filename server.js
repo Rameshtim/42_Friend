@@ -29,7 +29,7 @@ const redisClient = new Redis({
 		if (times > 10) return null; // Stop retrying after 10 attempts
 		return Math.min(times * 200, 3000);
 	},
-	commandTimeout: 10000, // Adjust as needed
+	commandTimeout: 10000,
 		reconnectOnError: (err) => {
 				const targetError = 'READONLY';
 				if (err.message.slice(0, targetError.length) === targetError) {
@@ -45,8 +45,8 @@ const redisStore = new RedisStore({ client: redisClient, prefix: 'sess:', ttl: 1
 
 app.use(
 	session({
-		store: redisStore, // Use the properly initialized RedisStore,
-		secret: process.env.SESSION_SECRET || 'your-secret-key',
+		store: redisStore,
+		secret: process.env.SESSION_SECRET || 'your-secr55%%^^et-key',
 		resave: false,
 		saveUninitialized: false,
 		rolling: true,
@@ -54,7 +54,7 @@ app.use(
 			secure: process.env.NODE_ENV === 'production', // Secure in production
 			httpOnly: true,
 			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-			maxAge: 60 * 60 * 1000, // 1 hour in milliseconds if no activity
+			maxAge: 10 * 60 * 1000, // 1 hour in milliseconds if no activity
 		},
 		genid: (req) => {
 			const newId = require('crypto').randomBytes(16).toString('hex');
@@ -94,6 +94,8 @@ const monitor = new StatusMonitor();
 const emailService = new EmailService();
 app.locals.monitor = monitor;
 
+let totalActiveUser = 0;
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -103,6 +105,15 @@ app.use((err, req, res, next) => {
 	}
 	next(err);
 });
+
+app.use(async (req, res, next) => {
+	const sessionCount = await redisClient.dbsize(); // Get the number of keys (sessions) in Redis
+	if (sessionCount >= 100 ) {
+	  return res.status(503).send('Server is at capacity. Please try again later.');
+	}
+	totalActiveUser = sessionCount;
+	next();
+  });
 
 
 
@@ -131,7 +142,9 @@ process.on('SIGINT', () => {
 
 
 app.get("/", (req, res) => {
-	res.render("home");
+	res.render("home", {
+		totalActiveUser
+	});
 });
 
 app.get("/about", (req, res) => {
@@ -141,7 +154,8 @@ app.get("/about", (req, res) => {
 				user = req.user;
 		}
 	res.render("rtimsina", {
-		user
+		user,
+		totalActiveUser
 	});
 });
 
@@ -162,7 +176,8 @@ app.get("/profile", (req, res) => {
 	res.render("profile", { 
 		user: req.user, 
 		searchedUser: null, 
-		activeMonitors 
+		activeMonitors,
+		totalActiveUser 
 	});
 });
 
@@ -292,7 +307,8 @@ app.get("/fetch-users", async (req, res) => {
 						user: req.user, 
 						peers: onlineUsers,
 						recentPeers: recentUsers,
-						level: coreLevel
+						level: coreLevel,
+						totalActiveUser
 				});
 		} catch (error) {
 				console.error("Error fetching users:", error.message);
@@ -358,7 +374,8 @@ app.post("/fetch-users-campus", async (req, res) => {
         res.render("campus", { 
             user: req.user,
 			loggedUser: req.user.username,
-            allUsers: allUsers
+            allUsers: allUsers,
+			totalActiveUser
         });
 
     } catch (error) {
@@ -447,6 +464,7 @@ app.post("/check-user", async (req, res) => {
 					days_ago: daysAgo,
 					level: coreCursus?.level || "N/A",
 					projectsInfo,
+					totalActiveUser
 			});
 
 	} catch (error) {
