@@ -6,7 +6,8 @@
     <title>Online Peers</title>
     <link rel="icon" href="/favicon.ico" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
+
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen text-white">
     
@@ -118,7 +119,7 @@
                             <img src="<%= user.image %>" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full" alt="<%= user.username %>">
                             <div class="text-center sm:text-left">
                                 <h2 class="text-lg font-semibold"><%= user.displayname %></h2>
-                                <p class="text-gray-400">@<%= user.username %>, Level: <%= user.level %> <br> (Last Seen: <%= user.last_seen %>, <%= user.days_ago %> days ago) at <%= user.formatted_time %></p>
+                                <p class="text-gray-400">@<%= user.username %>, Level: <%= user.level %> <br> (Last Seen: <%= user.last_seen %>, <%= user.days_ago %> ) at <%= user.formatted_time %></p>
                             </div>
                         </div>
                         <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">

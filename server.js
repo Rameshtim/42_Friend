@@ -10,6 +10,7 @@ const util = require("util");
 const sleep = util.promisify(setTimeout);
 const fs = require("fs");
 const app = express();
+const { DateTime } = require("luxon");
 
 const connectRedis = require('connect-redis'); 
 const RedisStore = connectRedis.RedisStore;
@@ -90,6 +91,7 @@ app.use(express.static('images'));
 
 const { StatusMonitor } = require('./routes/statusMonitor');
 const { EmailService } = require('./routes/emailService');
+const { time } = require("console");
 const monitor = new StatusMonitor();
 const emailService = new EmailService();
 app.locals.monitor = monitor;
@@ -229,92 +231,114 @@ function getLevelRange(coreLevel) {
 		return { l_level, u_level };
 }
 
+
 app.get("/fetch-users", async (req, res) => {
-		if (!req.isAuthenticated()) {
-				return res.redirect("/?error=User not authenticated.");
-		}
-		
-		const accessToken = req.user.access_token;
-		const coreCursus = req.user.cursus_users.find(cursus => cursus.cursus_id === 21);
-		const coreLevel = coreCursus.level;
-		// const coreLevel = 5.2;
-		const { l_level, u_level } = getLevelRange(coreLevel);
-		console.log(`This is lower level: ${l_level} and this is upper level: ${u_level}`);
-		if (!accessToken) {
-				return res.redirect("/?error=Access token missing. Please log in again.");
-		}
-		
-		try {
-				let users = [];
-				let page = 1;
-				const perPage = 100;
-				const delay = 1200;
-				const campus_id = req.user.campus_id;
-				
-				while (true) {
-						const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=21&range%5Blevel%5D=${l_level},${u_level}&page=${page}&per_page=${perPage}`, {
-								headers: { Authorization: `Bearer ${accessToken}` }
-						});
-						
-						if (!response.ok) {
-								throw new Error("Failed to fetch users from 42 API");
-						}
-						
-						const pageUsers = await response.json();
-						if (pageUsers.length === 0) break;
-						
-						users = users.concat(pageUsers);
-						page++;
-						await sleep(delay); // Introduce delay to respect API limits
-				}
-				
-				// const filePath = "/usr/src/app/shared_data/fetched_users.json"; // Save inside shared volume
-				// fs.writeFileSync(filePath, JSON.stringify(users, null, 2), "utf-8");
-				// console.log(`✅ Users saved at ${filePath}`);
+    if (!req.isAuthenticated()) {
+        return res.redirect("/?error=User not authenticated.");
+    }
 
-				const sevenDaysAgo = new Date();
-				sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-				const now = new Date();
+    const accessToken = req.user.access_token;
+    const coreCursus = req.user.cursus_users.find(cursus => cursus.cursus_id === 21);
+	// console.log("coreCursus", coreCursus);
+    const coreLevel = coreCursus.level;
+    const { l_level, u_level } = getLevelRange(coreLevel);
 
-				const onlineUsers = users.filter(user => user.user.location !== null).map(user => ({
-						username: user.user.login,
-						displayname: user.user.displayname,
-						image: user.user.image.versions.small,
-						grade: user.grade,
-						level: user.level
-				}));
-				
-				const recentUsers = users.filter(user => {
-						const updatedAt = new Date(user.user.updated_at);
-						return updatedAt >= sevenDaysAgo && !onlineUsers.some(peer => peer.username === user.user.login);
-				}).map(user => {
-						const updatedAt = new Date(user.user.updated_at);
-						const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24)); // Calculate days ago
-						return {
-								username: user.user.login,
-								displayname: user.user.displayname,
-								image: user.user.image.versions.small,
-								nlast_seen: updatedAt,
-								last_seen: updatedAt.toLocaleDateString("en-GB"), // Format as DD-MM-YYYY
-								formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }), // HH:MM (24-hour format)
-								days_ago: daysAgo,
-								level: user.level,
-								grade: user.grade 
-						};
-				}).sort((a, b) => new Date(b.nlast_seen) - new Date(a.nlast_seen)); 
-				
-				res.render("peers", { 
-						user: req.user, 
-						peers: onlineUsers,
-						recentPeers: recentUsers,
-						level: coreLevel,
-						totalActiveUser
-				});
-		} catch (error) {
-				console.error("Error fetching users:", error.message);
-				return res.redirect("/profile?error=Internal server error.");
-		}
+    if (!accessToken) {
+        return res.redirect("/?error=Access token missing. Please log in again.");
+    }
+
+    try {
+        let users = [];
+        let page = 1;
+        const perPage = 100;
+        const delay = 1200;
+		console.log("request user", req.user);
+        const campus_id = req.user.campus_id;
+
+        while (true) {
+            const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=21&range%5Blevel%5D=${l_level},${u_level}&page=${page}&per_page=${perPage}`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch users from 42 API");
+            }
+
+            const pageUsers = await response.json();
+            if (pageUsers.length === 0) break;
+
+            users = users.concat(pageUsers);
+            page++;
+            await sleep(delay);
+        }
+
+        // ✅ Get user's timezone offset from request header
+        const userOffset = req.headers["x-timezone-offset"] ? parseInt(req.headers["x-timezone-offset"]) : 0;
+        const userTimezone = `UTC${userOffset >= 0 ? "-" : "+"}${Math.abs(userOffset) / 60}`; // Convert to readable UTC offset
+
+        console.log("User timezone offset in minutes:", userOffset, "Formatted:", userTimezone);
+
+        // ✅ Get local time using user's offset
+        const now = DateTime.now().setZone(userTimezone);
+        console.log("Local time on server:", now.toISO());
+
+        // ✅ Calculate 7 days ago based on user timezone
+        const sevenDaysAgo = now.minus({ days: 7 });
+
+        const onlineUsers = users.filter(user => user.user.location !== null).map(user => ({
+            username: user.user.login,
+            displayname: user.user.displayname,
+            image: user.user.image.versions.small,
+            grade: user.grade,
+            level: user.level
+        }));
+
+        const recentUsers = users.filter(user => {
+            const updatedAt = DateTime.fromISO(user.user.updated_at, { zone: "UTC" }) // Convert UTC to DateTime
+                .setZone(userTimezone); // Convert to user's timezone
+
+            return updatedAt >= sevenDaysAgo && !onlineUsers.some(peer => peer.username === user.user.login);
+        }).map(user => {
+            const updatedAt = DateTime.fromISO(user.user.updated_at, { zone: "UTC" }).setZone(userTimezone);
+
+            const timeDiff = now.diff(updatedAt, ["hours", "days"]).toObject();
+            const hoursAgo = Math.floor(timeDiff.hours);
+            const daysAgo = Math.floor(timeDiff.days);
+
+            let timeAgo;
+            if (hoursAgo < 24) {
+                timeAgo = hoursAgo === 0 ? "Recently" : `${hoursAgo} ${hoursAgo === 1 ? "hour" : "hours"} ago`;
+            } else {
+                timeAgo = `${daysAgo} ${daysAgo === 1 ? "day" : "days"} ago`;
+            }
+
+            return {
+                username: user.user.login,
+                displayname: user.user.displayname,
+                image: user.user.image.versions.small,
+                nlast_seen: updatedAt.toISO(),
+                last_seen: updatedAt.toFormat("dd-MM-yyyy"), // Format as DD-MM-YYYY
+                formatted_time: updatedAt.toFormat("HH:mm"), // 24-hour format
+                days_ago: timeAgo,
+                level: user.level,
+                grade: user.grade
+            };
+        }).sort((a, b) => DateTime.fromISO(b.nlast_seen) - DateTime.fromISO(a.nlast_seen));
+
+        res.render("peers", { 
+            user: req.user, 
+            peers: onlineUsers,
+            recentPeers: recentUsers,
+            level: coreLevel,
+            totalActiveUser
+        });
+
+    } catch (error) {
+        console.error("Error fetching users:", error.message);
+        return res.redirect("/profile?error=Internal server error.");
+    }
 });
+
 
 app.post("/fetch-users-campus", async (req, res) => {
     if (!req.isAuthenticated()) {

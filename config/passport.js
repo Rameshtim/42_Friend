@@ -47,6 +47,10 @@ passport.use(
 // });
 
 passport.serializeUser((user, done) => {
+  const primaryCampus = user.campus_users.find(campus => campus.is_primary === true);
+  // console.log("this is serial pc", primaryCampus);
+  const primaryCampusId = primaryCampus ? primaryCampus.campus_id : user.campus[0].id;
+
   done(null, {
     id: user.id, // Keep ID for unique identification
     displayname: user.displayname,
@@ -55,7 +59,7 @@ passport.serializeUser((user, done) => {
     access_token: user.access_token,
     refresh_token: user.refresh_token,
     cursus_users: user.cursus_users,
-    campus_id: user.campus[0].id,
+    campus_id: primaryCampusId,
   });
 });
 
