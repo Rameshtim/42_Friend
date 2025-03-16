@@ -28,7 +28,6 @@ passport.use(
 
         user.access_token = accessToken;
         user.refresh_token = refreshToken;
-        // localStorage.setItem("access_token", user.access_token);
 
         return done(null, user);
       } catch (error) {
@@ -40,21 +39,14 @@ passport.use(
 );
 
 
-
-// passport.serializeUser((user, done) => {
-//   console.log("Serializing user:");
-//   done(null, user);
-// });
-
 passport.serializeUser((user, done) => {
   const primaryCampus = user.campus_users.find(campus => campus.is_primary === true);
-  // console.log("this is serial pc", primaryCampus);
   const primaryCampusId = primaryCampus ? primaryCampus.campus_id : user.campus[0].id;
 
   done(null, {
-    id: user.id, // Keep ID for unique identification
+    id: user.id, // ID for unique identification
     displayname: user.displayname,
-    username: user.login, // Assuming 'login' is the username
+    username: user.login, // 'login' is the username
     image: user.image,
     access_token: user.access_token,
     refresh_token: user.refresh_token,

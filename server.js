@@ -144,8 +144,14 @@ process.on('SIGINT', () => {
 
 
 app.get("/", (req, res) => {
+	if (!req.isAuthenticated()) {
+		user = null;
+	} else {
+			user = req.user;
+	}
 	res.render("home", {
-		totalActiveUser
+		totalActiveUser,
+		user
 	});
 });
 
@@ -347,11 +353,17 @@ app.post("/fetch-users-campus", async (req, res) => {
     
     const accessToken = req.user.access_token;
 
-    const { l_level, u_level, campus_id } = req.body;
+    const { l_level, u_level, campus_id, cursus_s } = req.body;
 
     const effectiveCampusId = campus_id || req.user.campus_id;
     
-    const effectiveLowerLevel = parseInt(l_level, 10);
+    let effectiveLowerLevel = parseInt(l_level, 10);
+	if (parseInt(cursus_s, 10) === 9) {
+		effectiveLowerLevel = 5;
+		if (u_level && u_level < 6) {
+			u_level = 6;
+		}
+	}
     const effectiveUpperLevel = u_level ? parseInt(u_level, 10) : effectiveLowerLevel + 1;
 
     try {
@@ -362,7 +374,7 @@ app.post("/fetch-users-campus", async (req, res) => {
 
         while (true) {
             const response = await fetch(
-                `https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${effectiveCampusId}&filter%5Bcursus_id%5D=21&range%5Blevel%5D=${effectiveLowerLevel},${effectiveUpperLevel}&page=${page}&per_page=${perPage}`,
+                `https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${effectiveCampusId}&filter%5Bcursus_id%5D=${cursus_s}&range%5Blevel%5D=${effectiveLowerLevel},${effectiveUpperLevel}&page=${page}&per_page=${perPage}`,
                 {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 }
@@ -377,23 +389,29 @@ app.post("/fetch-users-campus", async (req, res) => {
 
             users = users.concat(pageUsers);
             page++;
+			console.log("loading page", page);
             await sleep(delay); // Respect API rate limits
         }
 
-        const allUsers = users
-			.filter(user => 
-				user.user["staff?"] === false && 
-				user.user["alumni?"] === false && 
-				user.user["active?"] === true
-			)
-			.map(user => ({
-            username: user.user.login,
-            displayname: user.user.displayname,
-            image: user.user.image.versions.small,
-            grade: user.grade,
-            level: user.level,
-            location: user.user.location 
-        }));
+        let filteredUsers = users; // Initialize with all users
+
+		if (parseInt(cursus_s, 10) !== 9) {
+			filteredUsers = users
+				.filter(user => 
+					user.user["staff?"] === false && 
+					user.user["alumni?"] === false && 
+					user.user["active?"] === true
+				);
+		}
+
+		const allUsers = filteredUsers.map(user => ({
+			username: user.user.login,
+			displayname: user.user.displayname,
+			image: user.user.image.versions.small,
+			grade: user.grade,
+			level: user.level,
+			location: user.user.location 
+		}));
 
         res.render("campus", { 
             user: req.user,
