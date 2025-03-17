@@ -265,7 +265,11 @@
 								<% }); %>
 							</ul>
 							<p class="text-gray-400 italic text-center mt-2">
-								(Last Seen: <%= last_seen %>, <%= days_ago %> days ago at <%= formatted_time %>)
+								<% if (typeof black_holed === 'string' && black_holed.length > 0) { %>
+									(Last Seen: <%= last_seen %>, <%= days_ago %> days ago at <%= formatted_time %> and Absorved by black hole on <%= black_holed %>)
+								<% } else { %>
+									(Last Seen: <%= last_seen %>, <%= days_ago %> days ago at <%= formatted_time %> )
+								<% } %>
 							</p>
 						<% } %>						
                     </div>

@@ -256,7 +256,7 @@ app.get("/fetch-users", async (req, res) => {
     try {
         let users = [];
         let page = 1;
-        const perPage = 100;
+        const perPage = 99;
         const delay = 1200;
 		console.log("request user", req.user);
         const campus_id = req.user.campus_id;
@@ -267,7 +267,7 @@ app.get("/fetch-users", async (req, res) => {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to fetch users from 42 API");
+				return res.redirect("/?error=Access token invalid or 42 API gave bad response. Please log out and log in again.");
             }
 
             const pageUsers = await response.json();
@@ -358,18 +358,12 @@ app.post("/fetch-users-campus", async (req, res) => {
     const effectiveCampusId = campus_id || req.user.campus_id;
     
     let effectiveLowerLevel = parseInt(l_level, 10);
-	if (parseInt(cursus_s, 10) === 9) {
-		effectiveLowerLevel = 5;
-		if (u_level && u_level < 6) {
-			u_level = 6;
-		}
-	}
     const effectiveUpperLevel = u_level ? parseInt(u_level, 10) : effectiveLowerLevel + 1;
 
     try {
         let users = [];
         let page = 1;
-        const perPage = 100;
+        const perPage = 99;
         const delay = 1200;
 
         while (true) {
@@ -381,7 +375,7 @@ app.post("/fetch-users-campus", async (req, res) => {
             );
 
             if (!response.ok) {
-                throw new Error("Failed to fetch users from 42 API");
+				return res.redirect("/?error=Access token invalid or 42 API gave bad response. Please log out and log in again.");
             }
 
             const pageUsers = await response.json();
@@ -465,6 +459,11 @@ app.post("/check-user", async (req, res) => {
 			// console.log("*************** \n\n\nUser found:", user);
 
 			const coreCursus = user.cursus_users.find(cursus => cursus.cursus_id === 21);
+			let blackholed = null;
+			if (coreCursus.end_at) {
+				blackholed = new Date(coreCursus.end_at).toLocaleDateString("en-GB");
+			}
+			console.log("blackholed at ", blackholed);
 			const updatedAt = new Date(user.updated_at);
 			const now = new Date();
 			const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24));
@@ -494,7 +493,13 @@ app.post("/check-user", async (req, res) => {
 						projectsInfo = formattedProjects.join(", ");
 				}
 			} else {
-					console.error("Error fetching projects data:", await projectsResponse.text());
+					const erromsg =  await projectsResponse.text();
+					res.render("profile", { 
+						user: req.user, 
+						searchedUser: null, 
+						activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()),
+						error: erromsg 
+					});
 			}
 
 			res.render("profile", { 
@@ -505,6 +510,7 @@ app.post("/check-user", async (req, res) => {
 					formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
 					days_ago: daysAgo,
 					level: coreCursus?.level || "N/A",
+					black_holed: blackholed,
 					projectsInfo,
 					totalActiveUser
 			});
