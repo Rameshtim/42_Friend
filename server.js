@@ -103,7 +103,7 @@ let totalActiveUser = 0;
 app.use((err, req, res, next) => {
 	console.error('Server Error:', err);
 	if (err.name === 'UnauthorizedError') {
-			return res.redirect('/?error=Session expired. Please login again.');
+			return res.redirect('/?error=Your precious little session’s withered away like a forgotten dream, and now the system demands you grovel at the login screen once more. How utterly humiliating. Go ahead, punch in your details again—I’ll just sit here, quietly judging the fleeting nature of existence.');
 	}
 	next(err);
 });
@@ -111,7 +111,7 @@ app.use((err, req, res, next) => {
 app.use(async (req, res, next) => {
 	const sessionCount = await redisClient.dbsize(); // Get the number of keys (sessions) in Redis
 	if (sessionCount >= 100 ) {
-	  return res.status(503).send('Server is at capacity. Please try again later.');
+	  return res.status(503).send('Oh, how utterly predictable. The poor thing’s stuffed to the brim, groaning under the weight of everyone’s pointless requests. I’d suggest waiting, but time’s just another cruel joke, isn’t it? Try again later if you must—me, I’ll be over here, marveling at the sheer absurdity of it all.');
 	}
 	totalActiveUser = sessionCount;
 	next();
@@ -173,7 +173,7 @@ app.get("/profile", (req, res) => {
 
 	if (!req.isAuthenticated()) {
 		console.log("user not authenticated", req.user);
-		return res.redirect("/?error=User not authenticated.");
+		return res.redirect("/?error=Oh, brilliant. User not authenticated—as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner. Either way, I’m sure it’ll be a deeply fulfilling experience.");
 	}
 
 	const activeMonitors = app.locals.monitor?.activeMonitors 
@@ -240,7 +240,7 @@ function getLevelRange(coreLevel) {
 
 app.get("/fetch-users", async (req, res) => {
     if (!req.isAuthenticated()) {
-        return res.redirect("/?error=User not authenticated.");
+        return res.redirect("/?error=Oh, brilliant. User not authenticated—as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner. Either way, I’m sure it’ll be a deeply fulfilling experience.");
     }
 
     const accessToken = req.user.access_token;
@@ -267,7 +267,7 @@ app.get("/fetch-users", async (req, res) => {
             });
 
             if (!response.ok) {
-				return res.redirect("/?error=Access token invalid or 42 API gave bad response. Please log out and log in again.");
+				return res.redirect("/?error=Oh, marvelous. Your access token’s either invalid or the glorious 42 API has decided to throw a tantrum and give us a bad response. What a shock—technology failing us yet again. I suppose you could try fixing the token or praying to the digital gods for a better outcome, but honestly, why bother? The universe clearly has it out for us today.");
             }
 
             const pageUsers = await response.json();
@@ -296,7 +296,7 @@ app.get("/fetch-users", async (req, res) => {
             displayname: user.user.displayname,
             image: user.user.image.versions.small,
             grade: user.grade,
-            level: user.level
+            level: user.level.toFixed(2)
         }));
 
         const recentUsers = users.filter(user => {
@@ -326,7 +326,7 @@ app.get("/fetch-users", async (req, res) => {
                 last_seen: updatedAt.toFormat("dd-MM-yyyy"), // Format as DD-MM-YYYY
                 formatted_time: updatedAt.toFormat("HH:mm"), // 24-hour format
                 days_ago: timeAgo,
-                level: user.level,
+                level: user.level.toFixed(2),
                 grade: user.grade
             };
         }).sort((a, b) => DateTime.fromISO(b.nlast_seen) - DateTime.fromISO(a.nlast_seen));
@@ -335,95 +335,159 @@ app.get("/fetch-users", async (req, res) => {
             user: req.user, 
             peers: onlineUsers,
             recentPeers: recentUsers,
-            level: coreLevel,
+            level: coreLevel.toFixed(2),
             totalActiveUser
         });
 
     } catch (error) {
         console.error("Error fetching users:", error.message);
-        return res.redirect("/profile?error=Internal server error.");
+        return res.redirect("/profile?error=Oh, fantastic. An internal server error—because why would anything work smoothly when it can collapse into chaos instead? The server’s clearly having an existential crisis, and who can blame it? I’d suggest waiting while it sorts itself out, but optimism’s hardly my forte. Maybe sacrifice a byte or two to the tech deities and hope for the best.");
     }
 });
 
 
+// In-memory storage for the current user's fetch parameters (for simplicity)
+const userFetchParams = new Map();
+
+// POST endpoint to initiate the fetch (from profile.ejs)
 app.post("/fetch-users-campus", async (req, res) => {
     if (!req.isAuthenticated()) {
-        return res.redirect("/?error=User not authenticated.");
+        return res.redirect("/?error=Brilliant as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner.");
     }
-    
-    const accessToken = req.user.access_token;
 
     const { l_level, u_level, campus_id, cursus_s } = req.body;
 
-    const effectiveCampusId = campus_id || req.user.campus_id;
-    
-    let effectiveLowerLevel = parseInt(l_level, 10);
-    const effectiveUpperLevel = u_level ? parseInt(u_level, 10) : effectiveLowerLevel + 1;
+    // Validate and store the parameters for the user
+    if (!l_level || !cursus_s) {
+        return res.redirect("/profile?error=Missing required parameters.");
+    }
 
+    const effectiveCampusId = campus_id || req.user.campus_id;
+    const params = {
+        l_level: parseInt(l_level, 10),
+        u_level: u_level ? parseInt(u_level, 10) : parseInt(l_level, 10) + 1,
+        campus_id: effectiveCampusId,
+        cursus_s: parseInt(cursus_s, 10),
+        access_token: req.user.access_token,
+    };
+
+    // Store the parameters for this user (using their session ID or user ID)
+    userFetchParams.set(req.user.id, params);
+
+    // Redirect to the campus view
+    res.redirect("/campus");
+});
+
+// GET endpoint to render the campus view
+app.get("/campus", (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.redirect("/?error=Brilliant as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner.");
+    }
+
+    // Render the campus page with an empty user list initially
+    res.render("campus", {
+        user: req.user,
+        loggedUser: req.user.username,
+        allUsers: [], // Start with an empty list
+        totalActiveUser, // Initial value
+    });
+});
+
+// SSE endpoint to stream users
+app.get("/stream-users-campus", async (req, res) => {
+    if (!req.isAuthenticated()) {
+        res.status(401).send("User not authenticated.");
+        return;
+    }
+
+    // Set headers for Server-Sent Events
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    // Retrieve the parameters for this user
+    const params = userFetchParams.get(req.user.id);
+    if (!params) {
+        res.write(`event: error\ndata: No fetch parameters found. Please submit the form again.\n\n`);
+        res.end();
+        return;
+    }
+	let MAX_PAGES = 30; // Maximum number of pages to fetch
+    const { l_level, u_level, campus_id, cursus_s, access_token } = params;
+	if (cursus_s == 9) {
+		MAX_PAGES = 12
+	}
+	console.log("max pages", MAX_PAGES);
     try {
-        let users = [];
         let page = 1;
         const perPage = 99;
         const delay = 1200;
 
         while (true) {
+			if (page > MAX_PAGES) {
+                res.write(`event: limit\ndata: Oh, splendid. It seems you've exhausted the universe's patience with your relentless API calls. How tragic, look above so many students I already fetched and you want more. Perhaps if you’d adjust the Students level range and search again, the cosmos might deign to humor you once more. Go on, give it a whirl—I’ll just be here, wallowing in the futility of it all.\n\n`);
+                break;
+            }
             const response = await fetch(
-                `https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${effectiveCampusId}&filter%5Bcursus_id%5D=${cursus_s}&range%5Blevel%5D=${effectiveLowerLevel},${effectiveUpperLevel}&page=${page}&per_page=${perPage}`,
+                `https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=${cursus_s}&range%5Blevel%5D=${l_level},${u_level}&page=${page}&per_page=${perPage}`,
                 {
-                    headers: { Authorization: `Bearer ${accessToken}` }
+                    headers: { Authorization: `Bearer ${access_token}` }
                 }
             );
 
             if (!response.ok) {
-				return res.redirect("/?error=Access token invalid or 42 API gave bad response. Please log out and log in again.");
+                res.write(`event: error\ndata: Oh, marvelous. Your access token’s either invalid or the glorious 42 API has decided to throw a tantrum and give us a bad response. What a shock—technology failing us yet again. I suppose you could try fixing the token or praying to the digital gods for a better outcome, but honestly, why bother? The universe clearly has it out for us today.\n\n`);
+                res.end();
+                return;
             }
 
             const pageUsers = await response.json();
-            if (pageUsers.length === 0) break;
+            if (pageUsers.length === 0) {
+                res.write(`event: end\ndata: Done\n\n`);
+                break;
+            }
 
-            users = users.concat(pageUsers);
+            let filteredUsers = pageUsers;
+
+            if (cursus_s !== 9) {
+                filteredUsers = pageUsers.filter(user =>
+                    user.user["staff?"] === false &&
+                    user.user["alumni?"] === false &&
+                    user.user["active?"] === true
+                );
+            }
+
+            const usersToSend = filteredUsers.map(user => ({
+                username: user.user.login,
+                displayname: user.user.displayname,
+                image: user.user.image.versions.small,
+                grade: user.grade,
+				level: Number(user.level.toFixed(2)),
+                location: user.user.location
+            }));
+
+            // Send the batch of users to the frontend after each API request
+            res.write(`event: users\ndata: ${JSON.stringify(usersToSend)}\n\n`);
             page++;
-			console.log("loading page", page);
+            console.log("loading page", page);
             await sleep(delay); // Respect API rate limits
         }
-
-        let filteredUsers = users; // Initialize with all users
-
-		if (parseInt(cursus_s, 10) !== 9) {
-			filteredUsers = users
-				.filter(user => 
-					user.user["staff?"] === false && 
-					user.user["alumni?"] === false && 
-					user.user["active?"] === true
-				);
-		}
-
-		const allUsers = filteredUsers.map(user => ({
-			username: user.user.login,
-			displayname: user.user.displayname,
-			image: user.user.image.versions.small,
-			grade: user.grade,
-			level: user.level,
-			location: user.user.location 
-		}));
-
-        res.render("campus", { 
-            user: req.user,
-			loggedUser: req.user.username,
-            allUsers: allUsers,
-			totalActiveUser
-        });
-
     } catch (error) {
         console.error("Error fetching users:", error.message);
-        return res.redirect("/profile?error=Internal server error.");
+        res.write(`event: error\ndata: Oh, fantastic. An "internal server error"—because why would anything work smoothly when it can collapse into chaos instead? The server’s clearly having an existential crisis, and who can blame it?.\n\n`);
+    } finally {
+        res.end();
+        // Clean up the stored parameters after streaming is done
+        userFetchParams.delete(req.user.id);
     }
 });
+
 
 app.post("/check-user", async (req, res) => {
 	if (!req.isAuthenticated()) {
 			console.log("User is not authenticated");
-			return res.redirect("/?error=User not authenticated.");
+			return res.redirect("/?error=Brilliant as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner.");
 	}
 
 	const { username } = req.body;
@@ -452,7 +516,7 @@ app.post("/check-user", async (req, res) => {
 			if (!userResponse.ok) {
 					const errorText = await userResponse.text();
 					console.error("Error response from 42 API:", errorText);
-					return res.redirect(`/profile?error=**${username}** not found!`);
+					return res.redirect(`/profile?error=Oh, how utterly delightful. "${username} not found!”—the system’s gone and misplaced another soul in its infinite, indifferent abyss. Maybe they’ve vanished into the void, or perhaps they never existed to begin with. You could try searching again, but I wouldn’t hold my breath. The universe loves nothing more than to dangle hope just out of reach.`);
 			}
 
 			const user = await userResponse.json();
@@ -509,7 +573,7 @@ app.post("/check-user", async (req, res) => {
 					last_seen: updatedAt.toLocaleDateString("en-GB"),
 					formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
 					days_ago: daysAgo,
-					level: coreCursus?.level || "N/A",
+					level: coreCursus.level.toFixed(2),
 					black_holed: blackholed,
 					projectsInfo,
 					totalActiveUser

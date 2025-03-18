@@ -6,8 +6,7 @@
     <title>All Users</title>
     <link rel="icon" href="/favicon.ico" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
-	<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen text-white">
     
@@ -37,83 +36,281 @@
 
         <div class="flex flex-col items-center w-full">
             <h1 class="text-2xl font-bold mb-4 text-center">All Users</h1>
-            <!-- Show logged-in user's position if they exist in the list -->
-            <% const loggedInUser = allUsers.find(currentUser => currentUser.username === loggedUser); %>
-            <% if (loggedInUser) { %>
-                <div class="w-full max-w-3xl mb-4">
-                    <div class="flex items-center justify-between bg-blue-800 p-4 rounded-lg shadow-md">
-                        <div class="flex items-center space-x-4">
-                            <span class="text-lg font-bold text-yellow-400">
-                                #<%= allUsers.sort((a, b) => b.level - a.level).findIndex(user => user.username === loggedUser) + 1 %>
+
+            <!-- Sort Buttons -->
+            <div class="flex flex-wrap gap-2 mb-4 justify-center">
+                <button id="showAll" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition">
+                    Show All
+                </button>
+                <button id="showOnline" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition">
+                    Online Only
+                </button>
+                <button id="showOffline" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition">
+                    Offline Only
+                </button>
+                <button id="sortAsc" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
+                    Level ↑
+                </button>
+                <button id="sortDesc" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
+                    Level ↓
+                </button>
+            </div>
+
+            <!-- Progress bar for loading -->
+            <div id="progressBar" class="w-full max-w-3xl mb-4 hidden">
+                <div class="relative pt-1">
+                    <div class="flex mb-2 items-center justify-between">
+                        <div>
+                            <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-400 bg-blue-900">
+                                Fetching Users...
                             </span>
-                            <span class="w-4 h-4 rounded-full" 
-                                style="background-color: <%= loggedInUser.location !== null ? 'green' : 'red' %>;"
-                                title="<%= loggedInUser.location !== null ? 'Online' : 'Offline' %>">
-                            </span>
-                            <img src="<%= loggedInUser.image %>" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
-                            <div class="text-center sm:text-left">
-                                <h2 class="text-lg font-semibold"><%= loggedInUser.displayname %> (You)</h2>
-                                <p class="text-gray-400">@<%= loggedInUser.username %>, Level: <%= loggedInUser.level %></p>
-                            </div>
                         </div>
                     </div>
+                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-700">
+                        <div id="progressBarFill" style="width: 0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-500"></div>
+                    </div>
                 </div>
-            <% } %>
+            </div>
+            <div>
+                Total Searched Students: <span id="totalActiveUsers">0</span>
+            </div>
+            <div id="imageSection1" class="hidden text-center text-gray-400 mt-6">
+                <p class="text-xl">😢 Stopped fetching Users.</p>
+            </div>
+
+            <!-- Logged-in user's position -->
+            <div id="loggedInUserSection" class="w-full max-w-3xl mb-4"></div>
+
+            <!-- User list -->
             <ul class="w-full max-w-3xl space-y-4 overflow-x-auto" id="userList">
-                <% allUsers.sort((a, b) => b.level - a.level).forEach((user, index) => { %>
-                    <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md user-item space-y-2 sm:space-y-0" data-username="<%= user.username %>">
-                        <div class="flex items-center space-x-4 user-link cursor-pointer" data-username="<%= user.username %>">
-                            <span class="text-lg font-bold text-gray-400">#<%= index + 1 %></span>
-                            <span class="w-4 h-4 rounded-full" 
-                                  style="background-color: <%= user.location !== null ? 'green' : 'red' %>;"
-                                  title="<%= user.location !== null ? 'Online' : 'Offline' %>">
-                            </span>
-                            <img src="<%= user.image %>" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
-                            <div class="text-center sm:text-left">
-                                <h2 class="text-lg font-semibold"><%= user.displayname %></h2>
-                                <p class="text-gray-400">@<%= user.username %>, Level: <%= user.level %></p>
-                            </div>
-                        </div>
-                        <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
-                            <button onclick="openSlack('<%= user.username %>')" 
-                                    class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
-                                DM on Slack
-                            </button>
-                            <button onclick="checkUserProfile('<%= user.username %>', this)" 
-                                    class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
-                                Check Projects
-                            </button>
-                            <div id="loadingIndicator" class="hidden text-center my-4 flex items-center space-x-2">
-                                <div class="animate-spin rounded-full h-6 w-6 border-t-4 border-blue-500"></div>
-                                <p class="text-gray-400">Loading Projects...</p>
-                            </div>
-                        </div>
-                    </li>
-                <% }); %>
+                <!-- Users will be appended here dynamically -->
             </ul>
 
-            <% if (allUsers.length === 0) { %>
-                <div id="imageSection" class="text-center text-gray-400 mt-6">
-                    <p class="text-xl">😢 No users found.</p>
-                    <img src="/empty_classroom.avif" 
-                         alt="Empty classroom with computers" 
-                         class="mx-auto mt-4 rounded-lg shadow-lg">
-                </div>
-            <% } %>
+            <!-- Empty state -->
+            <div id="imageSection" class="hidden text-center text-gray-400 mt-6">
+                <p class="text-xl">😢 No users found.</p>
+                <img src="/empty_classroom.avif" 
+                     alt="Empty classroom with computers" 
+                     class="mx-auto mt-4 rounded-lg shadow-lg">
+            </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const userLinks = document.querySelectorAll('.user-link');
-            userLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    const username = this.dataset.username;
-                    window.open(`https://profile.intra.42.fr/users/${username}`, '_blank', 'noopener,noreferrer');
-                });
+        const loggedUser = "<%= user.username %>"; // Pass the logged-in username from the backend
+        let allUsers = [];
+        let currentFilter = 'all'; // 'all', 'online', or 'offline'
+        let currentSort = 'desc'; // 'asc' or 'desc'
+        const userList = document.getElementById("userList");
+        const loggedInUserSection = document.getElementById("loggedInUserSection");
+        const imageSection = document.getElementById("imageSection");
+        const imageSection1 = document.getElementById("imageSection1");
+        const totalActiveUsers = document.getElementById("totalActiveUsers");
+        const progressBar = document.getElementById("progressBar");
+        const progressBarFill = document.getElementById("progressBarFill");
+
+        // Start SSE connection on page load
+        window.addEventListener("load", () => {
+            const source = new EventSource("/stream-users-campus");
+
+            // Show progress bar when fetching starts
+            progressBar.classList.remove("hidden");
+
+            // Simulate progress (since we don't know the total pages upfront)
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5; // Increment progress gradually
+                if (progress > 90) progress = 90; // Cap at 90% until fetching completes
+                progressBarFill.style.width = `${progress}%`;
+            }, 1000);
+
+            source.addEventListener("users", (event) => {
+                const users = JSON.parse(event.data);
+                allUsers = allUsers.concat(users); // Add new users to the list
+                
+                // Update total active users
+                totalActiveUsers.textContent = allUsers.length;
+
+                // Update logged-in user's section
+                updateLoggedInUser();
+
+                // Render the filtered and sorted list
+                renderUserList();
+
+                // Hide empty state if there are users
+                if (allUsers.length > 0) {
+                    imageSection.classList.add("hidden");
+                }
+            });
+
+            source.addEventListener("end", () => {
+                console.log("Finished fetching users");
+                progressBar.classList.add("hidden");
+                clearInterval(progressInterval);
+                progressBarFill.style.width = "100%"; // Complete the progress bar
+                if (allUsers.length === 0) {
+                    imageSection.classList.remove("hidden");
+                }
+                source.close();
+            });
+
+            source.addEventListener("limit", (event) => {
+                console.log("Page limit reached");
+                progressBar.classList.add("hidden");
+                clearInterval(progressInterval);
+                progressBarFill.style.width = "100%";
+                imageSection1.classList.remove("hidden");
+                imageSection1.innerHTML = `<p class="text-xl text-red-400">${event.data}</p>`;
+                source.close();
+            });
+
+            source.addEventListener("error", (event) => {
+                console.error("Error:", event.data);
+                progressBar.classList.add("hidden");
+                clearInterval(progressInterval);
+                progressBarFill.style.width = "100%";
+                imageSection1.classList.remove("hidden");
+                imageSection1.innerHTML = `<p class="text-xl text-red-400">Error: ${event.data}</p>`;
+                source.close();
+            });
+
+            source.onerror = () => {
+                console.error("SSE connection error");
+                progressBar.classList.add("hidden");
+                clearInterval(progressInterval);
+                progressBarFill.style.width = "100%";
+                imageSection1.classList.remove("hidden");
+                imageSection1.innerHTML = `<p class="text-xl text-red-400">Connection lost. Please try again.</p>`;
+                source.close();
+            };
+
+            // Sort button event listeners
+            document.getElementById('showAll').addEventListener('click', () => {
+                currentFilter = 'all';
+                renderUserList();
+            });
+
+            document.getElementById('showOnline').addEventListener('click', () => {
+                currentFilter = 'online';
+                renderUserList();
+            });
+
+            document.getElementById('showOffline').addEventListener('click', () => {
+                currentFilter = 'offline';
+                renderUserList();
+            });
+
+            document.getElementById('sortAsc').addEventListener('click', () => {
+                currentSort = 'asc';
+                renderUserList();
+            });
+
+            document.getElementById('sortDesc').addEventListener('click', () => {
+                currentSort = 'desc';
+                renderUserList();
             });
         });
 
+        // Function to update the logged-in user's section
+        function updateLoggedInUser() {
+            const loggedInUser = allUsers.find(currentUser => currentUser.username === loggedUser);
+            if (loggedInUser) {
+                const index = allUsers.findIndex(user => user.username === loggedUser) + 1;
+                loggedInUserSection.innerHTML = `
+                    <div class="flex items-center justify-between bg-blue-800 p-4 rounded-lg shadow-md">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-lg font-bold text-yellow-400">#${index}</span>
+                            <span class="w-4 h-4 rounded-full" 
+                                  style="background-color: ${loggedInUser.location !== null ? 'green' : 'red'};"
+                                  title="${loggedInUser.location !== null ? 'Online' : 'Offline'}">
+                            </span>
+                            <img src="${loggedInUser.image}" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
+                            <div class="text-center sm:text-left">
+                                <h2 class="text-lg font-semibold">${loggedInUser.displayname} (You)</h2>
+                                <p class="text-gray-400">@${loggedInUser.username}, Level: ${loggedInUser.level}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Function to append a user to the list
+        function appendUser(user, index) {
+            const li = document.createElement("li");
+            li.className = "flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md user-item space-y-2 sm:space-y-0";
+            li.dataset.username = user.username;
+            li.innerHTML = `
+                <div class="flex items-center space-x-4 user-link cursor-pointer" data-username="${user.username}">
+                    <span class="text-lg font-bold text-gray-400">#${index + 1}</span>
+                    <span class="w-4 h-4 rounded-full" 
+                          style="background-color: ${user.location !== null ? 'green' : 'red'};"
+                          title="${user.location !== null ? 'Online' : 'Offline'}">
+                    </span>
+                    <img src="${user.image}" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
+                    <div class="text-center sm:text-left">
+                        <h2 class="text-lg font-semibold">${user.displayname}</h2>
+                        <p class="text-gray-400">@${user.username}, Level: ${user.level}</p>
+                    </div>
+                </div>
+                <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
+                    <button onclick="openSlack('${user.username}')" 
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                        DM on Slack
+                    </button>
+                    <button onclick="checkUserProfile('${user.username}', this)" 
+                            class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                        Check Projects
+                    </button>
+                    <div id="loadingIndicator" class="hidden text-center my-4 flex items-center space-x-2">
+                        <div class="animate-spin rounded-full h-6 w-6 border-t-4 border-blue-500"></div>
+                        <p class="text-gray-400">Loading Projects...</p>
+                    </div>
+                </div>
+            `;
+            userList.appendChild(li);
+
+            // Re-attach event listeners for dynamically added user links
+            li.querySelector(".user-link").addEventListener("click", () => {
+                window.open(`https://profile.intra.42.fr/users/${user.username}`, '_blank', 'noopener,noreferrer');
+            });
+        }
+
+        // Function to render the user list with filters and sorting
+        function renderUserList() {
+            // Sort users based on current sort direction
+            allUsers.sort((a, b) => {
+                return currentSort === 'desc' ? b.level - a.level : a.level - b.level;
+            });
+
+            // Clear current list
+            userList.innerHTML = "";
+
+            // Filter and render users
+            let filteredUsers = allUsers.filter(user => {
+                if (currentFilter === 'online') return user.location !== null;
+                if (currentFilter === 'offline') return user.location === null;
+                return true; // 'all'
+            });
+
+            filteredUsers.forEach((user, index) => {
+                if (user.username !== loggedUser) { // Skip the logged-in user
+                    appendUser(user, index);
+                }
+            });
+
+            // Update total users count based on filter
+            totalActiveUsers.textContent = filteredUsers.length;
+
+            // Show empty state if no users match filter
+            if (filteredUsers.length === 0) {
+                imageSection.classList.remove("hidden");
+            } else {
+                imageSection.classList.add("hidden");
+            }
+        }
+
+        // Existing functions for Slack and project popup
         function openSlack(slackUsername) {
             const slackUrl = `https://42born2code.slack.com/team/selected_team_id=T039P7U66&u=${slackUsername}`;
             window.open(slackUrl, '_blank');
@@ -158,7 +355,6 @@
         }
 
         function showPopupProj(button, content, isHTML = false) {
-            // Remove any existing popups
             document.querySelectorAll(".profile-popup").forEach(el => el.remove());
 
             let popup = document.createElement("div");
@@ -167,29 +363,23 @@
             popup.style.top = `${button.offsetTop - 60}px`;
             popup.style.left = `${button.offsetLeft}px`;
 
-            // Create close button
             let closeButton = document.createElement("button");
-            closeButton.innerHTML = "&times;"; // "×" character
+            closeButton.innerHTML = "×";
             closeButton.className = "absolute top-1 right-1 text-red-500 hover:text-red-700 font-bold text-xl p-2 rounded-full bg-gray-700 bg-opacity-50";
             closeButton.onclick = function() {
                 popup.remove();
             };
 
-            // Add content
             if (isHTML) {
                 popup.innerHTML = content;
             } else {
                 popup.innerText = content;
             }
 
-            // Append close button and content to popup
             popup.appendChild(closeButton);
             button.parentNode.appendChild(popup);
 
-            // Set timeout for automatic removal
-            let timeoutId = setTimeout(() => popup.remove(), 30000);
-
-            // Override the timeout if the close button is clicked.
+            let timeoutId = setTimeout(() => popup.remove(), 50000);
             closeButton.onclick = function() {
                 clearTimeout(timeoutId);
                 popup.remove();
