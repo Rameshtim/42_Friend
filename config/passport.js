@@ -10,8 +10,9 @@ passport.use(
       clientID: process.env.FT_CLIENT_ID,
       clientSecret: process.env.FT_CLIENT_SECRET,
       callbackURL: process.env.NODE_ENV === 'production'
-      ? 'https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback'
+      ? 'https://www.42friend-notifier.de/auth/42/callback'
       : 'http://localhost:3000/auth/42/callback',
+      // ? 'https://goldfish-app-fibzf.ondigitalocean.app/auth/42/callback'
     },
     async (accessToken, refreshToken, profile, done) => {
       try {

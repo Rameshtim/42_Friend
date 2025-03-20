@@ -212,7 +212,7 @@ function getLevelRange(coreLevel) {
 		let l_level, u_level;
 
 		if (coreLevel < 1) {
-				l_level = 0.01;
+				l_level = 0;
 				u_level = l_level + 2;
 		} else if (coreLevel < 2.5) {
 				l_level = 1.05;

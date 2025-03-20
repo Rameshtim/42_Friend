@@ -343,8 +343,17 @@
       popup.innerText = message;
       
       popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
-        ${success ? "bg-green-500" : "bg-red-500"} opacity-0`;
+        ${success ? "bg-green-500" : "bg-red-500"} opacity-0 max-w-[25vw] w-auto break-words z-50`;
       
+      const closeButton = document.createElement("button");
+      closeButton.innerText = "X";
+      closeButton.className = "absolute top-1 right-1 text-white text-xl font-bold bg-transparent border-none cursor-pointer hover:text-gray-200";
+      closeButton.onclick = () => {
+        popup.classList.remove("opacity-100");
+        setTimeout(() => popup.remove(), 300); // Fade out and remove
+      };
+
+      popup.appendChild(closeButton);  
       document.body.appendChild(popup);
       
       // Fade in effect
