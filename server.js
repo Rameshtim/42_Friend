@@ -491,6 +491,9 @@ app.post("/check-user", async (req, res) => {
 	}
 
 	const { username } = req.body;
+	const localTime = parseInt(req.body.localTime);
+	const userTimezone = `UTC${localTime >= 0 ? "-" : "+"}${Math.abs(localTime) / 60}`; // Convert to readable UTC offset
+
 	const accessToken = req.user.access_token;
 
 	console.log("User Name:", req.user.displayname);
@@ -528,9 +531,21 @@ app.post("/check-user", async (req, res) => {
 				blackholed = new Date(coreCursus.end_at).toLocaleDateString("en-GB");
 			}
 			console.log("blackholed at ", blackholed);
-			const updatedAt = new Date(user.updated_at);
-			const now = new Date();
-			const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24));
+			const now = DateTime.now().setZone(userTimezone);
+			const updatedAt = DateTime.fromISO(user.updated_at, { zone: "UTC" }) // Convert UTC to DateTime
+			.setZone(userTimezone); // Convert to user's timezone
+
+			// const daysAgo = Math.floor((now - updatedAt) / (1000 * 60 * 60 * 24));
+			const timeDiff = now.diff(updatedAt, ["hours", "days"]).toObject();
+            const hoursAgo = Math.floor(timeDiff.hours);
+            const daysAgo = Math.floor(timeDiff.days);
+
+            let timeAgo;
+            if (hoursAgo < 24) {
+                timeAgo = hoursAgo === 0 ? "Recently" : `${hoursAgo} ${hoursAgo === 1 ? "hour" : "hours"} ago`;
+            } else {
+                timeAgo = `${daysAgo} ${daysAgo === 1 ? "day" : "days"} ago`;
+            }
 
 			// Fetch user's projects
 			await delay(2000);
@@ -570,9 +585,12 @@ app.post("/check-user", async (req, res) => {
 					user: req.user, 
 					searchedUser: user, 
 					activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()), 
-					last_seen: updatedAt.toLocaleDateString("en-GB"),
-					formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-					days_ago: daysAgo,
+					// last_seen: updatedAt.toLocaleDateString("en-GB"),
+					// formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+					// nlast_seen: updatedAt.toISO(),
+					last_seen: updatedAt.toFormat("dd-MM-yyyy"), // Format as DD-MM-YYYY
+					formatted_time: updatedAt.toFormat("HH:mm"), // 24-hour format
+					days_ago: timeAgo,
 					level: coreCursus.level.toFixed(2),
 					black_holed: blackholed,
 					projectsInfo,

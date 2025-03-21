@@ -32,15 +32,12 @@ router.post("/send-email", async (req, res) => {
     };
     
     const intervalls = {
-        "5sec": 5,
-        "30sec": 30,
         "1min": 60,
         "5min": 300,
-        "10min": 600,
-        "30min": 1800
+        "10min": 580,
     };
 
-    const selectedIntervall = intervalls[intervall] || 60;
+    const selectedIntervall = intervalls[intervall] || 300;
 
     const selectedDuration = durations[duration] || 60;
 
