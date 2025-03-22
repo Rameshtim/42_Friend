@@ -132,7 +132,7 @@
                 totalActiveUsers.textContent = allUsers.length;
 
                 // Update logged-in user's section
-                updateLoggedInUser();
+                // updateLoggedInUser();
 
                 // Render the filtered and sorted list
                 renderUserList();
@@ -212,14 +212,11 @@
         });
 
         // Function to update the logged-in user's section
-        function updateLoggedInUser() {
-            const loggedInUser = allUsers.find(currentUser => currentUser.username === loggedUser);
-            if (loggedInUser) {
-                const index = allUsers.findIndex(user => user.username === loggedUser) + 1;
+        function updateLoggedInUser(loggedInUser, index) {
                 loggedInUserSection.innerHTML = `
                     <div class="flex items-center justify-between bg-blue-800 p-4 rounded-lg shadow-md">
                         <div class="flex items-center space-x-4">
-                            <span class="text-lg font-bold text-yellow-400">#${index}</span>
+                            <span class="text-lg font-bold text-yellow-400">#${index + 1}</span>
                             <span class="w-4 h-4 rounded-full" 
                                   style="background-color: ${loggedInUser.location !== null ? 'green' : 'red'};"
                                   title="${loggedInUser.location !== null ? 'Online' : 'Offline'}">
@@ -232,7 +229,6 @@
                         </div>
                     </div>
                 `;
-            }
         }
 
         // Function to append a user to the list
@@ -294,9 +290,10 @@
             });
 
             filteredUsers.forEach((user, index) => {
-                if (user.username !== loggedUser) { // Skip the logged-in user
-                    appendUser(user, index);
+                if (user.username === loggedUser) { // Skip the logged-in user
+                    updateLoggedInUser(user, index);
                 }
+                appendUser(user, index);
             });
 
             // Update total users count based on filter
