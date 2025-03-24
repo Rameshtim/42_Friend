@@ -258,7 +258,7 @@ app.get("/fetch-users", async (req, res) => {
         let page = 1;
         const perPage = 99;
         const delay = 1200;
-		console.log("request user", req.user);
+		// console.log("request user", req.user);
         const campus_id = req.user.campus_id;
 
         while (true) {
@@ -310,9 +310,11 @@ app.get("/fetch-users", async (req, res) => {
             const timeDiff = now.diff(updatedAt, ["hours", "days"]).toObject();
             const hoursAgo = Math.floor(timeDiff.hours);
             const daysAgo = Math.floor(timeDiff.days);
+			console.log("hours and ago", hoursAgo);
+			console.log(" and days ago", daysAgo);
 
             let timeAgo;
-            if (hoursAgo < 24) {
+            if (hoursAgo < 24 && daysAgo < 1) {
                 timeAgo = hoursAgo === 0 ? "Recently" : `${hoursAgo} ${hoursAgo === 1 ? "hour" : "hours"} ago`;
             } else {
                 timeAgo = `${daysAgo} ${daysAgo === 1 ? "day" : "days"} ago`;
@@ -470,7 +472,6 @@ app.get("/stream-users-campus", async (req, res) => {
             // Send the batch of users to the frontend after each API request
             res.write(`event: users\ndata: ${JSON.stringify(usersToSend)}\n\n`);
             page++;
-            console.log("loading page", page);
             await sleep(delay); // Respect API rate limits
         }
     } catch (error) {
