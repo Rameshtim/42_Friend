@@ -310,8 +310,8 @@ app.get("/fetch-users", async (req, res) => {
             const timeDiff = now.diff(updatedAt, ["hours", "days"]).toObject();
             const hoursAgo = Math.floor(timeDiff.hours);
             const daysAgo = Math.floor(timeDiff.days);
-			console.log("hours and ago", hoursAgo);
-			console.log(" and days ago", daysAgo);
+			// console.log("hours and ago", hoursAgo);
+			// console.log(" and days ago", daysAgo);
 
             let timeAgo;
             if (hoursAgo < 24 && daysAgo < 1) {
@@ -332,6 +332,113 @@ app.get("/fetch-users", async (req, res) => {
                 grade: user.grade
             };
         }).sort((a, b) => DateTime.fromISO(b.nlast_seen) - DateTime.fromISO(a.nlast_seen));
+
+        res.render("peers", { 
+            user: req.user, 
+            peers: onlineUsers,
+            recentPeers: recentUsers,
+            level: coreLevel.toFixed(2),
+            totalActiveUser
+        });
+
+    } catch (error) {
+        console.error("Error fetching users:", error.message);
+        return res.redirect("/profile?error=Oh, fantastic. An internal server error—because why would anything work smoothly when it can collapse into chaos instead? The server’s clearly having an existential crisis, and who can blame it? I’d suggest waiting while it sorts itself out, but optimism’s hardly my forte. Maybe sacrifice a byte or two to the tech deities and hope for the best.");
+    }
+});
+
+app.get("/fetch-piscine-users", async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.redirect("/?error=Oh, brilliant. User not authenticated—as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner. Either way, I’m sure it’ll be a deeply fulfilling experience.");
+    }
+
+    const accessToken = req.user.access_token;
+    const coreCursus = req.user.cursus_users.find(cursus => cursus.cursus_id === 9);
+	const coreLevel = coreCursus.level;
+
+    if (!accessToken) {
+        return res.redirect("/?error=Access token missing. Please log in again.");
+    }
+
+    try {
+        let users = [];
+        let page = 1;
+        const perPage = 99;
+        const delay = 1200;
+		// console.log("request user", req.user);
+        const campus_id = req.user.campus_id;
+
+        while (true) {
+            const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=9&filter%5Bactive%5D=true&page=${page}&per_page=${perPage}`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+
+            if (!response.ok) {
+				return res.redirect("/?error=Oh, marvelous. Your access token’s either invalid or the glorious 42 API has decided to throw a tantrum and give us a bad response. What a shock—technology failing us yet again. I suppose you could try fixing the token or praying to the digital gods for a better outcome, but honestly, why bother? The universe clearly has it out for us today.");
+            }
+
+            const pageUsers = await response.json();
+            if (pageUsers.length === 0) break;
+
+            users = users.concat(pageUsers);
+			// console.log("this is from pisciners", users[page]);
+            page++;
+            await sleep(delay);
+        }
+
+        // ✅ Get user's timezone offset from request header
+        const userOffset = req.headers["x-timezone-offset"] ? parseInt(req.headers["x-timezone-offset"]) : 0;
+        const userTimezone = `UTC${userOffset >= 0 ? "-" : "+"}${Math.abs(userOffset) / 60}`; // Convert to readable UTC offset
+
+
+        // ✅ Get local time using user's offset
+        const now = DateTime.now().setZone(userTimezone);
+
+        // ✅ Calculate 7 days ago based on user timezone
+        const sevenDaysAgo = now.minus({ days: 7 });
+
+		// console.log("this is user from piscine-user", users[1]);
+        const onlineUsers = users.filter(user => user.user.location !== null).map(user => ({
+            username: user.user.login,
+            displayname: user.user.displayname,
+            image: user.user.image.versions.small,
+            grade: user.grade,
+            level: user.level.toFixed(2)
+        })).sort((a, b) => b.level - a.level);
+
+        const recentUsers = users.filter(user => {
+            const updatedAt = DateTime.fromISO(user.user.updated_at, { zone: "UTC" }) // Convert UTC to DateTime
+                .setZone(userTimezone); // Convert to user's timezone
+
+            return updatedAt >= sevenDaysAgo && !onlineUsers.some(peer => peer.username === user.user.login);
+        }).map(user => {
+            const updatedAt = DateTime.fromISO(user.user.updated_at, { zone: "UTC" }).setZone(userTimezone);
+
+            const timeDiff = now.diff(updatedAt, ["hours", "days"]).toObject();
+            const hoursAgo = Math.floor(timeDiff.hours);
+            const daysAgo = Math.floor(timeDiff.days);
+			// console.log("hours and ago", hoursAgo);
+			// console.log(" and days ago", daysAgo);
+
+            let timeAgo;
+            if (hoursAgo < 24 && daysAgo < 1) {
+                timeAgo = hoursAgo === 0 ? "Recently" : `${hoursAgo} ${hoursAgo === 1 ? "hour" : "hours"} ago`;
+            } else {
+                timeAgo = `${daysAgo} ${daysAgo === 1 ? "day" : "days"} ago`;
+            }
+
+            return {
+                username: user.user.login,
+                displayname: user.user.displayname,
+                image: user.user.image.versions.small,
+                nlast_seen: updatedAt.toISO(),
+                last_seen: updatedAt.toFormat("dd-MM-yyyy"), // Format as DD-MM-YYYY
+                formatted_time: updatedAt.toFormat("HH:mm"), // 24-hour format
+                days_ago: timeAgo,
+                level: user.level.toFixed(2),
+                grade: user.grade
+            };
+		}).sort((a, b) => b.level - a.level);
 
         res.render("peers", { 
             user: req.user, 
@@ -526,7 +633,8 @@ app.post("/check-user", async (req, res) => {
 			const user = await userResponse.json();
 			// console.log("*************** \n\n\nUser found:", user);
 
-			const coreCursus = user.cursus_users.find(cursus => cursus.cursus_id === 21);
+			const coreCursus = user.cursus_users.find(cursus => cursus.cursus_id === 21) || 
+				user.cursus_users.find(cursus => cursus.cursus_id === 9);
 			let blackholed = null;
 			if (coreCursus.end_at) {
 				blackholed = new Date(coreCursus.end_at).toLocaleDateString("en-GB");
@@ -578,7 +686,8 @@ app.post("/check-user", async (req, res) => {
 						user: req.user, 
 						searchedUser: null, 
 						activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()),
-						error: erromsg 
+						error: erromsg,
+						totalActiveUser,
 					});
 			}
 

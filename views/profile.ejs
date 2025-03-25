@@ -45,8 +45,13 @@
                         <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
                         <p class="text-gray-400 mt-2">Loading peers...</p>
                     </div>
-					<button id="findPeersButton" onclick="fetchUsers()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+					<br>
+					<button id="findPeersButton" onclick="fetchUsers('peers')" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
 						Find Online Peers
+					</button>		
+					<br>			
+					<button id="findPiscinersButton" onclick="fetchUsers('pisciners')" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+						Find Online Pisciners
 					</button>					
 					
                     <div class="w-full bg-gray-800 p-6 rounded-lg shadow-md">
@@ -522,11 +527,12 @@
 			}, 50000);
 		}
 
-		function fetchUsers() {
+		function fetchUsers(type) {
 			showLoading();
 			const userOffset = new Date().getTimezoneOffset();
+			const route = type === 'pisciners' ? '/fetch-piscine-users' : '/fetch-users';
 			
-			fetch("/fetch-users", {
+			fetch(route, {
 				method: "GET",
 				credentials: "include",
 				headers: { "X-Timezone-Offset": userOffset.toString() }
@@ -552,6 +558,7 @@
 			document.getElementById("loadingIndicator").classList.remove("hidden"); // Show loading spinner
 			document.getElementById("submitButton").classList.add("opacity-50", "cursor-not-allowed"); 
 			document.getElementById("findPeersButton").classList.add("opacity-50", "cursor-not-allowed"); 
+			document.getElementById("findPiscinersButton").classList.add("opacity-50", "cursor-not-allowed"); 
 			document.getElementById("findPeersButton1").classList.add("opacity-50", "cursor-not-allowed"); // Disable button
 		}
 
