@@ -46,13 +46,15 @@
                         <p class="text-gray-400 mt-2">Loading peers...</p>
                     </div>
 					<br>
-					<button id="findPeersButton" onclick="fetchUsers('peers')" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+					<button id="findPeersButton" onclick="fetchUsers()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
 						Find Online Peers
 					</button>		
 					<br>			
-					<button id="findPiscinersButton" onclick="fetchUsers('pisciners')" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
-						Find Online Pisciners
-					</button>					
+					<form action="/fetch-piscine-users" method="POST" class="mt-4 space-y-4" id="fetchPiscineForm">
+						<button id="findPiscinersButton" onclick="fetchUsers()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+							Ongoing Piscine
+						</button>
+					</form>
 					
                     <div class="w-full bg-gray-800 p-6 rounded-lg shadow-md">
 						<form action="/fetch-users-campus" method="POST" class="mt-4 space-y-4" id="fetchUsersForm">
@@ -527,12 +529,12 @@
 			}, 50000);
 		}
 
-		function fetchUsers(type) {
+		function fetchUsers() {
 			showLoading();
 			const userOffset = new Date().getTimezoneOffset();
-			const route = type === 'pisciners' ? '/fetch-piscine-users' : '/fetch-users';
+			// const route = type === 'pisciners' ? '/fetch-piscine-users' : '/fetch-users';
 			
-			fetch(route, {
+			fetch('/fetch-users', {
 				method: "GET",
 				credentials: "include",
 				headers: { "X-Timezone-Offset": userOffset.toString() }

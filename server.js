@@ -8,7 +8,7 @@ require("./config/passport");
 const fetch = require("node-fetch");
 const util = require("util");
 const sleep = util.promisify(setTimeout);
-const fs = require("fs");
+// const fs = require("fs");
 const app = express();
 const { DateTime } = require("luxon");
 
@@ -59,7 +59,7 @@ app.use(
 		},
 		genid: (req) => {
 			const newId = require('crypto').randomBytes(16).toString('hex');
-			console.log(`[${new Date().toISOString()}] New Session ID Generated:`, newId);
+			// console.log(`[${new Date().toISOString()}] New Session ID Generated:`, newId);
 			return newId;
 		}
 	})
@@ -70,14 +70,14 @@ redisClient.on("connect", () => console.log(`[${new Date().toISOString()}] Redis
 redisClient.on("reconnecting", () => console.log(`[${new Date().toISOString()}] Redis Reconnecting`));
 const cors = require('cors');
 
-	app.use(cors({
-		origin: process.env.NODE_ENV === 'production'
-				? 'https://goldfish-app-fibzf.ondigitalocean.app'
-				: 'http://localhost:3000',
-		credentials: true,
-		exposedHeaders: ['set-cookie'],
-		allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production'
+            ? ['https://www.42friend-notifier.de', 'https://goldfish-app-fibzf.ondigitalocean.app'] // Allow both in production
+            : 'http://localhost:3000',
+    credentials: true,
+    exposedHeaders: ['set-cookie'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']  // Add this
 }));
 
 app.use(passport.initialize());
@@ -347,115 +347,6 @@ app.get("/fetch-users", async (req, res) => {
     }
 });
 
-app.get("/fetch-piscine-users", async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect("/?error=Oh, brilliant. User not authenticated—as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner. Either way, I’m sure it’ll be a deeply fulfilling experience.");
-    }
-
-    const accessToken = req.user.access_token;
-    const coreCursus = req.user.cursus_users.find(cursus => cursus.cursus_id === 9);
-	const coreLevel = coreCursus.level;
-
-    if (!accessToken) {
-        return res.redirect("/?error=Access token missing. Please log in again.");
-    }
-
-    try {
-        let users = [];
-        let page = 1;
-        const perPage = 99;
-        const delay = 1200;
-		// console.log("request user", req.user);
-        const campus_id = req.user.campus_id;
-
-        while (true) {
-            const response = await fetch(`https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=9&filter%5Bactive%5D=true&page=${page}&per_page=${perPage}`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
-            });
-
-            if (!response.ok) {
-				return res.redirect("/?error=Oh, marvelous. Your access token’s either invalid or the glorious 42 API has decided to throw a tantrum and give us a bad response. What a shock—technology failing us yet again. I suppose you could try fixing the token or praying to the digital gods for a better outcome, but honestly, why bother? The universe clearly has it out for us today.");
-            }
-
-            const pageUsers = await response.json();
-            if (pageUsers.length === 0) break;
-
-            users = users.concat(pageUsers);
-			// console.log("this is from pisciners", users[page]);
-            page++;
-            await sleep(delay);
-        }
-
-        // ✅ Get user's timezone offset from request header
-        const userOffset = req.headers["x-timezone-offset"] ? parseInt(req.headers["x-timezone-offset"]) : 0;
-        const userTimezone = `UTC${userOffset >= 0 ? "-" : "+"}${Math.abs(userOffset) / 60}`; // Convert to readable UTC offset
-
-
-        // ✅ Get local time using user's offset
-        const now = DateTime.now().setZone(userTimezone);
-
-        // ✅ Calculate 7 days ago based on user timezone
-        const sevenDaysAgo = now.minus({ days: 7 });
-
-		// console.log("this is user from piscine-user", users[1]);
-        const onlineUsers = users.filter(user => user.user.location !== null).map(user => ({
-            username: user.user.login,
-            displayname: user.user.displayname,
-            image: user.user.image.versions.small,
-            grade: user.grade,
-            level: user.level.toFixed(2)
-        })).sort((a, b) => b.level - a.level);
-
-        const recentUsers = users.filter(user => {
-            const updatedAt = DateTime.fromISO(user.user.updated_at, { zone: "UTC" }) // Convert UTC to DateTime
-                .setZone(userTimezone); // Convert to user's timezone
-
-            return updatedAt >= sevenDaysAgo && !onlineUsers.some(peer => peer.username === user.user.login);
-        }).map(user => {
-            const updatedAt = DateTime.fromISO(user.user.updated_at, { zone: "UTC" }).setZone(userTimezone);
-
-            const timeDiff = now.diff(updatedAt, ["hours", "days"]).toObject();
-            const hoursAgo = Math.floor(timeDiff.hours);
-            const daysAgo = Math.floor(timeDiff.days);
-			// console.log("hours and ago", hoursAgo);
-			// console.log(" and days ago", daysAgo);
-
-            let timeAgo;
-            if (hoursAgo < 24 && daysAgo < 1) {
-                timeAgo = hoursAgo === 0 ? "Recently" : `${hoursAgo} ${hoursAgo === 1 ? "hour" : "hours"} ago`;
-            } else {
-                timeAgo = `${daysAgo} ${daysAgo === 1 ? "day" : "days"} ago`;
-            }
-
-            return {
-                username: user.user.login,
-                displayname: user.user.displayname,
-                image: user.user.image.versions.small,
-                nlast_seen: updatedAt.toISO(),
-                last_seen: updatedAt.toFormat("dd-MM-yyyy"), // Format as DD-MM-YYYY
-                formatted_time: updatedAt.toFormat("HH:mm"), // 24-hour format
-                days_ago: timeAgo,
-                level: user.level.toFixed(2),
-                grade: user.grade
-            };
-		}).sort((a, b) => b.level - a.level);
-
-        res.render("peers", { 
-            user: req.user, 
-            peers: onlineUsers,
-            recentPeers: recentUsers,
-            level: coreLevel.toFixed(2),
-            totalActiveUser
-        });
-
-    } catch (error) {
-        console.error("Error fetching users:", error.message);
-        return res.redirect("/profile?error=Oh, fantastic. An internal server error—because why would anything work smoothly when it can collapse into chaos instead? The server’s clearly having an existential crisis, and who can blame it? I’d suggest waiting while it sorts itself out, but optimism’s hardly my forte. Maybe sacrifice a byte or two to the tech deities and hope for the best.");
-    }
-});
-
-
-// In-memory storage for the current user's fetch parameters (for simplicity)
 const userFetchParams = new Map();
 
 // POST endpoint to initiate the fetch (from profile.ejs)
@@ -591,6 +482,110 @@ app.get("/stream-users-campus", async (req, res) => {
     }
 });
 
+// const userFetchParams = new Map();
+
+// POST endpoint for piscine users
+app.post("/fetch-piscine-users", async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.redirect("/?error=Oh, brilliant. User not authenticated...");
+    }
+
+    const accessToken = req.user.access_token;
+    const campus_id = req.user.campus_id;
+
+    if (!accessToken) {
+        return res.redirect("/?error=Access token missing...");
+    }
+
+    const params = {
+        campus_id: campus_id,
+        cursus_id: 9, // Piscine-specific
+        access_token: accessToken
+    };
+
+    userFetchParams.set(req.user.id, params);
+    res.redirect(`/campus?type=pisciners`);
+});
+
+// SSE endpoint for piscine users
+app.get("/stream-piscine-users", async (req, res) => {
+    if (!req.isAuthenticated()) {
+        res.status(401).send("User not authenticated.");
+        return;
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    const params = userFetchParams.get(req.user.id);
+    if (!params) {
+        res.write(`event: error\ndata: No fetch parameters found. Please initiate the fetch again.\n\n`);
+        res.end();
+        return;
+    }
+
+    const { campus_id, cursus_id, access_token } = params;
+    const MAX_PAGES = 12;
+
+    try {
+        let page = 1;
+        const perPage = 99;
+        const delay = 1200;
+
+        while (true) {
+            if (page > MAX_PAGES) {
+                res.write(`event: limit\ndata: Oh, splendid. It seems you've exhausted the universe's patience...\n\n`);
+                break;
+            }
+
+            const response = await fetch(
+                `https://api.intra.42.fr/v2/cursus_users?filter%5Bcampus_id%5D=${campus_id}&filter%5Bcursus_id%5D=${cursus_id}&filter%5Bactive%5D=true&page=${page}&per_page=${perPage}`,
+                { headers: { Authorization: `Bearer ${access_token}` } }
+            );
+
+            if (!response.ok) {
+                res.write(`event: error\ndata: Oh, marvelous. Your access token’s either invalid...\n\n`);
+                res.end();
+                return;
+            }
+
+            const pageUsers = await response.json();
+            if (pageUsers.length === 0) {
+                res.write(`event: end\ndata: Done\n\n`);
+                break;
+            }
+
+            // Filter for online users only and format data
+            const usersToSend = pageUsers
+                .filter(user =>
+                    user.user["staff?"] === false &&
+                    user.user["alumni?"] === false &&
+                    user.user["active?"] === true
+                )
+                .map(user => ({
+                    username: user.user.login,
+                    displayname: user.user.displayname,
+                    image: user.user.image.versions.small,
+                    grade: user.grade,
+                    level: Number(user.level.toFixed(2)),
+                    location: user.user.location
+                }))
+                .sort((a, b) => b.level - a.level);
+
+            res.write(`event: users\ndata: ${JSON.stringify(usersToSend)}\n\n`);
+            page++;
+            await sleep(delay);
+        }
+    } catch (error) {
+        console.error("Error fetching users:", error.message);
+        res.write(`event: error\ndata: Oh, fantastic. An internal server error...\n\n`);
+    } finally {
+        res.end();
+        userFetchParams.delete(req.user.id);
+    }
+});
 
 app.post("/check-user", async (req, res) => {
 	if (!req.isAuthenticated()) {

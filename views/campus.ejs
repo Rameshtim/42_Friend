@@ -30,10 +30,6 @@
     </nav>
 
     <div class="pt-20 w-full max-w-4xl px-4">
-        <div class="flex justify-between items-start mb-4">
-            <a href="/profile" class="text-blue-500 hover:text-blue-700 font-bold">Back to Profile</a>
-        </div>
-
         <div class="flex flex-col items-center w-full">
             <h1 class="text-2xl font-bold mb-4 text-center">All Users</h1>
 
@@ -111,8 +107,11 @@
 
         // Start SSE connection on page load
         window.addEventListener("load", () => {
-            const source = new EventSource("/stream-users-campus");
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type') || 'campus'; // Default to 'campus' if not specified
 
+            const sseEndpoint = type === 'pisciners' ? '/stream-piscine-users' : '/stream-users-campus';
+            const source = new EventSource(sseEndpoint);
             // Show progress bar when fetching starts
             progressBar.classList.remove("hidden");
 
@@ -130,11 +129,6 @@
                 
                 // Update total active users
                 totalActiveUsers.textContent = allUsers.length;
-
-                // Update logged-in user's section
-                // updateLoggedInUser();
-
-                // Render the filtered and sorted list
                 renderUserList();
 
                 // Hide empty state if there are users
