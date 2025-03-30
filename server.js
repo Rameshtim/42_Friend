@@ -155,6 +155,11 @@ app.get("/", (req, res) => {
 	});
 });
 
+// Example of serving the service worker
+app.get('/service-worker.js', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
+  });
+
 app.get("/about", (req, res) => {
 		if (!req.isAuthenticated()) {
 				user = null;
@@ -166,7 +171,6 @@ app.get("/about", (req, res) => {
 		totalActiveUser
 	});
 });
-
 
 app.get("/profile", (req, res) => {
 	console.log(`[${new Date().toISOString()}] Profile Route - Session ID:`, req.sessionID);
