@@ -16,7 +16,7 @@ const connectRedis = require('connect-redis');
 const RedisStore = connectRedis.RedisStore;
 const Redis = require('ioredis');
 
-app.use(express.static("public"));
+// app.use(express.static("public"));
 app.use(express.json());
 app.set("view engine", "ejs");
 app.set('trust proxy', 1);
@@ -156,9 +156,9 @@ app.get("/", (req, res) => {
 });
 
 // Example of serving the service worker
-app.get('/service-worker.js', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
-  });
+// app.get('/service-worker.js', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'images', 'service-worker.js'));
+//   });
 
 app.get("/about", (req, res) => {
 		if (!req.isAuthenticated()) {
