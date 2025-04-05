@@ -2,406 +2,477 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-  
-    <!-- Favicon -->
-    <link rel="icon" href="/favicon.ico" type="image/png">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
-    
-    <!-- Apple Icon for iOS -->
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <meta name="apple-mobile-web-app-title" content="42 Friend Notifier">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    
-    
-    <!-- Theme Color for PWA -->
-    <meta name="theme-color" content="#000000"> <!-- You can set this to match your brand's color -->
-  
-    <!-- Meta Tags for iOS and Android -->
-    <meta name="description" content="Stalk your peers at 42">
-  
-    <!-- Tailwind CSS and Phosphor Icons -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
-  
-    <style>
-      body {
-        background: url('/cat_stalk.jpeg') no-repeat center center fixed;
-        background-size: cover;
-        scroll-behavior: smooth;
-      }
-  
-      .image-slider {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.8s ease, transform 0.8s ease;
-      }
-  
-      .image-slider.visible {
-        opacity: 1;
-        transform: translateY(0);
-      }
-  
-      .scroll-arrow {
-        animation: bounce 2s infinite;
-      }
-  
-      .caption {
-        opacity: 0;
-        transition: opacity 0.5s ease;
-      }
-  
-      .caption.active {
-        opacity: 1;
-      }
-  
-      @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {
-          transform: translateY(0);
-        }
-        40% {
-          transform: translateY(-20px);
-        }
-        60% {
-          transform: translateY(-10px);
-        }
-      }
-    </style>
-  
-    <!-- Service Worker Registration Script (For PWA) -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js').then((registration) => {
-            console.log('Service Worker registered with scope: ', registration.scope);
-          }).catch((error) => {
-            console.log('Service Worker registration failed: ', error);
-          });
-        });
-      }
-    </script>
-  </head>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Home</title>
+	
+		<!-- Favicon -->
+		<link rel="icon" href="/favicon.ico" type="image/png">
+		
+		<!-- PWA Manifest -->
+		<link rel="manifest" href="/manifest.json" />
+		
+		<!-- Apple Icon for iOS -->
+		<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+		<meta name="apple-mobile-web-app-title" content="42 Friend Notifier">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="mobile-web-app-capable" content="yes">
+		
+		
+		<!-- Theme Color for PWA -->
+		<meta name="theme-color" content="#000000"> <!-- You can set this to match your brand's color -->
+	
+		<!-- Meta Tags for iOS and Android -->
+		<meta name="description" content="Stalk your peers at 42">
+	
+		<!-- Tailwind CSS and Phosphor Icons -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
+	
+		<style>
+			body {
+				background: url('/cat_stalk.jpeg') no-repeat center center fixed;
+				background-size: cover;
+				scroll-behavior: smooth;
+			}
+	
+			.image-slider {
+				opacity: 0;
+				transform: translateY(20px);
+				transition: opacity 0.8s ease, transform 0.8s ease;
+			}
+	
+			.image-slider.visible {
+				opacity: 1;
+				transform: translateY(0);
+			}
+	
+			.scroll-arrow {
+				animation: bounce 2s infinite;
+			}
+	
+			.caption {
+				opacity: 0;
+				transition: opacity 0.5s ease;
+			}
+	
+			.caption.active {
+				opacity: 1;
+			}
+	
+			@keyframes bounce {
+				0%, 20%, 50%, 80%, 100% {
+					transform: translateY(0);
+				}
+				40% {
+					transform: translateY(-20px);
+				}
+				60% {
+					transform: translateY(-10px);
+				}
+			}
+		</style>
+	
+		<!-- Service Worker Registration Script (For PWA) -->
+		<script>
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/service-worker.js').then((registration) => {
+						console.log('Service Worker registered with scope: ', registration.scope);
+					}).catch((error) => {
+						console.log('Service Worker registration failed: ', error);
+					});
+				});
+			}
+		</script>
+	</head>
 <body class="flex flex-col items-center justify-start min-h-screen text-white">
-  <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
-    <div class="container mx-auto flex justify-between items-center">
-      <a href="/" class="text-lg font-bold">42_Friend</a>
-      <div class="text-center">
-        Active Users: <%= totalActiveUser %>
-      </div>
-      <div class="space-x-4 flex flex-wrap items-center">
-        <a href="/about" class="hover:text-blue-400">About Me</a>
-        <% if (user) { %>
-          <a href="/profile" class="hover:text-blue-400">Profile</a>
-          <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
-        <% } %>
+	<nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+		<div class="container mx-auto flex justify-between items-center">
+			<a href="/" class="text-lg font-bold">42_Friend</a>
+			<div class="text-center">
+				Active Users: <%= totalActiveUser %>
+			</div>
+			<div class="space-x-4 flex flex-wrap items-center">
+				<a href="/about" class="hover:text-blue-400">About Me</a>
+				<% if (user) { %>
+					<a href="/profile" class="hover:text-blue-400">Profile</a>
+					<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+				<% } %>
 
-        <a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
-          <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
-        </a>
-      </div>
-    </div>
-  </nav>
-  
-  <!-- Main content section -->
+				<a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+					<i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+				</a>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Main content section -->
   <div class="pt-24 pb-16 flex flex-col items-center">
-    <div class="bg-gray-800 bg-opacity-75 p-10 rounded-lg shadow-xl text-center mb-16">
-      <% if (user) { %>
-        <h1 class="text-4xl font-bold mb-6">Welcome, <%= user.displayname %></h1>
-        <a href="/logout" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition">Logout</a>
-        <a href="/profile" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">Profile</a>
-        <% } else { %>
-          <h1 class="text-4xl font-bold mb-6">Welcome</h1>
-        <a href="/auth/42" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">Login with 42</a>
-      <% } %>
-    </div>
-    
-    <!-- Scroll down indicator -->
-    <div class="scroll-arrow text-white text-center cursor-pointer mt-4" id="scrollIndicator">
-      <p class="text-lg mb-2">Scroll to explore features</p>
-      <i class="ph ph-arrow-down text-4xl"></i>
-    </div>
-  </div>
-  
-  <!-- Image slider section (hidden initially) -->
-  <div class="w-full py-20 bg-gray-900 bg-opacity-80 flex justify-center image-slider" id="imageSlider">
-    <div class="max-w-4xl w-full px-4">
-      <h2 class="text-3xl font-bold mb-8 text-center">Feature Gallery</h2>
-      
-      <!-- Image slider container -->
-      <div class="relative w-full mb-4">
-        <!-- Image Container -->
-        <div id="slider" class="flex transition-transform duration-700 ease-in-out bg-gray-800 rounded-lg shadow-xl overflow-hidden">
-          <div class="w-full p-4">
-            <div class="flex flex-col items-center">
-              <div class="h-64 flex items-center justify-center mb-4">
-                <img src="/1.png" class="max-h-full max-w-full object-contain" />
-              </div>
-            </div>
-          </div>
-          <div class="w-full p-4 hidden">
-            <div class="flex flex-col items-center">
-              <div class="h-64 flex items-center justify-center mb-4">
-                <img src="/2.jpg" class="max-h-full max-w-full object-contain" />
-              </div>
-            </div>
-          </div>
-          <div class="w-full p-4 hidden">
-            <div class="flex flex-col items-center">
-              <div class="h-64 flex items-center justify-center mb-4">
-                <img src="/3.png" class="max-h-full max-w-full object-contain" />
-              </div>
-            </div>
-          </div>
-          <div class="w-full p-4 hidden">
-            <div class="flex flex-col items-center">
-              <div class="h-64 flex items-center justify-center mb-4">
-                <img src="/4.jpg" class="max-h-full max-w-full object-contain" />
-              </div>
-            </div>
-          </div>
-          <div class="w-full p-4 hidden">
-            <div class="flex flex-col items-center">
-              <div class="h-64 flex items-center justify-center mb-4">
-                <img src="/5.png" class="max-h-full max-w-full object-contain" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+		<div class="bg-gray-800 bg-opacity-75 p-10 rounded-lg shadow-xl text-center mb-16">
+		<% if (user) { %>
+			<h1 class="text-4xl font-bold mb-6">Welcome, <%= user.displayname %></h1>
+			<a href="/logout" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition">Logout</a>
+			<a href="/profile" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">Profile</a>
+		<% } else { %>
+			<h1 class="text-4xl font-bold mb-6">Welcome</h1>
+			<a href="/auth/42" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">Login with 42</a>
+		<% } %>
+		</div>
+	
+		<!-- PWA Instructions Section -->
+		<div class="bg-gray-800 bg-opacity-75 p-4 sm:p-8 rounded-lg shadow-xl text-center mb-8 sm:mb-16 w-full max-w-md sm:max-w-2xl mx-4">
+			<h2 class="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Install as a Progressive Web App (PWA)</h2>
+			<p class="text-gray-200 mb-4 text-sm sm:text-base">Enjoy 42 Friend Notifier as a standalone app on your <strong>Mobile Device</strong>!</p>
+			
+			<!-- Manual Instructions (Hidden by Default) -->
+			<div id="pwaManualInstructions" class="text-left text-gray-200 hidden">
+			  <p class="mb-2 text-sm sm:text-base"><strong>On Mobile (iOS/Android):</strong></p>
+			  <ul class="list-disc list-inside mb-4 text-sm sm:text-base">
+				<li>Open this page in your browser (Chrome, Safari, etc.).</li>
+				<li>Tap the <strong>Share</strong> button (iOS) or <strong>Menu</strong> (Android, three dots).</li>
+				<li>Select <strong>"Add to Home Screen"</strong> and confirm.</li>
+				<li>Launch it from your home screen like any app!</li>
+			  </ul>
+			</div>
+		
+			<!-- Toggle Instructions Button -->
+			<button id="toggleInstructionsBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg mt-2 transition">Show Instructions</button>
+			
+			<!-- Install Button (Hidden by Default) -->
+			<button id="installPwaBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-4 transition hidden">Install Now</button>
+		</div>
+	
+		<!-- Scroll down indicator -->
+		<div class="scroll-arrow text-white text-center cursor-pointer mt-4" id="scrollIndicator">
+			<p class="text-lg mb-2">Scroll to explore features</p>
+			<i class="ph ph-arrow-down text-4xl"></i>
+		</div>
+	</div>
+	
+	<!-- Image slider section (hidden initially) -->
+	<div class="w-full py-20 bg-gray-900 bg-opacity-80 flex justify-center image-slider" id="imageSlider">
+		<div class="max-w-4xl w-full px-4">
+			<h2 class="text-3xl font-bold mb-8 text-center">Feature Gallery</h2>
+			
+			<!-- Image slider container -->
+			<div class="relative w-full mb-4">
+				<!-- Image Container -->
+				<div id="slider" class="flex transition-transform duration-700 ease-in-out bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+					<div class="w-full p-4">
+						<div class="flex flex-col items-center">
+							<div class="h-64 flex items-center justify-center mb-4">
+								<img src="/1.png" class="max-h-full max-w-full object-contain" />
+							</div>
+						</div>
+					</div>
+					<div class="w-full p-4 hidden">
+						<div class="flex flex-col items-center">
+							<div class="h-64 flex items-center justify-center mb-4">
+								<img src="/2.jpg" class="max-h-full max-w-full object-contain" />
+							</div>
+						</div>
+					</div>
+					<div class="w-full p-4 hidden">
+						<div class="flex flex-col items-center">
+							<div class="h-64 flex items-center justify-center mb-4">
+								<img src="/3.png" class="max-h-full max-w-full object-contain" />
+							</div>
+						</div>
+					</div>
+					<div class="w-full p-4 hidden">
+						<div class="flex flex-col items-center">
+							<div class="h-64 flex items-center justify-center mb-4">
+								<img src="/4.jpg" class="max-h-full max-w-full object-contain" />
+							</div>
+						</div>
+					</div>
+					<div class="w-full p-4 hidden">
+						<div class="flex flex-col items-center">
+							<div class="h-64 flex items-center justify-center mb-4">
+								<img src="/5.png" class="max-h-full max-w-full object-contain" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-      <!-- Caption Area -->
-      <div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg relative caption-container min-h-20">
-        <div class="caption active" data-index="0">
-          <h3 class="text-xl font-bold mb-2 text-blue-300">Check Status</h3>
-          <p class="text-gray-200">With check status it is possible to see users' projects, last login/logout from 42 API to show exact time and date and also to monitor and get notified by email/browser when they arrive at school.</p>
-        </div>
-        <div class="caption hidden" data-index="1">
-          <h3 class="text-xl font-bold mb-2 text-blue-300">Find Online Peers</h3>
-          <p class="text-gray-200">Will show logged in user or recently logged in (less then 7 days) that are around your level. But is roughly calculated and might show more users then expected.
-            This feature is mostly targeted for students level 10+ to find peers for evaluation for Outer Core projects. Which will show a tick sign who is in outer core and a x sign if they are level 10+
-            but still need to pass the exam.
-            Some features might be available only for Students with level 10+
-          </p>
-        </div>
-        <div class="caption hidden" data-index="2">
-          <h3 class="text-xl font-bold mb-2 text-blue-300">Advance Search</h3>
-          <p class="text-gray-200">Select the Campus(Only Active Campuses are shown), level should be 0 and Upper level 10+ to show all the users and their rank in selected Campus.
-            But if you want to find peers from a level choose a level and Upper level is set by default to level+1 or you can select to show desired level.
-            <br> For Piscine only from level 5 is allowed, so if choosen 0 will be defaulted to 5 only to know Students with higher level.
-          </p>
-        </div>
-        <div class="caption hidden" data-index="3">
-          <h3 class="text-xl font-bold mb-2 text-blue-300">All Users</h3>
-          <p class="text-gray-200">Listed all users from Selected Campus and from selected Level with the User at top and their Rank at selected level or at School.</p>
-        </div>
-        <div class="caption hidden" data-index="4">
-          <h3 class="text-xl font-bold mb-2 text-blue-300">Check Projects</h3>
-          <p class="text-gray-200">Click on Check Projects to see on which project your peers are currently working and since when.</p>
-        </div>
-      </div>
-    
-      <!-- Navigation Dots -->
-      <div class="flex justify-center space-x-3 mb-8">
-        <span class="dot w-4 h-4 bg-white rounded-full cursor-pointer border-2 border-blue-400"></span>
-        <span class="dot w-4 h-4 bg-gray-400 rounded-full cursor-pointer border-2 border-transparent"></span>
-        <span class="dot w-4 h-4 bg-gray-400 rounded-full cursor-pointer border-2 border-transparent"></span>
-        <span class="dot w-4 h-4 bg-gray-400 rounded-full cursor-pointer border-2 border-transparent"></span>
-        <span class="dot w-4 h-4 bg-gray-400 rounded-full cursor-pointer border-2 border-transparent"></span>
-      </div>
+			<!-- Caption Area -->
+			<div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg relative caption-container min-h-20">
+				<div class="caption active" data-index="0">
+					<h3 class="text-xl font-bold mb-2 text-blue-300">Check Status</h3>
+					<p class="text-gray-200">With check status it is possible to see users' projects, last login/logout from 42 API to show exact time and date and also to monitor and get notified by email/browser when they arrive at school.</p>
+				</div>
+				<div class="caption hidden" data-index="1">
+					<h3 class="text-xl font-bold mb-2 text-blue-300">Find Online Peers</h3>
+					<p class="text-gray-200">Will show logged in user or recently logged in (less then 7 days) that are around your level. But is roughly calculated and might show more users then expected.
+						This feature is mostly targeted for students level 10+ to find peers for evaluation for Outer Core projects. Which will show a tick sign who is in outer core and a x sign if they are level 10+
+						but still need to pass the exam.
+						Some features might be available only for Students with level 10+
+					</p>
+				</div>
+				<div class="caption hidden" data-index="2">
+					<h3 class="text-xl font-bold mb-2 text-blue-300">Advance Search</h3>
+					<p class="text-gray-200">Select the Campus(Only Active Campuses are shown), level should be 0 and Upper level 10+ to show all the users and their rank in selected Campus.
+						But if you want to find peers from a level choose a level and Upper level is set by default to level+1 or you can select to show desired level.
+						<br> For Piscine only from level 5 is allowed, so if choosen 0 will be defaulted to 5 only to know Students with higher level.
+					</p>
+				</div>
+				<div class="caption hidden" data-index="3">
+					<h3 class="text-xl font-bold mb-2 text-blue-300">All Users</h3>
+					<p class="text-gray-200">Listed all users from Selected Campus and from selected Level with the User at top and their Rank at selected level or at School.</p>
+				</div>
+				<div class="caption hidden" data-index="4">
+					<h3 class="text-xl font-bold mb-2 text-blue-300">Check Projects</h3>
+					<p class="text-gray-200">Click on Check Projects to see on which project your peers are currently working and since when.</p>
+				</div>
+			</div>
+		
+			<!-- Navigation Dots -->
+			<div class="flex justify-center space-x-3 mb-8">
+				<span class="dot w-4 h-4 bg-white rounded-full cursor-pointer border-2 border-blue-400"></span>
+				<span class="dot w-4 h-4 bg-gray-400 rounded-full cursor-pointer border-2 border-transparent"></span>
+				<span class="dot w-4 h-4 bg-gray-400 rounded-full cursor-pointer border-2 border-transparent"></span>
+				<span class="dot w-4 h-4 bg-gray-400 rounded-full cursor-pointer border-2 border-transparent"></span>
+				<span class="dot w-4 h-4 bg-gray-400 rounded-full cursor-pointer border-2 border-transparent"></span>
+			</div>
 
-      <!-- Navigation Arrows -->
-      <div class="flex justify-between">
-        <button id="prevBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg flex items-center transition">
-          <i class="ph ph-arrow-left mr-2"></i> Previous
-        </button>
-        <button id="nextBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg flex items-center transition">
-          Next <i class="ph ph-arrow-right ml-2"></i>
-        </button>
-      </div>
-    </div>
-  </div>
+			<!-- Navigation Arrows -->
+			<div class="flex justify-between">
+				<button id="prevBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg flex items-center transition">
+					<i class="ph ph-arrow-left mr-2"></i> Previous
+				</button>
+				<button id="nextBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg flex items-center transition">
+					Next <i class="ph ph-arrow-right ml-2"></i>
+				</button>
+			</div>
+		</div>
+	</div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const message = urlParams.get("message");
-      const error = urlParams.get("error");
-      
-      if (message) {
-        showPopup(message, true);
-      } else if (error) {
-        showPopup(error, false);
-      }
-      
-      if (message || error) {
-        const newUrl = window.location.pathname; 
-        window.history.replaceState({}, document.title, newUrl);
-      }
-      
-      const totalActiveUser = <%= totalActiveUser %>;
-      
-      // Select login button
-      const loginButton = document.querySelector("a[href='/auth/42']");
-      
-      if (totalActiveUser > 100) {
-        // Disable login by removing href and adding a disabled style
-        loginButton.removeAttribute("href");
-        loginButton.classList.add("bg-gray-500", "cursor-not-allowed");
-        loginButton.classList.remove("bg-blue-500", "hover:bg-blue-600");
-        
-        // Show tooltip or message
-        const warningText = document.createElement("p");
-        warningText.innerText = "Too many active users. Try again later.";
-        warningText.className = "text-red-400 text-2xl font-bold mb-6";
-        
-        // Append message below the button
-        loginButton.parentNode.appendChild(warningText);
-      }
-      
-      // Image slider functionality
-      const slides = document.querySelectorAll("#slider > div");
-      const dots = document.querySelectorAll(".dot");
-      const captions = document.querySelectorAll(".caption");
-      const imageSlider = document.getElementById("imageSlider");
-      const scrollIndicator = document.getElementById("scrollIndicator");
-      const prevBtn = document.getElementById("prevBtn");
-      const nextBtn = document.getElementById("nextBtn");
-      
-      let currentIndex = 0;
-      
-      function updateSlider() {
-        slides.forEach((slide, i) => {
-          slide.classList.toggle("hidden", i !== currentIndex);
-        });
-        
-        dots.forEach((dot, i) => {
-          dot.classList.toggle("bg-white", i === currentIndex);
-          dot.classList.toggle("bg-gray-400", i !== currentIndex);
-          dot.classList.toggle("border-blue-400", i === currentIndex);
-          dot.classList.toggle("border-transparent", i !== currentIndex);
-        });
-        
-        captions.forEach((caption, i) => {
-          if (i === currentIndex) {
-            caption.classList.remove("hidden");
-            setTimeout(() => caption.classList.add("active"), 50);
-          } else {
-            caption.classList.remove("active");
-            setTimeout(() => {
-              if (i !== currentIndex) caption.classList.add("hidden");
-            }, 500);
-          }
-        });
-      }
-      
-      function nextSlide() {
-        currentIndex = (currentIndex + 1) % slides.length;
-        updateSlider();
-      }
-      
-      function prevSlide() {
-        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-        updateSlider();
-      }
-      
-      function goToSlide(slideIndex) {
-        currentIndex = slideIndex;
-        updateSlider();
-      }
-      
-      // Auto-slide every 8 seconds (increased from 5 to give more time to read)
-      let slideInterval = setInterval(nextSlide, 8000);
-      
-      // Reset interval when manually changing slides
-      function resetInterval() {
-        clearInterval(slideInterval);
-        slideInterval = setInterval(nextSlide, 8000);
-      }
-      
-      // Click dots to change image
-      dots.forEach((dot, i) => {
-        dot.addEventListener("click", () => {
-          goToSlide(i);
-          resetInterval();
-        });
-      });
-      
-      // Previous and Next buttons
-      prevBtn.addEventListener("click", () => {
-        prevSlide();
-        resetInterval();
-      });
-      
-      nextBtn.addEventListener("click", () => {
-        nextSlide();
-        resetInterval();
-      });
-      
-      // Scroll arrow click
-      scrollIndicator.addEventListener("click", () => {
-        imageSlider.scrollIntoView({ behavior: "smooth" });
-      });
-      
-      // Check if element is in viewport
-      function isInViewport(element) {
-        const rect = element.getBoundingClientRect();
-        return (
-          rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8
-        );
-      }
-      
-      // Check scroll position and reveal slider
-      function checkScroll() {
-        if (isInViewport(imageSlider)) {
-          imageSlider.classList.add("visible");
-        }
-      }
-      
-      // Initial check and scroll event listener
-      checkScroll();
-      window.addEventListener("scroll", checkScroll);
-      
-      // Initialize slider
-      updateSlider();
-    });
-    
-    function showPopup(message, success) {
-      const popup = document.createElement("div");
-      popup.innerText = message;
-      
-      popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
-        ${success ? "bg-green-500" : "bg-red-500"} opacity-0 w-[90vw] sm:w-auto sm:max-w-[25vw] break-words z-50`;
-      
-      const closeButton = document.createElement("button");
-      closeButton.innerText = "X";
-      closeButton.className = "absolute top-1 right-1 text-white text-xl font-bold bg-transparent border-none cursor-pointer hover:text-gray-200";
-      closeButton.onclick = () => {
-        popup.classList.remove("opacity-100");
-        setTimeout(() => popup.remove(), 300); // Fade out and remove
-      };
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
 
-      popup.appendChild(closeButton);  
-      document.body.appendChild(popup);
-      
-      // Fade in effect
-      setTimeout(() => {
-        popup.classList.add("opacity-100");
-      }, 50);
-      
-      // Remove after timeout
-      setTimeout(() => {
-        popup.classList.remove("opacity-100");
-        setTimeout(() => popup.remove(), 300);
-      }, 50000);
-    }
-  </script>
+		// PWA Install Button Logic
+		let deferredPrompt;
+		const installPwaBtn = document.getElementById("installPwaBtn");
+		const isMobile = /iPhone|Android/i.test(navigator.userAgent);
+
+		// Show Install button only on iOS/Android
+		if (isMobile) {
+			installPwaBtn.classList.remove("hidden");
+		}
+
+		// Capture the install prompt event
+		window.addEventListener("beforeinstallprompt", (e) => {
+			e.preventDefault();
+			deferredPrompt = e;
+			// Optionally show the button here too if you want it to appear only when installable
+			if (isMobile) {
+			installPwaBtn.classList.remove("hidden");
+			}
+		});
+
+		// Install button click handler
+		installPwaBtn.addEventListener("click", () => {
+			if (deferredPrompt) {
+			deferredPrompt.prompt();
+			deferredPrompt.userChoice.then((choiceResult) => {
+				if (choiceResult.outcome === "accepted") {
+				console.log("User installed the PWA");
+				}
+				deferredPrompt = null;
+			});
+			} else {
+			alert("Installation is not available right now. Follow the manual instructions instead.");
+			}
+		});
+
+		// Toggle Manual Instructions
+		const toggleInstructionsBtn = document.getElementById("toggleInstructionsBtn");
+		const pwaManualInstructions = document.getElementById("pwaManualInstructions");
+
+		toggleInstructionsBtn.addEventListener("click", () => {
+			const isHidden = pwaManualInstructions.classList.contains("hidden");
+			if (isHidden) {
+			pwaManualInstructions.classList.remove("hidden");
+			toggleInstructionsBtn.textContent = "Hide Instructions";
+			} else {
+			pwaManualInstructions.classList.add("hidden");
+			toggleInstructionsBtn.textContent = "Show Instructions";
+			}
+		});
+			const urlParams = new URLSearchParams(window.location.search);
+			const message = urlParams.get("message");
+			const error = urlParams.get("error");
+			
+			if (message) {
+				showPopup(message, true);
+			} else if (error) {
+				showPopup(error, false);
+			}
+			
+			if (message || error) {
+				const newUrl = window.location.pathname; 
+				window.history.replaceState({}, document.title, newUrl);
+			}
+			
+			const totalActiveUser = <%= totalActiveUser %>;
+			
+			// Select login button
+			const loginButton = document.querySelector("a[href='/auth/42']");
+			
+			if (totalActiveUser > 100) {
+				// Disable login by removing href and adding a disabled style
+				loginButton.removeAttribute("href");
+				loginButton.classList.add("bg-gray-500", "cursor-not-allowed");
+				loginButton.classList.remove("bg-blue-500", "hover:bg-blue-600");
+				
+				// Show tooltip or message
+				const warningText = document.createElement("p");
+				warningText.innerText = "Too many active users. Try again later.";
+				warningText.className = "text-red-400 text-2xl font-bold mb-6";
+				
+				// Append message below the button
+				loginButton.parentNode.appendChild(warningText);
+			}
+			
+			// Image slider functionality
+			const slides = document.querySelectorAll("#slider > div");
+			const dots = document.querySelectorAll(".dot");
+			const captions = document.querySelectorAll(".caption");
+			const imageSlider = document.getElementById("imageSlider");
+			const scrollIndicator = document.getElementById("scrollIndicator");
+			const prevBtn = document.getElementById("prevBtn");
+			const nextBtn = document.getElementById("nextBtn");
+			
+			let currentIndex = 0;
+			
+			function updateSlider() {
+				slides.forEach((slide, i) => {
+					slide.classList.toggle("hidden", i !== currentIndex);
+				});
+				
+				dots.forEach((dot, i) => {
+					dot.classList.toggle("bg-white", i === currentIndex);
+					dot.classList.toggle("bg-gray-400", i !== currentIndex);
+					dot.classList.toggle("border-blue-400", i === currentIndex);
+					dot.classList.toggle("border-transparent", i !== currentIndex);
+				});
+				
+				captions.forEach((caption, i) => {
+					if (i === currentIndex) {
+						caption.classList.remove("hidden");
+						setTimeout(() => caption.classList.add("active"), 50);
+					} else {
+						caption.classList.remove("active");
+						setTimeout(() => {
+							if (i !== currentIndex) caption.classList.add("hidden");
+						}, 500);
+					}
+				});
+			}
+			
+			function nextSlide() {
+				currentIndex = (currentIndex + 1) % slides.length;
+				updateSlider();
+			}
+			
+			function prevSlide() {
+				currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+				updateSlider();
+			}
+			
+			function goToSlide(slideIndex) {
+				currentIndex = slideIndex;
+				updateSlider();
+			}
+			
+			// Auto-slide every 8 seconds (increased from 5 to give more time to read)
+			let slideInterval = setInterval(nextSlide, 8000);
+			
+			// Reset interval when manually changing slides
+			function resetInterval() {
+				clearInterval(slideInterval);
+				slideInterval = setInterval(nextSlide, 8000);
+			}
+			
+			// Click dots to change image
+			dots.forEach((dot, i) => {
+				dot.addEventListener("click", () => {
+					goToSlide(i);
+					resetInterval();
+				});
+			});
+			
+			// Previous and Next buttons
+			prevBtn.addEventListener("click", () => {
+				prevSlide();
+				resetInterval();
+			});
+			
+			nextBtn.addEventListener("click", () => {
+				nextSlide();
+				resetInterval();
+			});
+			
+			// Scroll arrow click
+			scrollIndicator.addEventListener("click", () => {
+				imageSlider.scrollIntoView({ behavior: "smooth" });
+			});
+			
+			// Check if element is in viewport
+			function isInViewport(element) {
+				const rect = element.getBoundingClientRect();
+				return (
+					rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8
+				);
+			}
+			
+			// Check scroll position and reveal slider
+			function checkScroll() {
+				if (isInViewport(imageSlider)) {
+					imageSlider.classList.add("visible");
+				}
+			}
+			
+			// Initial check and scroll event listener
+			checkScroll();
+			window.addEventListener("scroll", checkScroll);
+			
+			// Initialize slider
+			updateSlider();
+		});
+		
+		function showPopup(message, success) {
+			const popup = document.createElement("div");
+			popup.innerText = message;
+			
+			popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
+				${success ? "bg-green-500" : "bg-red-500"} opacity-0 w-[90vw] sm:w-auto sm:max-w-[25vw] break-words z-50`;
+			
+			const closeButton = document.createElement("button");
+			closeButton.innerText = "X";
+			closeButton.className = "absolute top-1 right-1 text-white text-xl font-bold bg-transparent border-none cursor-pointer hover:text-gray-200";
+			closeButton.onclick = () => {
+				popup.classList.remove("opacity-100");
+				setTimeout(() => popup.remove(), 300); // Fade out and remove
+			};
+
+			popup.appendChild(closeButton);  
+			document.body.appendChild(popup);
+			
+			// Fade in effect
+			setTimeout(() => {
+				popup.classList.add("opacity-100");
+			}, 50);
+			
+			// Remove after timeout
+			setTimeout(() => {
+				popup.classList.remove("opacity-100");
+				setTimeout(() => popup.remove(), 300);
+			}, 50000);
+		}
+	</script>
 </body
-
-
 
