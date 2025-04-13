@@ -21,6 +21,7 @@ app.use(express.json());
 app.set("view engine", "ejs");
 app.set('trust proxy', 1);
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const redisClient = new Redis({
@@ -85,8 +86,10 @@ app.use(passport.session());
 
 const authRoutes = require("./routes/auth");
 const emailRoutes = require("./routes/email");
+const bookmarkRoutes = require("./routes/bookmarks");
 app.use(authRoutes);
 app.use(emailRoutes);
+app.use(bookmarkRoutes);
 app.use(express.static('images')); 
 
 const { StatusMonitor } = require('./routes/statusMonitor');
@@ -154,11 +157,6 @@ app.get("/", (req, res) => {
 		user
 	});
 });
-
-// Example of serving the service worker
-// app.get('/service-worker.js', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'images', 'service-worker.js'));
-//   });
 
 app.get("/about", (req, res) => {
 		if (!req.isAuthenticated()) {

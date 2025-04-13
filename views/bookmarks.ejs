@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Bookmarks</title>
+	
+
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
+		<!-- Favicon -->
+		<link rel="icon" href="/favicon.ico" type="image/png">
+		
+	</head>
+	<body class="flex min-h-screen bg-gray-900 text-white">
+		<!-- Navigation unchanged -->
+		<nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+			<div class="container mx-auto flex justify-between items-center">
+				<a href="/" class="text-lg font-bold">42_Friend</a>
+				<div class="space-x-4 flex flex-wrap items-center">
+					<a href="/about" class="hover:text-blue-400">About Me</a>
+					<% if (user) { %>
+						<a href="/profile" class="hover:text-blue-400">Profile</a>
+						<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+					<% } %>
+					<a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+						<i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+					</a>
+				</div>
+			</div>
+		</nav>
+	
+		<!-- Main content section -->
+		<div class="flex w-full pt-28">
+			<!-- Bookmarks Table -->
+			<div class="flex-1 px-4 mr-64"> <!-- Added mr-64 to respect sidebar width -->
+				<div class="max-w-5xl mx-auto bg-gray-800 rounded-lg shadow-md p-6"> <!-- Added background and shadow -->
+					<!-- Header Section -->
+					<div class="flex justify-between items-center mb-8">
+						<h1 class="text-3xl font-extrabold text-blue-400">Bookmarks</h1>
+						<button id="createBookmarkBtn" 
+								class="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition shadow-md hover:shadow-lg text-lg flex items-center">
+							<i class="ph ph-plus-circle mr-2"></i>Create Bookmark
+						</button>
+					</div>
+					<!-- Bookmarks List -->
+					<% const categories = {}; %>
+					<% if (bookmarks.length === 0) { %>
+						<p class="text-gray-400">No bookmarks yet.</p>
+					<% } else { %>
+						<% 
+							
+							bookmarks.forEach(bookmark => {
+								const cat = bookmark.category || 'Uncategorized';
+								if (!categories[cat]) categories[cat] = [];
+								categories[cat].push(bookmark);
+							});
+						%>
+						<div class="space-y-8">
+							<% Object.entries(categories).forEach(([category, bookmarks]) => { %>
+								<div class="category-section" data-category="<%= category %>">
+									<h3 class="text-xl font-semibold mb-2 text-blue-400"><%= category %></h3>
+									<table class="w-full text-left border-collapse rounded-lg">
+										<thead>
+											<tr class="bg-gray-700">
+												<th class="p-3 w-20">Title</th>
+												<th class="p-3 w-32">URL</th>
+												<th class="p-3 w-32">Created</th>
+												<th class="p-3 w-48">Description</th>
+												<th class="p-3 w-24">Votes</th>
+												<th class="p-3 w-20">Details</th>
+											</tr>
+										</thead>
+										<tbody>
+											<% 
+												const sortedBookmarks = bookmarks.sort((a, b) => b.upvotes.length - a.upvotes.length);
+												sortedBookmarks.forEach((bookmark, index) => { %>
+												<tr class="border-b border-gray-700 <%= index >= 4 ? 'hidden bookmark-hidden' : '' %>"
+													data-category="<%= category %>">
+													<td class="p-3 truncate w-20">
+														<a href="<%= bookmark.url %>" target="_blank" 
+														   class="text-blue-400 hover:underline">
+															<%= bookmark.title %>
+														</a>
+													</td>
+													<td class="p-3 truncate w-32">
+														<a href="<%= bookmark.url %>" target="_blank" 
+														   class="text-blue-400 hover:underline">
+															<%= bookmark.url %>
+														</a>
+													</td>
+													<td class="p-3 w-32 truncate">
+														<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>, <%= bookmark.createdBy %>
+													</td>
+													<td class="p-3 truncate w-48">
+														<%= bookmark.description || 'No description' %>
+													</td>
+													<td class="p-3 w-24 flex space-x-2">
+														<form action="/bookmarks/<%= bookmark._id %>/upvote" method="POST">
+															<button type="submit" class="text-green-400 hover:text-green-300">
+																▲ <%= bookmark.upvotes.length %>
+															</button>
+														</form>
+														<form action="/bookmarks/<%= bookmark._id %>/downvote" method="POST">
+															<button type="submit" class="text-red-400 hover:text-red-300">
+																▼ <%= bookmark.downvotes.length %>
+															</button>
+														</form>
+													</td>
+													<td class="p-3 w-20">
+														<button class="show-details text-blue-400 hover:underline text-sm"
+																data-id="<%= bookmark._id %>"
+																data-title="<%= bookmark.title %>"
+																data-url="<%= bookmark.url %>"
+																data-description="<%= bookmark.description || 'No description' %>"
+																data-created="<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>"
+																data-createdby="<%= bookmark.createdBy %>">
+															Show
+														</button>
+													</td>
+												</tr>
+											<% }) %>
+										</tbody>
+									</table>
+									<% if (sortedBookmarks.length > 4) { %>
+										<button class="show-more mt-2 text-blue-400 hover:underline"
+												data-category="<%= category %>">
+											Show More
+										</button>
+									<% } %>
+								</div>
+							<% }) %>
+						</div>
+					<% } %>
+				</div>
+			</div>
+		
+			<!-- Category Sidebar -->
+			<div class="w-64 bg-gray-800 p-4 fixed right-0 top-16 bottom-0 overflow-y-auto shadow-lg"> <!-- Added shadow -->
+				<h3 class="text-lg font-semibold mb-4">Categories</h3>
+				<ul class="space-y-2">
+					<li>
+						<button class="category-filter text-blue-400 hover:underline w-full text-left"
+								data-category="all">All Categories</button>
+					</li>
+					<% Object.keys(categories).forEach(category => { %>
+						<li>
+							<button class="category-filter text-blue-400 hover:underline w-full text-left"
+									data-category="<%= category %>"><%= category %></button>
+						</li>
+					<% }) %>
+				</ul>
+			</div>
+		</div>
+	
+		<!-- Bookmark Form Popup (unchanged) -->
+		<div id="bookmarkFormPopup" 
+			 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+			<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-md relative">
+				<button id="closeFormBtn" 
+						class="absolute top-2 right-2 text-gray-400 hover:text-white">
+					<i class="ph ph-x text-xl"></i>
+				</button>
+				<h2 class="text-2xl font-bold mb-4 text-red-400">Add a Bookmark</h2>
+				<form action="/bookmarks" method="POST" class="space-y-4">
+					<div>
+						<label for="title" class="block text-sm font-medium text-gray-300">Title</label>
+						<input type="text" id="title" name="title" required
+							   class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white">
+					</div>
+					<div>
+						<label for="url" class="block text-sm font-medium text-gray-300">URL</label>
+						<input type="url" id="url" name="url" required
+							   class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white">
+					</div>
+					<div>
+						<label for="description" class="block text-sm font-medium text-gray-300">Description</label>
+						<textarea id="description" name="description" rows="4"
+								  class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white"></textarea>
+					</div>
+					<div>
+						<label for="category" class="block text-sm font-medium text-gray-300">Category</label>
+						<input type="text" id="category" name="category" placeholder="e.g., Technology, Education"
+							   class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white">
+					</div>
+					<button type="submit"
+							class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full">
+						Add Bookmark
+					</button>
+				</form>
+			</div>
+		</div>
+	
+		<!-- Details Modal -->
+		<div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+			<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-lg relative">
+				<button id="closeDetailsBtn" 
+						class="absolute top-2 right-2 text-gray-400 hover:text-white">
+					<i class="ph ph-x text-xl"></i>
+				</button>
+				<h2 class="text-2xl font-bold mb-4 text-blue-400">Bookmark Details</h2>
+				<div class="space-y-4">
+					<div>
+						<strong class="text-gray-300">Title:</strong>
+						<p id="modal-title" class="text-white break-words"></p>
+					</div>
+					<div>
+						<strong class="text-gray-300">URL:</strong>
+						<p id="modal-url" class="text-blue-400 break-all"></p>
+					</div>
+					<div>
+						<strong class="text-gray-300">Description:</strong>
+						<p id="modal-description" class="text-white"></p>
+					</div>
+					<div>
+						<strong class="text-gray-300">Created:</strong>
+						<p id="modal-created" class="text-white"></p>
+					</div>
+					<div>
+						<strong class="text-gray-300">Created By:</strong>
+						<p id="modal-createdby" class="text-white"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	
+		<script>
+			document.addEventListener("DOMContentLoaded", () => {
+				const createBookmarkBtn = document.getElementById("createBookmarkBtn");
+				const bookmarkFormPopup = document.getElementById("bookmarkFormPopup");
+				const closeFormBtn = document.getElementById("closeFormBtn");
+				const bookmarkForm = bookmarkFormPopup.querySelector("form");
+				const detailsModal = document.getElementById("detailsModal");
+				const closeDetailsBtn = document.getElementById("closeDetailsBtn");
+	
+				// Popup form handling
+				createBookmarkBtn.addEventListener("click", () => {
+					bookmarkFormPopup.classList.remove("hidden");
+				});
+	
+				closeFormBtn.addEventListener("click", () => {
+					bookmarkFormPopup.classList.add("hidden");
+					bookmarkForm.reset();
+				});
+	
+				bookmarkForm.addEventListener("submit", () => {
+					setTimeout(() => {
+						bookmarkFormPopup.classList.add("hidden");
+						bookmarkForm.reset();
+					}, 100);
+				});
+	
+				// Details modal handling
+				document.querySelectorAll(".show-details").forEach(button => {
+					button.addEventListener("click", () => {
+						const { title, url, description, created, createdby } = button.dataset;
+						document.getElementById("modal-title").textContent = title;
+						document.getElementById("modal-url").textContent = url;
+						document.getElementById("modal-url").href = url;
+						document.getElementById("modal-description").textContent = description;
+						document.getElementById("modal-created").textContent = created;
+						document.getElementById("modal-createdby").textContent = createdby;
+						detailsModal.classList.remove("hidden");
+					});
+				});
+	
+				closeDetailsBtn.addEventListener("click", () => {
+					detailsModal.classList.add("hidden");
+				});
+	
+				// Category filter
+				document.querySelectorAll(".category-filter").forEach(button => {
+					button.addEventListener("click", () => {
+						const selectedCategory = button.dataset.category;
+						const sections = document.querySelectorAll(".category-section");
+						
+						sections.forEach(section => {
+							section.style.display = selectedCategory === "all" 
+								? "block" 
+								: section.dataset.category === selectedCategory ? "block" : "none";
+						});
+					});
+				});
+	
+				// Show more bookmarks
+				document.querySelectorAll(".show-more").forEach(button => {
+					button.addEventListener("click", () => {
+						const category = button.dataset.category;
+						const hiddenBookmarks = document.querySelectorAll(`tr.bookmark-hidden[data-category="${category}"]`);
+						
+						if (button.textContent === "Show More") {
+							hiddenBookmarks.forEach(bookmark => bookmark.classList.remove("hidden"));
+							button.textContent = "Show Less";
+						} else {
+							hiddenBookmarks.forEach(bookmark => bookmark.classList.add("hidden"));
+							button.textContent = "Show More";
+						}
+					});
+				});
+	
+				// Notification handling
+				const urlParams = new URLSearchParams(window.location.search);
+				const message = urlParams.get("message");
+				const error = urlParams.get("error");
+				
+				if (message) {
+					showPopup(message, true);
+				} else if (error) {
+					showPopup(error, false);
+				}
+				
+				if (message || error) {
+					const newUrl = window.location.pathname;
+					window.history.replaceState({}, document.title, newUrl);
+				}
+			});
+	
+			function showPopup(message, success) {
+				const popup = document.createElement("div");
+				popup.innerText = message;
+				
+				popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
+					${success ? "bg-green-500" : "bg-red-500"} opacity-0 w-[90vw] sm:w-auto sm:max-w-[25vw] break-words z-50`;
+				
+				const closeButton = document.createElement("button");
+				closeButton.innerText = "X";
+				closeButton.className = "absolute top-1 right-1 text-white text-xl font-bold bg-transparent border-none cursor-pointer hover:text-gray-200";
+				closeButton.onclick = () => {
+					popup.classList.remove("opacity-100");
+					setTimeout(() => popup.remove(), 300);
+				};
+	
+				popup.appendChild(closeButton);
+				document.body.appendChild(popup);
+				
+				setTimeout(() => {
+					popup.classList.add("opacity-100");
+				}, 50);
+				
+				setTimeout(() => {
+					popup.classList.remove("opacity-100");
+					setTimeout(() => popup.remove(), 300);
+				}, 5000);
+			}
+		</script>
+	</body>
