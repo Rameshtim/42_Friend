@@ -63,12 +63,12 @@
 									<table class="w-full text-left border-collapse rounded-lg">
 										<thead>
 											<tr class="bg-gray-700">
-												<th class="p-3 w-20">Title</th>
+												<th class="p-3 w-12">Title</th>
 												<th class="p-3 w-32">URL</th>
 												<th class="p-3 w-32">Created</th>
 												<th class="p-3 w-48">Description</th>
 												<th class="p-3 w-24">Votes</th>
-												<th class="p-3 w-20">Details</th>
+												<th class="p-3 w-10">Details</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -77,22 +77,23 @@
 												sortedBookmarks.forEach((bookmark, index) => { %>
 												<tr class="border-b border-gray-700 <%= index >= 4 ? 'hidden bookmark-hidden' : '' %>"
 													data-category="<%= category %>">
-													<td class="p-3 truncate w-20">
+													<td class="p-3 w-12 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
 														<a href="<%= bookmark.url %>" target="_blank" 
 														   class="text-blue-400 hover:underline">
 															<%= bookmark.title %>
 														</a>
 													</td>
-													<td class="p-3 truncate w-32">
+													<td class="p-3 w-32 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
 														<a href="<%= bookmark.url %>" target="_blank" 
 														   class="text-blue-400 hover:underline">
 															<%= bookmark.url %>
+															<title><%= bookmark.url %></title>
 														</a>
 													</td>
-													<td class="p-3 w-32 truncate">
+													<td class="p-3 w-32 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
 														<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>, <%= bookmark.createdBy %>
 													</td>
-													<td class="p-3 truncate w-48">
+													<td class="p-3 w-48 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
 														<%= bookmark.description || 'No description' %>
 													</td>
 													<td class="p-3 w-24 flex space-x-2">
@@ -107,7 +108,7 @@
 															</button>
 														</form>
 													</td>
-													<td class="p-3 w-20">
+													<td class="p-3 w-10">
 														<button class="show-details text-blue-400 hover:underline text-sm"
 																data-id="<%= bookmark._id %>"
 																data-title="<%= bookmark.title %>"
@@ -170,7 +171,7 @@
 					</div>
 					<div>
 						<label for="url" class="block text-sm font-medium text-gray-300">URL</label>
-						<input type="url" id="url" name="url" required
+						<input type="url" id="url" name="url" placeholder="https://www.google.com" required
 							   class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white">
 					</div>
 					<div>
@@ -178,11 +179,33 @@
 						<textarea id="description" name="description" rows="4"
 								  class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white"></textarea>
 					</div>
-					<div>
+					<!-- <div>
 						<label for="category" class="block text-sm font-medium text-gray-300">Category</label>
 						<input type="text" id="category" name="category" placeholder="e.g., Technology, Education"
 							   class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white">
-					</div>
+					</div> -->
+					<div>
+						<label for="category" class="block text-sm font-medium text-gray-300">Category</label>
+					
+						<select id="categorySelect"
+								class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+							<optgroup label="⭐ Favorites">
+								<option value="Technology">Technology</option>
+								<option value="Education">Education</option>
+								<option value="Design">Design</option>
+							</optgroup>
+							<option value="__custom__">➕ Add new category</option>
+							<optgroup label="All Categories">
+								<% Object.keys(categories).forEach(category => { %>
+									<option value="<%= category %>"><%= category %></option>
+								<% }) %>
+							</optgroup>
+						</select>
+					
+						<!-- Hidden custom input -->
+						<input type="text" id="customCategoryInput" name="customCategory" placeholder="Enter new category"
+							   class="mt-2 hidden w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white" />
+					</div>					
 					<button type="submit"
 							class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full">
 						Add Bookmark
@@ -232,10 +255,40 @@
 				const bookmarkForm = bookmarkFormPopup.querySelector("form");
 				const detailsModal = document.getElementById("detailsModal");
 				const closeDetailsBtn = document.getElementById("closeDetailsBtn");
+
+				function initializeCategoryInput() {
+					const select = document.getElementById('categorySelect');
+					const customInput = document.getElementById('customCategoryInput');
+
+					if (!select || !customInput) return;
+
+					const updateCategoryInput = () => {
+						if (select.value === '__custom__') {
+							// User wants to enter a new category
+							customInput.classList.remove('hidden');
+							customInput.setAttribute('required', 'required');
+							customInput.setAttribute('name', 'category');
+							select.removeAttribute('name');
+						} else {
+							// User picked an existing category
+							customInput.classList.add('hidden');
+							customInput.removeAttribute('required');
+							customInput.removeAttribute('name');
+							select.setAttribute('name', 'category');
+						}
+					};
+
+					// Initialize and listen
+					updateCategoryInput();
+					select.addEventListener('change', updateCategoryInput);
+				}
+
 	
 				// Popup form handling
 				createBookmarkBtn.addEventListener("click", () => {
 					bookmarkFormPopup.classList.remove("hidden");
+					initializeCategoryInput();
+
 				});
 	
 				closeFormBtn.addEventListener("click", () => {
@@ -342,5 +395,7 @@
 					setTimeout(() => popup.remove(), 300);
 				}, 5000);
 			}
+
+
 		</script>
 	</body>

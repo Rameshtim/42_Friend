@@ -26,6 +26,7 @@
     "nodemailer": "^6.10.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "express-validator": "^7.2.1",
     "passport-oauth2": "^1.8.0",
     "redis": "^4.7.0"
   }
