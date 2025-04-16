@@ -158,6 +158,18 @@ app.get("/", (req, res) => {
 	});
 });
 
+const https = require('https');
+
+https.get('https://api.ipify.org?format=json', (res) => {
+  let data = '';
+  res.on('data', (chunk) => { data += chunk; });
+  res.on('end', () => {
+    console.log("Your app's current public IP is:", JSON.parse(data).ip);
+  });
+});
+
+
+
 app.get("/about", (req, res) => {
 		if (!req.isAuthenticated()) {
 				user = null;
