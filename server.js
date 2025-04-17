@@ -8,8 +8,11 @@ require("./config/passport");
 const fetch = require("node-fetch");
 const util = require("util");
 const sleep = util.promisify(setTimeout);
-// const fs = require("fs");
+const fs = require("fs");
+const multer = require("multer");
+const path = require("path");
 const app = express();
+const upload = multer({ dest: "temp_uploads/" });
 const { DateTime } = require("luxon");
 
 const connectRedis = require('connect-redis'); 
@@ -158,16 +161,35 @@ app.get("/", (req, res) => {
 	});
 });
 
-const https = require('https');
-
-https.get('https://api.ipify.org?format=json', (res) => {
-  let data = '';
-  res.on('data', (chunk) => { data += chunk; });
-  res.on('end', () => {
-    console.log("Your app's current public IP is:", JSON.parse(data).ip);
+app.get("/feedback", (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect("/?error=Please login to give feedback.");
+    res.render("feedback", { user: req.user, totalActiveUser });
   });
-});
 
+app.post("/feedback", upload.single("screenshot"), async (req, res) => {
+    const { subject, message } = req.body;
+    const file = req.file;
+    const username = req.user.username || "Anonymous";
+  
+    const emailService = new EmailService();
+  
+    try {
+      const success = await emailService.sendFeedbackEmailWithAttachment(username, subject, message, file);
+      
+      if (file) fs.unlink(file.path, (err) => {
+        if (err) console.error("Error deleting uploaded file:", err);
+      });
+  
+      if (success) {
+        return res.redirect("/?message=Feedback sent successfully!");
+      } else {
+        return res.redirect("/feedback?error=Failed to send feedback.");
+      }
+    } catch (err) {
+      console.error("Unexpected error in feedback route:", err);
+      return res.redirect("/feedback?error=Unexpected error.");
+    }
+  });
 
 
 app.get("/about", (req, res) => {

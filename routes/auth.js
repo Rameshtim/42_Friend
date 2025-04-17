@@ -11,13 +11,14 @@ router.get(
   passport.authenticate("oauth2", { failureRedirect: "/" }),
   (req, res, next) => {
     console.log("Session after auth:", req.sessionID);
+    const redirectTo = req.query.redirectTo || "/profile"; // Default to '/profile' if not provided
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
         return next(err);
       }
-      console.log("Session saved, redirecting to /profile");
-      setTimeout(() => res.redirect("/profile"), 30); // Small delay
+      console.log("Session saved, redirecting to: ", redirectTo);
+      setTimeout(() => res.redirect(redirectTo), 30); // Small delay
       // res.redirect("/profile");
     });
   }

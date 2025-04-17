@@ -96,6 +96,41 @@ class EmailService {
         }
     }    
 
+    async sendFeedbackEmailWithAttachment(user, subject, description, file) {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: 'rtimsina.42berlin@gmail.com',
+            subject: `Feedback from ${user}: ${subject}`,
+            text: `User: ${user}\n\nSubject: ${subject}\n\nDescription:\n${description}`,
+            html: this.generateFeedbackHTML(user, subject, description),
+            attachments: file ? [{
+                filename: file.originalname,
+                path: file.path,
+            }] : []
+        };
+    
+        try {
+            const from_email = await this.transporter.sendMail(mailOptions);
+            console.log("email said this: ", from_email);
+            return true;
+        } catch (error) {
+            console.error('Error sending feedback email:', error);
+            return false;
+        }
+    }
+    
+    generateFeedbackHTML(user, subject, description) {
+        return `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f4f7fc;">
+                <h2 style="color: #2c3e50; text-align: center;">💬 Feedback from ${user}</h2>
+                <p style="font-size: 16px;"><strong>Subject:</strong> ${subject}</p>
+                <p style="font-size: 16px;"><strong>Description:</strong><br>${description.replace(/\n/g, "<br>")}</p>
+                <p style="font-size: 14px; color: #555; text-align: center;">An attachment (if any) has been included with this email.</p>
+            </div>
+        `;
+    }    
+    
+
     generateEmailHTML(username, status, toName) {
         return `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f4f7fc;">

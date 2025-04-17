@@ -28,11 +28,12 @@
 			<!-- Desktop Links -->
 			<div class="hidden md:flex space-x-4 items-center">
 				<a href="/about" class="hover:text-blue-400">About Me</a>
+				<a href="/feedback" class="hover:text-blue-400">Feedback</a>
 				<% if (user) { %>
 					<a href="/profile" class="hover:text-blue-400">Profile</a>
 					<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
 				<% } else { %>
-					<a href="/auth/42" class="text-green-400 hover:text-blue-600">Login</a>
+					<a href="/auth/42?redirectTo=<%= encodeURIComponent(window.location.href) %>" class="text-green-400 hover:text-blue-600">Login</a>
 				<% } %>
 				<a href="https://github.com/rameshtim/42_friend" target="_blank"
 				   class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
@@ -44,11 +45,12 @@
 		<!-- Mobile Menu -->
 		<div id="mobileMenu" class="hidden md:hidden mt-4 space-y-2 px-4 flex flex-col">
 			<a href="/about" class="hover:text-blue-400">About Me</a>
+			<a href="/feedback" class="hover:text-blue-400">Feedback</a>
 			<% if (user) { %>
 				<a href="/profile" class="hover:text-blue-400">Profile</a>
 				<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
 			<% } else { %>
-				<a href="/auth/42" class="text-green-400 hover:text-blue-600">Login</a>
+				<a href="/auth/42?redirectTo=<%= encodeURIComponent(window.location.href) %>" class="text-green-400 hover:text-blue-600">Login</a>
 			<% } %>
 			<a href="https://github.com/rameshtim/42_friend" target="_blank"
 			   class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
