@@ -1,66 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Bookmarks</title>
-	
-
-		<script src="https://cdn.tailwindcss.com"></script>
-		<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
-		<!-- Favicon -->
-		<link rel="icon" href="/favicon.ico" type="image/png">
-		
-	</head>
-	<body class="flex min-h-screen bg-gray-900 text-white">
-		<!-- Navigation unchanged -->
-		<nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
-			<div class="container mx-auto flex justify-between items-center">
-				<a href="/" class="text-lg font-bold">42_Friend</a>
-				<div class="space-x-4 flex flex-wrap items-center">
-					<a href="/about" class="hover:text-blue-400">About Me</a>
-					<% if (user) { %>
-						<a href="/profile" class="hover:text-blue-400">Profile</a>
-						<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
-					<% } %>
-					<a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
-						<i class="ph ph-github-logo text-xl mr-2"></i>Contribute
-					</a>
-				</div>
-			</div>
-		</nav>
-	
-		<!-- Main content section -->
-		<div class="flex w-full pt-28">
-			<!-- Bookmarks Table -->
-			<div class="flex-1 px-4 mr-64"> <!-- Added mr-64 to respect sidebar width -->
-				<div class="max-w-5xl mx-auto bg-gray-800 rounded-lg shadow-md p-6"> <!-- Added background and shadow -->
-					<!-- Header Section -->
-					<div class="flex justify-between items-center mb-8">
-						<h1 class="text-3xl font-extrabold text-blue-400">Bookmarks</h1>
-						<button id="createBookmarkBtn" 
-								class="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition shadow-md hover:shadow-lg text-lg flex items-center">
-							<i class="ph ph-plus-circle mr-2"></i>Create Bookmark
-						</button>
-					</div>
-					<!-- Bookmarks List -->
-					<% const categories = {}; %>
-					<% if (bookmarks.length === 0) { %>
-						<p class="text-gray-400">No bookmarks yet.</p>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bookmarks</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
+	<link rel="icon" href="/favicon.ico" type="image/png">
+</head>
+<body class="flex flex-col lg:flex-row min-h-screen bg-gray-900 text-white">
+	<!-- Navigation -->
+	<nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+		<div class="container mx-auto flex justify-between items-center">
+			<a href="/" class="text-lg font-bold">42_Friend</a>
+			<div class="space-x-4 flex flex-wrap items-center">
+				<a href="/about" class="hover:text-blue-400">About Me</a>
+				<% if (user) { %>
+					<a href="/profile" class="hover:text-blue-400">Profile</a>
+					<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
 					<% } else { %>
-						<% 
-							
-							bookmarks.forEach(bookmark => {
-								const cat = bookmark.category || 'Uncategorized';
-								if (!categories[cat]) categories[cat] = [];
-								categories[cat].push(bookmark);
-							});
-						%>
-						<div class="space-y-8">
-							<% Object.entries(categories).forEach(([category, bookmarks]) => { %>
-								<div class="category-section" data-category="<%= category %>">
-									<h3 class="text-xl font-semibold mb-2 text-blue-400"><%= category %></h3>
-									<table class="w-full text-left border-collapse rounded-lg">
+						<a href="/auth/42" class="text-green-400 hover:text-blue-600">Login</a>
+					<% } %>
+				<a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+					<i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+				</a>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Main Content -->
+	<div class="flex flex-col lg:flex-row w-full pt-32 px-4 lg:px-0">
+		<!-- Bookmarks Section -->
+		<div class="w-full lg:flex-1 lg:mr-64 mb-8 lg:mb-0">
+			<div class="max-w-5xl mx-auto bg-gray-800 rounded-lg shadow-md p-6">
+				<!-- Header -->
+				<div class="flex justify-between items-center mb-8 flex-wrap gap-4">
+					<h1 class="text-3xl font-extrabold text-blue-400">Bookmarks</h1>
+					<button id="createBookmarkBtn" class="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition shadow-md hover:shadow-lg text-lg flex items-center">
+						<i class="ph ph-plus-circle mr-2"></i>Create Bookmark
+					</button>
+				</div>
+
+				<% const categories = {}; %>
+				<% if (bookmarks.length === 0) { %>
+					<p class="text-gray-400">No bookmarks yet.</p>
+				<% } else { %>
+					<% 
+						bookmarks.forEach(bookmark => {
+							const cat = bookmark.category || 'Uncategorized';
+							if (!categories[cat]) categories[cat] = [];
+							categories[cat].push(bookmark);
+						});
+					%>
+					<div class="space-y-8">
+						<% Object.entries(categories).forEach(([category, bookmarks]) => { %>
+							<div class="category-section" data-category="<%= category %>">
+								<h3 class="text-xl font-semibold mb-2 text-blue-400"><%= category %></h3>
+								<div class="overflow-x-auto">
+									<table class="min-w-full text-left border-collapse rounded-lg">
 										<thead>
 											<tr class="bg-gray-700">
 												<th class="p-3 w-12">Title</th>
@@ -72,50 +69,44 @@
 											</tr>
 										</thead>
 										<tbody>
-											<% 
+											<%
 												const sortedBookmarks = bookmarks.sort((a, b) => b.upvotes.length - a.upvotes.length);
 												sortedBookmarks.forEach((bookmark, index) => { %>
-												<tr class="border-b border-gray-700 <%= index >= 4 ? 'hidden bookmark-hidden' : '' %>"
-													data-category="<%= category %>">
-													<td class="p-3 w-12 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
-														<a href="<%= bookmark.url %>" target="_blank" 
-														   class="text-blue-400 hover:underline">
+												<tr class="border-b border-gray-700 <%= index >= 4 ? 'hidden bookmark-hidden' : '' %>" data-category="<%= category %>">
+													<td class="p-3 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
+														<a href="<%= bookmark.url %>" target="_blank" class="text-blue-400 hover:underline">
 															<%= bookmark.title %>
 														</a>
 													</td>
-													<td class="p-3 w-32 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
-														<a href="<%= bookmark.url %>" target="_blank" 
-														   class="text-blue-400 hover:underline">
+													<td class="p-3 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
+														<a href="<%= bookmark.url %>" target="_blank" class="text-blue-400 hover:underline">
 															<%= bookmark.url %>
-															<title><%= bookmark.url %></title>
 														</a>
 													</td>
-													<td class="p-3 w-32 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
+													<td class="p-3 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
 														<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>, <%= bookmark.createdBy %>
 													</td>
-													<td class="p-3 w-48 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
+													<td class="p-3 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
 														<%= bookmark.description || 'No description' %>
 													</td>
-													<td class="p-3 w-24 flex space-x-2">
-														<form action="/bookmarks/<%= bookmark._id %>/upvote" method="POST">
-															<button type="submit" class="text-green-400 hover:text-green-300">
-																▲ <%= bookmark.upvotes.length %>
-															</button>
-														</form>
-														<form action="/bookmarks/<%= bookmark._id %>/downvote" method="POST">
-															<button type="submit" class="text-red-400 hover:text-red-300">
-																▼ <%= bookmark.downvotes.length %>
-															</button>
-														</form>
+													<td class="p-3">
+														<div class="flex space-x-2">
+															<form action="/bookmarks/<%= bookmark._id %>/upvote" method="POST">
+																<button type="submit" class="text-green-400 hover:text-green-300">▲ <%= bookmark.upvotes.length %></button>
+															</form>
+															<form action="/bookmarks/<%= bookmark._id %>/downvote" method="POST">
+																<button type="submit" class="text-red-400 hover:text-red-300">▼ <%= bookmark.downvotes.length %></button>
+															</form>
+														</div>
 													</td>
-													<td class="p-3 w-10">
+													<td class="p-3">
 														<button class="show-details text-blue-400 hover:underline text-sm"
-																data-id="<%= bookmark._id %>"
-																data-title="<%= bookmark.title %>"
-																data-url="<%= bookmark.url %>"
-																data-description="<%= bookmark.description || 'No description' %>"
-																data-created="<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>"
-																data-createdby="<%= bookmark.createdBy %>">
+															data-id="<%= bookmark._id %>"
+															data-title="<%= bookmark.title %>"
+															data-url="<%= bookmark.url %>"
+															data-description="<%= bookmark.description || 'No description' %>"
+															data-created="<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>"
+															data-createdby="<%= bookmark.createdBy %>">
 															Show
 														</button>
 													</td>
@@ -123,130 +114,108 @@
 											<% }) %>
 										</tbody>
 									</table>
-									<% if (sortedBookmarks.length > 4) { %>
-										<button class="show-more mt-2 text-blue-400 hover:underline"
-												data-category="<%= category %>">
-											Show More
-										</button>
-									<% } %>
 								</div>
-							<% }) %>
-						</div>
-					<% } %>
-				</div>
+								<% if (sortedBookmarks.length > 4) { %>
+									<button class="show-more mt-2 text-blue-400 hover:underline" data-category="<%= category %>">
+										Show More
+									</button>
+								<% } %>
+							</div>
+						<% }) %>
+					</div>
+				<% } %>
 			</div>
-		
-			<!-- Category Sidebar -->
-			<div class="w-64 bg-gray-800 p-4 fixed right-0 top-16 bottom-0 overflow-y-auto shadow-lg"> <!-- Added shadow -->
-				<h3 class="text-lg font-semibold mb-4">Categories</h3>
-				<ul class="space-y-2">
+		</div>
+
+		<!-- Sidebar -->
+		<div class="hidden lg:block w-full lg:w-64 bg-gray-800 p-4 fixed lg:fixed right-0 top-20 bottom-0 overflow-y-auto shadow-lg z-40">
+			<h3 class="text-lg font-semibold mb-4">Categories</h3>
+			<ul class="space-y-2">
+				<li>
+					<button class="category-filter text-blue-400 hover:underline w-full text-left" data-category="all">All Categories</button>
+				</li>
+				<% Object.keys(categories).forEach(category => { %>
 					<li>
-						<button class="category-filter text-blue-400 hover:underline w-full text-left"
-								data-category="all">All Categories</button>
+						<button class="category-filter text-blue-400 hover:underline w-full text-left" data-category="<%= category %>"><%= category %></button>
 					</li>
-					<% Object.keys(categories).forEach(category => { %>
-						<li>
-							<button class="category-filter text-blue-400 hover:underline w-full text-left"
-									data-category="<%= category %>"><%= category %></button>
-						</li>
-					<% }) %>
-				</ul>
-			</div>
+				<% }) %>
+			</ul>
 		</div>
-	
-		<!-- Bookmark Form Popup (unchanged) -->
-		<div id="bookmarkFormPopup" 
-			 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-			<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-md relative">
-				<button id="closeFormBtn" 
-						class="absolute top-2 right-2 text-gray-400 hover:text-white">
-					<i class="ph ph-x text-xl"></i>
-				</button>
-				<h2 class="text-2xl font-bold mb-4 text-red-400">Add a Bookmark</h2>
-				<form action="/bookmarks" method="POST" class="space-y-4">
-					<div>
-						<label for="title" class="block text-sm font-medium text-gray-300">Title</label>
-						<input type="text" id="title" name="title" required
-							   class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white">
-					</div>
-					<div>
-						<label for="url" class="block text-sm font-medium text-gray-300">URL</label>
-						<input type="url" id="url" name="url" placeholder="https://www.google.com" required
-							   class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white">
-					</div>
-					<div>
-						<label for="description" class="block text-sm font-medium text-gray-300">Description</label>
-						<textarea id="description" name="description" rows="4"
-								  class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white"></textarea>
-					</div>
-					<!-- <div>
-						<label for="category" class="block text-sm font-medium text-gray-300">Category</label>
-						<input type="text" id="category" name="category" placeholder="e.g., Technology, Education"
-							   class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white">
-					</div> -->
-					<div>
-						<label for="category" class="block text-sm font-medium text-gray-300">Category</label>
-					
-						<select id="categorySelect"
-								class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-							<optgroup label="⭐ Favorites">
-								<option value="Technology">Technology</option>
-								<option value="Education">Education</option>
-								<option value="Design">Design</option>
-							</optgroup>
-							<option value="__custom__">➕ Add new category</option>
-							<optgroup label="All Categories">
-								<% Object.keys(categories).forEach(category => { %>
-									<option value="<%= category %>"><%= category %></option>
-								<% }) %>
-							</optgroup>
-						</select>
-					
-						<!-- Hidden custom input -->
-						<input type="text" id="customCategoryInput" name="customCategory" placeholder="Enter new category"
-							   class="mt-2 hidden w-full bg-gray-800 border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white" />
-					</div>					
-					<button type="submit"
-							class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full">
-						Add Bookmark
-					</button>
-				</form>
-			</div>
+	</div>
+
+	<!-- Bookmark Form Modal -->
+	<div id="bookmarkFormPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+		<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-md relative">
+			<button id="closeFormBtn" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+				<i class="ph ph-x text-xl"></i>
+			</button>
+			<h2 class="text-2xl font-bold mb-4 text-red-400">Add a Bookmark</h2>
+			<form action="/bookmarks" method="POST" class="space-y-4">
+				<div>
+					<label for="title" class="block text-sm font-medium text-gray-300">Title</label>
+					<input type="text" id="title" name="title" required class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md text-white">
+				</div>
+				<div>
+					<label for="url" class="block text-sm font-medium text-gray-300">URL</label>
+					<input type="url" id="url" name="url" required class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md text-white">
+				</div>
+				<div>
+					<label for="description" class="block text-sm font-medium text-gray-300">Description</label>
+					<textarea id="description" name="description" rows="4" class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md text-white"></textarea>
+				</div>
+				<div>
+					<label for="category" class="block text-sm font-medium text-gray-300">Category</label>
+					<select id="categorySelect" class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md text-white">
+						<optgroup label="⭐ Favorites">
+							<option value="Technology">Technology</option>
+							<option value="Education">Education</option>
+							<option value="Design">Design</option>
+						</optgroup>
+						<option value="__custom__">➕ Add new category</option>
+						<optgroup label="All Categories">
+							<% Object.keys(categories).forEach(category => { %>
+								<option value="<%= category %>"><%= category %></option>
+							<% }) %>
+						</optgroup>
+					</select>
+					<input type="text" id="customCategoryInput" name="customCategory" placeholder="Enter new category" class="mt-2 hidden w-full bg-gray-800 border-gray-600 rounded-md text-white" />
+				</div>
+				<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full">Add Bookmark</button>
+			</form>
 		</div>
-	
-		<!-- Details Modal -->
-		<div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-			<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-lg relative">
-				<button id="closeDetailsBtn" 
-						class="absolute top-2 right-2 text-gray-400 hover:text-white">
-					<i class="ph ph-x text-xl"></i>
-				</button>
-				<h2 class="text-2xl font-bold mb-4 text-blue-400">Bookmark Details</h2>
-				<div class="space-y-4">
-					<div>
-						<strong class="text-gray-300">Title:</strong>
-						<p id="modal-title" class="text-white break-words"></p>
-					</div>
-					<div>
-						<strong class="text-gray-300">URL:</strong>
-						<p id="modal-url" class="text-blue-400 break-all"></p>
-					</div>
-					<div>
-						<strong class="text-gray-300">Description:</strong>
-						<p id="modal-description" class="text-white"></p>
-					</div>
-					<div>
-						<strong class="text-gray-300">Created:</strong>
-						<p id="modal-created" class="text-white"></p>
-					</div>
-					<div>
-						<strong class="text-gray-300">Created By:</strong>
-						<p id="modal-createdby" class="text-white"></p>
-					</div>
+	</div>
+
+	<!-- Details Modal -->
+	<div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+		<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-lg relative">
+			<button id="closeDetailsBtn" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+				<i class="ph ph-x text-xl"></i>
+			</button>
+			<h2 class="text-2xl font-bold mb-4 text-blue-400">Bookmark Details</h2>
+			<div class="space-y-4">
+				<div>
+					<strong class="text-gray-300">Title:</strong>
+					<p id="modal-title" class="text-white break-words"></p>
+				</div>
+				<div>
+					<strong class="text-gray-300">URL:</strong>
+					<p id="modal-url" class="text-blue-400 break-all"></p>
+				</div>
+				<div>
+					<strong class="text-gray-300">Description:</strong>
+					<p id="modal-description" class="text-white"></p>
+				</div>
+				<div>
+					<strong class="text-gray-300">Created:</strong>
+					<p id="modal-created" class="text-white"></p>
+				</div>
+				<div>
+					<strong class="text-gray-300">Created By:</strong>
+					<p id="modal-createdby" class="text-white"></p>
 				</div>
 			</div>
 		</div>
-	
+	</div>
 		<script>
 			document.addEventListener("DOMContentLoaded", () => {
 				const createBookmarkBtn = document.getElementById("createBookmarkBtn");
@@ -399,3 +368,4 @@
 
 		</script>
 	</body>
+</html>
