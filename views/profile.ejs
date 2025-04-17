@@ -14,20 +14,50 @@
 <body class="bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center min-h-screen p-4 text-white">
     <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
+            <!-- Logo -->
             <a href="/" class="text-lg font-bold">42_Friend</a>
-			<div class="text-center">
+
+            <!-- Active Users (hidden on small screens) -->
+            <div class="md:block text-center">
                 Active Users: <%= totalActiveUser %>
             </div>
-            <div class="space-x-6 flex items-center">
+
+            <!-- Hamburger Icon -->
+            <div class="md:hidden">
+                <button onclick="toggleMenu()" class="focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                         viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Menu Links (Desktop) -->
+            <div class="hidden md:flex space-x-6 items-center">
                 <a href="/about" class="hover:text-blue-400">About Me</a>
                 <a href="/" class="hover:text-blue-400">Home</a>
                 <a href="/fetch-users" class="hover:text-blue-400" onclick="showLoading()">Peers</a>
-				<a href="/bookmarks" class="hover:text-blue-400">Bookmarks</a>
+                <a href="/bookmarks" class="hover:text-blue-400">Bookmarks</a>
                 <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
-                <a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+                <a href="https://github.com/rameshtim/42_friend" target="_blank"
+                   class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
                     <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
                 </a>
             </div>
+        </div>
+
+        <!-- Mobile Menu (hidden by default) -->
+        <div id="mobileMenu" class="md:hidden mt-4 space-y-2 hidden flex-col items-start px-4">
+            <div class="text-center w-full">Active Users: <%= totalActiveUser %></div>
+            <a href="/about" class="block w-full hover:text-blue-400">About Me</a>
+            <a href="/" class="block w-full hover:text-blue-400">Home</a>
+            <a href="/fetch-users" class="block w-full hover:text-blue-400" onclick="showLoading()">Peers</a>
+            <a href="/bookmarks" class="block w-full hover:text-blue-400">Bookmarks</a>
+            <a href="/logout" class="block w-full text-red-400 hover:text-red-600">Logout</a>
+            <a href="https://github.com/rameshtim/42_friend" target="_blank"
+               class="w-full bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+                <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+            </a>
         </div>
     </nav>
 
@@ -612,6 +642,10 @@
 			
 			return true;
 		}
+		function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
 	</script>
 </body>
 </html>

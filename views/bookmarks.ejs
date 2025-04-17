@@ -12,19 +12,48 @@
 	<!-- Navigation -->
 	<nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
 		<div class="container mx-auto flex justify-between items-center">
+			<!-- Logo -->
 			<a href="/" class="text-lg font-bold">42_Friend</a>
-			<div class="space-x-4 flex flex-wrap items-center">
+	
+			<!-- Hamburger Button (mobile only) -->
+			<div class="md:hidden">
+				<button onclick="toggleMenu()" class="focus:outline-none">
+					<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+						 viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M4 6h16M4 12h16M4 18h16"></path>
+					</svg>
+				</button>
+			</div>
+	
+			<!-- Desktop Links -->
+			<div class="hidden md:flex space-x-4 items-center">
 				<a href="/about" class="hover:text-blue-400">About Me</a>
 				<% if (user) { %>
 					<a href="/profile" class="hover:text-blue-400">Profile</a>
 					<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
-					<% } else { %>
-						<a href="/auth/42" class="text-green-400 hover:text-blue-600">Login</a>
-					<% } %>
-				<a href="https://github.com/rameshtim/42_friend" target="_blank" class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+				<% } else { %>
+					<a href="/auth/42" class="text-green-400 hover:text-blue-600">Login</a>
+				<% } %>
+				<a href="https://github.com/rameshtim/42_friend" target="_blank"
+				   class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
 					<i class="ph ph-github-logo text-xl mr-2"></i>Contribute
 				</a>
 			</div>
+		</div>
+	
+		<!-- Mobile Menu -->
+		<div id="mobileMenu" class="hidden md:hidden mt-4 space-y-2 px-4 flex flex-col">
+			<a href="/about" class="hover:text-blue-400">About Me</a>
+			<% if (user) { %>
+				<a href="/profile" class="hover:text-blue-400">Profile</a>
+				<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+			<% } else { %>
+				<a href="/auth/42" class="text-green-400 hover:text-blue-600">Login</a>
+			<% } %>
+			<a href="https://github.com/rameshtim/42_friend" target="_blank"
+			   class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+				<i class="ph ph-github-logo text-xl mr-2"></i>Contribute
+			</a>
 		</div>
 	</nav>
 
@@ -106,7 +135,8 @@
 															data-url="<%= bookmark.url %>"
 															data-description="<%= bookmark.description || 'No description' %>"
 															data-created="<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>"
-															data-createdby="<%= bookmark.createdBy %>">
+															data-createdby="<%= bookmark.createdBy %>"
+															data-upvotes="<%= JSON.stringify(bookmark.upvotes) %>">
 															Show
 														</button>
 													</td>
@@ -166,12 +196,12 @@
 				<div>
 					<label for="category" class="block text-sm font-medium text-gray-300">Category</label>
 					<select id="categorySelect" class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md text-white">
-						<optgroup label="⭐ Favorites">
-							<option value="Technology">Technology</option>
-							<option value="Education">Education</option>
-							<option value="Design">Design</option>
-						</optgroup>
 						<option value="__custom__">➕ Add new category</option>
+						<optgroup label="⭐ Favorites">
+							<option value="Outer Core">Outer Core</option>
+							<option value="Educational">Educational</option>
+							<option value="Hackathons">Hackathons</option>
+						</optgroup>
 						<optgroup label="All Categories">
 							<% Object.keys(categories).forEach(category => { %>
 								<option value="<%= category %>"><%= category %></option>
@@ -180,6 +210,10 @@
 					</select>
 					<input type="text" id="customCategoryInput" name="customCategory" placeholder="Enter new category" class="mt-2 hidden w-full bg-gray-800 border-gray-600 rounded-md text-white" />
 				</div>
+				<div class="flex items-center space-x-2">
+					<input type="checkbox" id="anonymous" name="anonymous" class="form-checkbox h-4 w-4 text-blue-600 bg-gray-800 border-gray-600">
+					<label for="anonymous" class="text-sm text-gray-300">Post as Anonymous</label>
+				</div>				
 				<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full">Add Bookmark</button>
 			</form>
 		</div>
@@ -199,8 +233,7 @@
 				</div>
 				<div>
 					<strong class="text-gray-300">URL:</strong>
-					<p id="modal-url" class="text-blue-400 break-all"></p>
-				</div>
+					<a id="modal-url" class="text-blue-400 break-all hover:underline" target="_blank" rel="noopener noreferrer"></a>				</div>
 				<div>
 					<strong class="text-gray-300">Description:</strong>
 					<p id="modal-description" class="text-white"></p>
@@ -213,6 +246,11 @@
 					<strong class="text-gray-300">Created By:</strong>
 					<p id="modal-createdby" class="text-white"></p>
 				</div>
+				<div>
+					<strong class="text-gray-300">Upvoted By:</strong>
+					<ul id="modal-upvoters" class="max-h-40 overflow-y-auto mt-1 pl-4 list-disc text-white text-sm space-y-1 border border-gray-700 rounded p-2">
+					</ul>
+				</div>				
 			</div>
 		</div>
 	</div>
@@ -274,17 +312,38 @@
 	
 				// Details modal handling
 				document.querySelectorAll(".show-details").forEach(button => {
-					button.addEventListener("click", () => {
-						const { title, url, description, created, createdby } = button.dataset;
-						document.getElementById("modal-title").textContent = title;
-						document.getElementById("modal-url").textContent = url;
-						document.getElementById("modal-url").href = url;
-						document.getElementById("modal-description").textContent = description;
-						document.getElementById("modal-created").textContent = created;
-						document.getElementById("modal-createdby").textContent = createdby;
-						detailsModal.classList.remove("hidden");
-					});
+				button.addEventListener("click", () => {
+					const { title, url, description, created, createdby, upvotes } = button.dataset;
+
+					document.getElementById("modal-title").textContent = title;
+					document.getElementById("modal-url").textContent = url;
+					document.getElementById("modal-url").href = url;
+					document.getElementById("modal-description").textContent = description;
+					document.getElementById("modal-created").textContent = created;
+					document.getElementById("modal-createdby").textContent = createdby;
+
+					const upvotersList = document.getElementById("modal-upvoters");
+					upvotersList.innerHTML = "";
+
+					try {
+						const users = JSON.parse(upvotes);
+						if (users.length === 0) {
+							upvotersList.innerHTML = '<li class="text-gray-400 italic">No upvotes yet.</li>';
+						} else {
+							users.forEach(user => {
+								const li = document.createElement("li");
+								li.textContent = user;
+								upvotersList.appendChild(li);
+							});
+						}
+					} catch (err) {
+						upvotersList.innerHTML = '<li class="text-gray-400 italic">Failed to load upvotes.</li>';
+					}
+
+					detailsModal.classList.remove("hidden");
 				});
+			});
+
 	
 				closeDetailsBtn.addEventListener("click", () => {
 					detailsModal.classList.add("hidden");
@@ -364,7 +423,10 @@
 					setTimeout(() => popup.remove(), 300);
 				}, 5000);
 			}
-
+			function toggleMenu() {
+				const menu = document.getElementById('mobileMenu');
+				menu.classList.toggle('hidden');
+			}
 
 		</script>
 	</body>

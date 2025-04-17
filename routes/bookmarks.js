@@ -59,7 +59,7 @@ router.post('/bookmarks', [
       url,
       description,
       category: normalizedCategory,
-      createdBy: req.isAuthenticated() ? req.user.username : 'Anonymous',
+      createdBy: (!req.isAuthenticated() || req.body.anonymous === 'on') ? 'Anonymous' : req.user.username,
     });
     await bookmark.save();
     res.redirect('/bookmarks?message=Bookmark created successfully!');
@@ -101,8 +101,10 @@ router.post('/bookmarks/:id/upvote', async (req, res) => {
     }
     const userId = req.user.username;
     if (bookmark.upvotes.includes(userId)) {
-      return res.redirect('/bookmarks?error=You already upvoted this bookmark.');
-    }
+		bookmark.upvotes.pull(userId);
+		await bookmark.save();
+		return res.redirect('/bookmarks?message=Removed upvote.');
+	}
     if (bookmark.downvotes.includes(userId)) {
       bookmark.downvotes.pull(userId); // Remove downvote if exists
     }
@@ -132,7 +134,9 @@ router.post('/bookmarks/:id/downvote', async (req, res) => {
 	  const userId = req.user.username;
   
 	  if (bookmark.downvotes.includes(userId)) {
-		return res.redirect('/bookmarks?error=You already downvoted this bookmark.');
+		bookmark.downvotes.pull(userId);
+		await bookmark.save();
+		return res.redirect('/bookmarks?message=Removed Downvote.');
 	  }
   
 	  if (bookmark.upvotes.includes(userId)) {
