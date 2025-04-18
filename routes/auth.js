@@ -4,14 +4,35 @@ const router = express.Router();
 
 
 // Redirect user to 42 OAuth login
-router.get("/auth/42", passport.authenticate("oauth2"));
+// router.get("/auth/42", passport.authenticate("oauth2"));
+router.get("/auth/42", (req, res, next) => {
+  const redirectTo = req.query.redirectTo || "/profile";
+  console.log("this is redirect to:   ", redirectTo);
+
+  // Add the redirectTo parameter to the state
+  const state = JSON.stringify({ redirectTo });
+
+  // Pass the state parameter along with the OAuth2 request
+  passport.authenticate("oauth2", { state })(req, res, next);
+});
+
+
 
 router.get(
   "/auth/42/callback",
   passport.authenticate("oauth2", { failureRedirect: "/" }),
   (req, res, next) => {
     console.log("Session after auth:", req.sessionID);
-    const redirectTo = req.query.redirectTo || "/profile"; // Default to '/profile' if not provided
+    const { state } = req.query;
+
+    if (state) {
+      try {
+        const parsedState = JSON.parse(state);
+        redirectTo = parsedState.redirectTo || "/profile";  // Use redirectTo from state if available
+      } catch (err) {
+        console.error("Failed to parse state:", err);
+      }
+    }
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
