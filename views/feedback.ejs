@@ -83,6 +83,48 @@
   </main>
 
   <script>
+	const urlParams = new URLSearchParams(window.location.search);
+			const message = urlParams.get("message");
+			const error = urlParams.get("error");
+			
+			if (message) {
+				showPopup(message, true);
+			} else if (error) {
+				showPopup(error, false);
+			}
+			
+			if (message || error) {
+				const newUrl = window.location.pathname;
+				window.history.replaceState({}, document.title, newUrl);
+			}
+	
+			function showPopup(message, success) {
+				const popup = document.createElement("div");
+				popup.innerText = message;
+				
+				popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
+					${success ? "bg-green-500" : "bg-red-500"} opacity-0 w-[90vw] sm:w-auto sm:max-w-[25vw] break-words z-50`;
+				
+				const closeButton = document.createElement("button");
+				closeButton.innerText = "X";
+				closeButton.className = "absolute top-1 right-1 text-white text-xl font-bold bg-transparent border-none cursor-pointer hover:text-gray-200";
+				closeButton.onclick = () => {
+					popup.classList.remove("opacity-100");
+					setTimeout(() => popup.remove(), 300);
+				};
+	
+				popup.appendChild(closeButton);
+				document.body.appendChild(popup);
+				
+				setTimeout(() => {
+					popup.classList.add("opacity-100");
+				}, 50);
+				
+				setTimeout(() => {
+					popup.classList.remove("opacity-100");
+					setTimeout(() => popup.remove(), 300);
+				}, 5000);
+			}
     function toggleMenu() {
       const menu = document.getElementById("mobileMenu");
       menu.classList.toggle("hidden");

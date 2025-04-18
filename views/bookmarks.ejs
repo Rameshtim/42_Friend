@@ -83,20 +83,32 @@
 							categories[cat].push(bookmark);
 						});
 					%>
+					<!-- START Updated Category Filter & Bookmark Table -->
+					<!-- Mobile Category Filter Dropdown -->
+					<div class="block lg:hidden mb-6">
+						<label for="mobileCategorySelect" class="block mb-1 text-gray-300">Filter by Category:</label>
+						<select id="mobileCategorySelect" class="w-full bg-gray-800 text-white border border-gray-700 rounded-md p-2">
+							<option value="all">All Categories</option>
+							<% Object.keys(categories).forEach(category => { %>
+								<option value="<%= category %>"><%= category %></option>
+							<% }) %>
+						</select>
+					</div>
+
 					<div class="space-y-8">
 						<% Object.entries(categories).forEach(([category, bookmarks]) => { %>
 							<div class="category-section" data-category="<%= category %>">
 								<h3 class="text-xl font-semibold mb-2 text-blue-400"><%= category %></h3>
 								<div class="overflow-x-auto">
-									<table class="min-w-full text-left border-collapse rounded-lg">
+									<table class="min-w-[600px] w-full text-left border-collapse rounded-lg text-sm">
 										<thead>
 											<tr class="bg-gray-700">
-												<th class="p-3 w-12">Title</th>
-												<th class="p-3 w-32">URL</th>
-												<th class="p-3 w-32">Created</th>
-												<th class="p-3 w-48">Description</th>
-												<th class="p-3 w-24">Votes</th>
-												<th class="p-3 w-10">Details</th>
+												<th class="p-3">Title</th>
+												<th class="p-3">URL</th>
+												<th class="p-3">Created</th>
+												<th class="p-3">Description</th>
+												<th class="p-3">Votes</th>
+												<th class="p-3">Details</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -104,23 +116,23 @@
 												const sortedBookmarks = bookmarks.sort((a, b) => b.upvotes.length - a.upvotes.length);
 												sortedBookmarks.forEach((bookmark, index) => { %>
 												<tr class="border-b border-gray-700 <%= index >= 4 ? 'hidden bookmark-hidden' : '' %>" data-category="<%= category %>">
-													<td class="p-3 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
+													<td class="p-3 max-w-[20ch] text-sm overflow-hidden truncate whitespace-nowrap break-words">
 														<a href="<%= bookmark.url %>" target="_blank" class="text-blue-400 hover:underline">
 															<%= bookmark.title %>
 														</a>
 													</td>
-													<td class="p-3 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
+													<td class="p-3 max-w-[20ch] text-sm overflow-hidden truncate whitespace-nowrap break-words">
 														<a href="<%= bookmark.url %>" target="_blank" class="text-blue-400 hover:underline">
 															<%= bookmark.url %>
 														</a>
 													</td>
-													<td class="p-3 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
-														<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>, <%= bookmark.createdBy %>
+													<td class="p-3 max-w-[12ch] text-sm overflow-hidden truncate whitespace-nowrap break-words">
+														<%= bookmark.createdBy %>, <%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>
 													</td>
-													<td class="p-3 max-w-[8rem] overflow-hidden truncate whitespace-nowrap break-all">
+													<td class="p-3 max-w-[20ch] text-sm overflow-hidden truncate whitespace-nowrap break-words">
 														<%= bookmark.description || 'No description' %>
 													</td>
-													<td class="p-3">
+													<td class="p-3 text-sm">
 														<div class="flex space-x-2">
 															<form action="/bookmarks/<%= bookmark._id %>/upvote" method="POST">
 																<button type="submit" class="text-green-400 hover:text-green-300">▲ <%= bookmark.upvotes.length %></button>
@@ -130,7 +142,7 @@
 															</form>
 														</div>
 													</td>
-													<td class="p-3">
+													<td class="p-3 text-sm">
 														<button class="show-details text-blue-400 hover:underline text-sm"
 															data-id="<%= bookmark._id %>"
 															data-title="<%= bookmark.title %>"
@@ -155,6 +167,7 @@
 							</div>
 						<% }) %>
 					</div>
+					<!-- END Updated Category Filter & Bookmark Table -->
 				<% } %>
 			</div>
 		</div>
@@ -200,6 +213,7 @@
 					<select id="categorySelect" class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md text-white">
 						<option value="__custom__">🟢 Create new category</option>
 						<optgroup label="⭐ Favorites">
+							<option value="42_links" selected>42 Links</option>
 							<option value="Temp_1">Temporary_24 hrs</option>
 							<option value="Temp_7">Articles (7 days life)</option>
 							<option value="Temp_30">Hackathons (30 days life)</option>
@@ -440,6 +454,14 @@
 				const menu = document.getElementById('mobileMenu');
 				menu.classList.toggle('hidden');
 			}
+			document.getElementById('mobileCategorySelect')?.addEventListener('change', e => {
+				const selectedCategory = e.target.value;
+				document.querySelectorAll(".category-section").forEach(section => {
+					section.style.display = selectedCategory === "all" 
+						? "block" 
+						: section.dataset.category === selectedCategory ? "block" : "none";
+				});
+			});
 
 		</script>
 	</body>

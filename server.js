@@ -162,7 +162,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/feedback", (req, res) => {
-    if (!req.isAuthenticated()) return res.redirect("/?error=Please login to give feedback.");
+    if (!req.isAuthenticated()) return res.redirect("/auth/42?redirectTo=/feedback?message=You have been logged in Successfully!");
     res.render("feedback", { user: req.user, totalActiveUser });
   });
 

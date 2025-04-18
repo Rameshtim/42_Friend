@@ -42,6 +42,9 @@ router.post('/bookmarks', [
 		.isLength({ max: 20 }).withMessage('Category should not exceed 20 characters.')
 		.matches(/^[a-zA-Z0-9\s\-_,]+$/).withMessage('Category can only contain alphanumeric characters and spaces, hyphens, or commas.'),
   ], async (req, res) => {
+	if (!req.isAuthenticated()) {
+		return res.redirect('/bookmarks?error=Please log in to vote.');
+	  }
 	// Check for validation errors
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
