@@ -629,7 +629,8 @@ app.post("/check-user", async (req, res) => {
 			return res.redirect("/?error=Brilliant as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner.");
 	}
 
-	const { username } = req.body;
+	let { username } = req.body;
+    username = username.replace(/[^a-zA-Z]/g, "").toLowerCase();
 	const localTime = parseInt(req.body.localTime);
 	const userTimezone = `UTC${localTime >= 0 ? "-" : "+"}${Math.abs(localTime) / 60}`; // Convert to readable UTC offset
 
