@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 const express = require('express');
+const cron = require('node-cron');
+const axios = require('axios');
+const { EmailService } = require('./emailService');
+const emailService = new EmailService();
 const router = express.Router();
 
 
@@ -220,6 +224,98 @@ router.get('/bookmarks/delete-all', async (req, res) => {
 		res.redirect('/bookmarks?error=Failed to delete bookmark');
 	}
 });
+
+// Run every 24 hour
+cron.schedule('0 */8 * * *', async () => {
+  try {
+    const now = new Date();
+
+    const conditions = [
+      { category: 'Temp_1', expiry: 24 * 60 * 60 * 1000 }, // 1 day
+      { category: 'Temp_7', expiry: 7 * 24 * 60 * 60 * 1000 }, // 7 days
+      { category: 'Temp_30', expiry: 30 * 24 * 60 * 60 * 1000 }, // 30 days
+    ];
+
+    for (const { category, expiry } of conditions) {
+      const thresholdDate = new Date(now.getTime() - expiry);
+      const deleted = await Bookmark.deleteMany({
+        category,
+        createdAt: { $lt: thresholdDate },
+      });
+      if (deleted.deletedCount > 0) {
+        console.log(`Cleaned up ${deleted.deletedCount} old bookmarks from ${category}`);
+      }
+    }
+  } catch (err) {
+    console.error('Scheduled cleanup error:', err.message);
+  }
+});
+
+// Run daily at 2:00 AM
+cron.schedule('0 2 * * *', async () => {
+
+  try {
+    const count = await Bookmark.estimatedDocumentCount();
+    const avgSizeKB = 1; // 700 bytes per bookmark
+    const estimatedSizeMB = (count * avgSizeKB) / 1024;
+
+    console.log(`Estimated DB size: ${estimatedSizeMB.toFixed(2)} MB`);
+	
+	
+    if (estimatedSizeMB > 450) {
+		
+		await emailService.sendStatusChangeEmailAlso("DB Storage Warning", process.env.ADMIN_MAIL, "Hello World", estimatedSizeMB);
+      const now = new Date();
+      const daysAgo = (days) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+
+      let totalDeleted = 0;
+
+      // Priority 2: Old + 2+ downvotes
+      const r2 = await Bookmark.deleteMany({
+        createdAt: { $lt: daysAgo(7) },
+        downvotes: { $size: { $gte: 2 } },
+      });
+      totalDeleted += r2.deletedCount || 0;
+      if (r2.deletedCount) console.log(`🗑️ Deleted ${r2.deletedCount} old bookmarks with ≥2 downvotes`);
+
+      // Priority 3: Old + no upvotes
+      const r3 = await Bookmark.deleteMany({
+        createdAt: { $lt: daysAgo(14) },
+        upvotes: { $size: 0 },
+      });
+      totalDeleted += r3.deletedCount || 0;
+      if (r3.deletedCount) console.log(`🗑️ Deleted ${r3.deletedCount} old unvoted bookmarks`);
+
+      // Priority 4: Delete oldest if still over budget
+      if (totalDeleted < 100) {
+        const stillTooBig = ((count - totalDeleted) * avgSizeKB) / 1024 > 400;
+        if (stillTooBig) {
+          const fallback = await Bookmark.find().sort({ createdAt: 1 }).limit(200 - totalDeleted);
+          const fallbackIds = fallback.map((b) => b._id);
+          const r4 = await Bookmark.deleteMany({ _id: { $in: fallbackIds } });
+          totalDeleted += r4.deletedCount || 0;
+          console.log(`🧹 Fallback: Deleted ${r4.deletedCount} oldest bookmarks`);
+        }
+      }
+
+      console.log(`✅ Cleanup complete. Total bookmarks deleted: ${totalDeleted}`);
+    } else if (estimatedSizeMB >= 400) {
+		await emailService.sendStatusChangeEmailAlso("DB Storage Warning", process.env.ADMIN_MAIL, "Hello World", estimatedSizeMB);
+	} else if (estimatedSizeMB >= 300) {
+		await emailService.sendStatusChangeEmailAlso("DB Storage Warning", process.env.ADMIN_MAIL, "Hello World", estimatedSizeMB);
+	} else if (estimatedSizeMB >= 200) {
+		await emailService.sendStatusChangeEmailAlso("DB Storage Warning", process.env.ADMIN_MAIL, "Hello World", estimatedSizeMB);
+	} else if (estimatedSizeMB >= 100) {
+		await emailService.sendStatusChangeEmailAlso("DB Storage Warning", process.env.ADMIN_MAIL, "Hello World", estimatedSizeMB);
+	} else if (estimatedSizeMB >= 50) {
+		await emailService.sendStatusChangeEmailAlso("DB Storage Warning", process.env.ADMIN_MAIL, "Hello World", estimatedSizeMB);
+	}
+  } catch (err) {
+    console.error('[❌ CLEANUP ERROR]', err.message);
+  }
+});
+
+
 
 
   

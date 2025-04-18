@@ -99,7 +99,7 @@ class EmailService {
     async sendFeedbackEmailWithAttachment(user, subject, description, file) {
         const mailOptions = {
             from: process.env.EMAIL_USER,
-            to: 'rtimsina.42berlin@gmail.com',
+            to: process.env.ADMIN_MAIL,
             subject: `Feedback from ${user}: ${subject}`,
             text: `User: ${user}\n\nSubject: ${subject}\n\nDescription:\n${description}`,
             html: this.generateFeedbackHTML(user, subject, description),

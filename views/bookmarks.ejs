@@ -198,13 +198,20 @@
 				<div>
 					<label for="category" class="block text-sm font-medium text-gray-300">Category</label>
 					<select id="categorySelect" class="mt-1 block w-full bg-gray-800 border-gray-600 rounded-md text-white">
-						<option value="__custom__">➕ Add new category</option>
+						<option value="__custom__">🟢 Create new category</option>
 						<optgroup label="⭐ Favorites">
+							<option value="Temp_1">Temporary_24 hrs</option>
+							<option value="Temp_7">Articles (7 days life)</option>
+							<option value="Temp_30">Hackathons (30 days life)</option>
+							<option value="Minishell">Minishell</option>
+							<option value="Cub3d">Cub3d</option>
+							<option value="MiniRT">MiniRT</option>
+							<option value="Inception">Inception</option>
+							<option value="Webserver">Webserver</option>
+							<option value="Transcendence">ft_transcendence</option>
 							<option value="Outer Core">Outer Core</option>
-							<option value="Educational">Educational</option>
-							<option value="Hackathons">Hackathons</option>
 						</optgroup>
-						<optgroup label="All Categories">
+						<optgroup label="🗃️ All Categories">
 							<% Object.keys(categories).forEach(category => { %>
 								<option value="<%= category %>"><%= category %></option>
 							<% }) %>
