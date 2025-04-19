@@ -80,9 +80,16 @@ router.post('/bookmarks', [
 router.get('/bookmarks', async (req, res) => {
   try {
     const bookmarks = await Bookmark.find().sort({ createdAt: -1 });
+	const categoryLabels = {
+		'42_links': '42 Links',
+		'Temp_1': 'Temporary_24 hrs',
+		'Temp_7': 'Articles (7 days life)',
+		'Temp_30': 'Hackathons (30 days life)',
+	  };
     res.render('bookmarks', {
       user: req.user,
       bookmarks,
+	  categoryLabels,
       success: req.query.success,
       error: req.query.error,
     });
@@ -132,8 +139,8 @@ router.post('/bookmarks/:id/downvote', async (req, res) => {
   
 	try {
 	  const bookmark = await Bookmark.findById(req.params.id);
-	  console.log("this is id", req.params.id);
-	  console.log("and bookmark", bookmark);
+	//   console.log("this is id", req.params.id);
+	//   console.log("and bookmark", bookmark);
 	  if (!bookmark) {
 		return res.redirect('/bookmarks?error=Bookmark not found.');
 	  }
@@ -166,29 +173,6 @@ router.post('/bookmarks/:id/downvote', async (req, res) => {
 	}
   });
   
-
-router.get('/bookmarks/delete-all', async (req, res) => {
-	// if (!req.isAuthenticated()) {
-	// 	return res.redirect('/bookmarks?error=Please log in to vote.');
-	// }
-	try {
-		const { userme, passme } = req.query;
-
-		// Check credentials from query against environment variables
-		if (
-			userme !== process.env.ADMIN_USERNAME ||
-			passme !== process.env.ADMIN_PASSWORD
-		) {
-			return res.status(401).redirect('/bookmarks?error=Unauthorized');
-		}
-		await Bookmark.deleteMany({});
-		res.redirect('/bookmarks?message=All bookmarks deleted.');
-	} catch (error) {
-	  console.error('Error deleting bookmarks:', error.message);
-	  res.redirect('/bookmarks?error=Failed to delete bookmarks.');
-	}
-  });
-
   router.get('/bookmarks/delete-one', async (req, res) => {
 	if (!req.isAuthenticated()) {
 		return res.redirect('/bookmarks?error=Please log in to vote.');
