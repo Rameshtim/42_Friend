@@ -395,42 +395,67 @@
         </div>
     </div>
 	<!-- Info Modal -->
-	<div id="infoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
-		<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-md relative">
-			<button onclick="closeInfoModal()" class="absolute top-2 right-2 text-gray-400 hover:text-white">
-				<i class="ph ph-x text-xl"></i>
-			</button>
-			<h2 class="text-2xl font-bold mb-4 text-blue-400">How to Use</h2>
-			<ul class="list-disc list-inside space-y-2 text-sm text-gray-300">
-				<li><span class="text-blue-400">Check Your Friend's Campus Status</span> — Give the intra name and click <strong>Check Status</strong> <br>
-					Will display Online Since(Logged in time) or Offline (Last Seen date and time) or Blackholed if is absorved by blackhole. Also lists the Projects
-					they have subscribed and since when.
-					</li>
-				<li><span class="text-green-400">Find Online Peers</span> — This will show the Students who are around your level in your Campus, roughly calculated with your current level.
-					This will show online peers as well as peers who had visited Campus in past 7 Days. <br>
-					If your level is 10+ then this will also show everyone who has finished ft_transcendence and will put a tick if they have finished the exam and <strong>?</strong>
-					if they still have to pass the exam.
-				</li>
-				<li><span class="text-purple-400">Ongoing Piscine</span> — This will show the Running Piscine students info. With a green dot if online and a red dot if 
-					not at campus. Will have option to sort with the level or show only online Pisciners. <strong>Bug</strong> 42 has some test accounts or some accounts are 
-					never removed which will give some test/ghost accounts.
-				</li>
-				<li><span class="text-yellow-400">Advanced Search</span> — This is where you have a freewill to check students from other schools or from defined level as well.
-					If you are included in the list it will show at the top with your position from the <strong>level range</strong>.
-					You can choose the campus, and range of level with lower and upper level(optionl, will do <strong>lower level + 1</strong> as defult) to save unnecessary API Calls.
-					Choosing lower level 0 - 10+ for upper level will show all the students/pisciners from choosen campus. <br>
-					<span class="text-red-500 font-medium">Piscine with 0-10+ will stop searching at some point because of too many API Calls. I am not storing any thing in my database
-						Which forces me to make API calls to 42 for every request you make.
-					</span> <br>
-					To find top students/pisciners try to use lower level higher than 8 and upper level 10+, which will make fewer API calls and gives your desired output.
-
-				</li>
-			</ul>
+	<div id="infoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 hidden">
+		<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
+		
+		<!-- Close Button -->
+		<button onclick="closeInfoModal()" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+			<i class="ph ph-x text-xl"></i>
+		</button>
+	
+		<!-- Title -->
+		<h2 class="text-3xl font-bold mb-6 text-blue-400 text-center">📘 How to Use</h2>
+	
+		<!-- Sections -->
+		<div class="space-y-6 text-gray-300 text-sm sm:text-base">
+			
+			<!-- Status Checker -->
+			<section>
+			<h3 class="text-blue-400 font-semibold mb-1">🔍 Check Your Friend's Campus Status</h3>
+			<p>
+				Enter the intra name and click <strong>Check Status</strong>.<br>
+				You'll see their status (Online/Offline/Blackholed), login time, last seen, and their ongoing projects.
+			</p>
+			</section>
+	
+			<!-- Online Peers -->
+			<section>
+			<h3 class="text-green-400 font-semibold mb-1">👥 Find Online Peers</h3>
+			<p>
+				Shows students around your level who are online or have visited in the last 7 days. <br>
+				Level 10+? You’ll also see ft_transcendence finishers, with a tick ✅ if exam passed or ❓ if pending.
+			</p>
+			</section>
+	
+			<!-- Piscine Info -->
+			<section>
+			<h3 class="text-purple-400 font-semibold mb-1">🏊 Ongoing Piscine</h3>
+			<p>
+				View current piscine students with green/red dots for online/offline status. <br>
+				Sort by level or filter to show only online students. Some test/ghost accounts may appear due to 42 API quirks.
+			</p>
+			</section>
+	
+			<!-- Advanced Search -->
+			<section>
+			<h3 class="text-yellow-400 font-semibold mb-1">🔎 Advanced Search</h3>
+			<p>
+				Browse students from any school and level. If you're in the result, you'll be shown at the top. <br>
+				Select a campus and level range — if you skip the upper level, we default to <strong>lower + 1</strong>. <br><br>
+				<span class="text-red-400 font-medium">Note:</span> A broad range (like 0–10+) triggers many API calls — performance may drop. <br>
+				<strong>Tip:</strong> Use higher lower levels like 8+ with 10+ to get top students without slowing things down.
+			</p>
+			</section>
+	
+		</div>
 		</div>
 	</div>
+	
+	<!-- Floating Button -->
 	<button onclick="openInfoModal()" class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-500 transition">
 		<i class="ph ph-info text-xl"></i>
 	</button>
+  
 
 	<script>
 		let notificationInterval; // Store interval ID

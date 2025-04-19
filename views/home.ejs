@@ -154,62 +154,77 @@
 		<% } %>
 		</div>
 	
-		<!-- Info Modal (Updated with PWA instructions) -->
+		<!-- Info Modal (Updated with PWA instructions and usage info) -->
 		<div id="infoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
 			<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-2xl relative overflow-y-auto max-h-[90vh]">
-				<!-- Close Button -->
-				<button onclick="closeInfoModal()" class="absolute top-2 right-2 text-gray-400 hover:text-white">
-					<i class="ph ph-x text-xl"></i>
-				</button>
-			
-				<!-- Header -->
-				<h2 class="text-2xl font-bold mb-6 text-blue-400 text-center">Info & Setup</h2>
-			
-				<!-- PWA Install Section -->
-				<section class="bg-gray-800 bg-opacity-75 p-4 rounded-lg shadow-inner text-center">
-					<h3 class="text-xl font-semibold mb-4 text-blue-300">📱 Install as a PWA</h3>
-					<p class="text-gray-200 mb-4 text-sm sm:text-base">
-					Enjoy <strong>42 Friend Notifier</strong> as a standalone app on your mobile device!
-					</p>
-			
-					<!-- Manual Instructions (Hidden by Default) -->
-					<div id="pwaManualInstructions" class="text-left text-gray-200 hidden">
-					<p class="mb-2 text-sm sm:text-base"><strong>On Mobile (iOS/Android):</strong></p>
-					<ul class="list-disc list-inside mb-4 text-sm sm:text-base">
-						<li>Open this page in your browser (Chrome, Safari, etc.).</li>
-						<li>Tap the <strong>Share</strong> button (iOS) or <strong>Menu</strong> (Android, three dots).</li>
-						<li>Select <strong>"Add to Home Screen"</strong> and confirm.</li>
-						<li>Launch it from your home screen like any app!</li>
-					</ul>
-					</div>
-			
-					<!-- Toggle Instructions Button -->
-					<button id="toggleInstructionsBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg mt-2 transition">
-					Show Instructions
-					</button>
-			
-					<!-- Install Button (Hidden by Default) -->
-					<button id="installPwaBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-4 transition hidden">
-					Install Now
-					</button>
-				</section>
-				<h2 class="text-2xl font-bold mb-4 text-blue-400">How it works</h2>
-				<ul class="list-disc list-inside space-y-2 text-sm text-gray-300">
-					<li><span class="text-green-400">Authentication and keeping user logged in</span> — Users are Authenticated with the 42 API. Once Authenticated
-						User will land at Profile view, which is main view and will be <strong>Logged Out</strong> if clicked in logout or 10 Minutes of inactivity.
-						I do not save anything but will be fetched from 42 API and will be served to the User for every request made. Only at bookmarks, intra name 
-						will be saved and checked to keep track of Upvotes and Downvotes. <br>
-						<span class="text-blue-400">A Redis server is used to save the cookie to keep user Authenticated. And since the Redis server is inside my Node
-							container, storage limitations are handled with <strong>Max 100 Active Users at a time</strong> and <strong>max 10 Minutes</strong>
-							 of inactivity. This should clear the cookie and user will be logged out.
-						</span>
-					</li>
-					<li> <strong><span class="text-red-400">Cost of the Website</span></strong> —  The website is hosted in Digital Ocean App Platform (cost 12 Euro per Month) and is available both at
-						https://www.42friend-online.de (cost 1 Euro for 1 Year) or https://goldfish-app-fibzf.ondigitalocean.app (included with App Platform)
-					</li>
+		
+			<!-- Close Button -->
+			<button onclick="closeInfoModal()" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+				<i class="ph ph-x text-xl"></i>
+			</button>
+		
+			<!-- Header -->
+			<h2 class="text-3xl font-bold mb-6 text-blue-400 text-center">📘 Info & Setup</h2>
+		
+			<!-- PWA Install Section -->
+			<section class="bg-gray-800 p-4 rounded-lg shadow-inner text-center mb-6">
+				<h3 class="text-xl font-semibold mb-3 text-blue-300">📱 Install as a PWA</h3>
+				<p class="text-gray-200 mb-4 text-sm sm:text-base">
+				Enjoy <strong>42 Friend Notifier</strong> as a standalone app on your mobile device!
+				</p>
+		
+				<!-- Manual Instructions (Hidden by Default) -->
+				<div id="pwaManualInstructions" class="text-left text-gray-200 hidden">
+				<p class="mb-2 text-sm sm:text-base"><strong>On Mobile (iOS/Android):</strong></p>
+				<ul class="list-disc list-inside mb-4 text-sm sm:text-base">
+					<li>Open this page in your browser (Chrome, Safari, etc.).</li>
+					<li>Tap the <strong>Share</strong> button (iOS) or <strong>Menu</strong> (Android, three dots).</li>
+					<li>Select <strong>"Add to Home Screen"</strong> and confirm.</li>
+					<li>Launch it from your home screen like any app!</li>
 				</ul>
+				</div>
+		
+				<!-- Toggle Instructions Button -->
+				<button id="toggleInstructionsBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">
+				Show Instructions
+				</button>
+		
+				<!-- Install Button -->
+				<button id="installPwaBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-4 transition hidden">
+				Install Now
+				</button>
+			</section>
+		
+			<!-- How it Works -->
+			<h3 class="text-2xl font-bold mb-4 text-blue-400">⚙️ How It Works</h3>
+			<ul class="list-disc list-inside space-y-4 text-sm text-gray-300">
+		
+				<li>
+				<span class="text-green-400 font-semibold">Authentication & Session</span> — Users log in via the 42 API. After authentication, you’re redirected to the Profile view. You’ll be
+				<strong>automatically logged out</strong> after 10 minutes of inactivity or on manual logout. <br><br>
+				Information are fetched from 42 and served at realtime to avoid cost of Database on App Platform.
+				<span class="text-blue-400">A Redis store (inside the Node container)</span> is used to store cookies and sessions, limited to
+				<strong>max 100 active users</strong> at a time and <strong>10 minutes of idle timeout</strong>. 
+				</li>
+		
+				<li>
+				<span class="text-red-400 font-semibold">💰 Hosting & Cost</span> — This project is hosted on <strong>Digital Ocean</strong>'s App Platform:
+				<ul class="list-disc list-inside pl-4 mt-2">
+					<li>12€ / month for app hosting</li>
+					<li>1€ / year for custom domain: <a href="https://www.42friend-online.de" target="_blank" class="text-blue-400 underline">www.42friend-online.de</a></li>
+					<li>Free URL also available from Digital Ocean: <a href="https://goldfish-app-fibzf.ondigitalocean.app" target="_blank" class="text-blue-400 underline">goldfish-app-fibzf.ondigitalocean.app</a></li>
+				</ul>
+				</li>
+		
+			</ul>
+		
 			</div>
 		</div>
+		
+		<!-- Floating Info Button -->
+		<button onclick="openInfoModal()" class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-500 transition">
+			<i class="ph ph-info text-xl"></i>
+		</button>
   
 	
 		<!-- Scroll down indicator -->
