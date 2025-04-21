@@ -23,6 +23,7 @@ const bookmarkSchema = new mongoose.Schema({
   upvotes: [{ type: String }],
   downvotes: [{ type: String }],
   createdAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date },
 });
 
 const Bookmark = mongoose.model('Bookmark', bookmarkSchema);
@@ -51,7 +52,7 @@ router.post('/bookmarks', [
 		return res.redirect('/bookmarks?error=' + encodeURIComponent(errors.array().map(err => err.msg).join(' ')));
 	}
   
-	const { title, url, description, category } = req.body;
+	const { title, url, description, category, expiryDate } = req.body;
 	// Normalize category: lowercase and capitalize first letter
 	const normalizeCategory = (input) => {
 		if (!input) return undefined;
@@ -68,6 +69,9 @@ router.post('/bookmarks', [
       category: normalizedCategory,
       createdBy: (!req.isAuthenticated() || req.body.anonymous === 'on') ? 'Anonymous' : req.user.username,
     });
+    if (expiryDate) {
+			bookmark.expiresAt = new Date(expiryDate);
+		}
     await bookmark.save();
     res.redirect('/bookmarks?message=Bookmark created successfully!');
   } catch (error) {
@@ -213,6 +217,7 @@ router.post('/bookmarks/:id/downvote', async (req, res) => {
 });
 
 // Run every 24 hour
+// cron.schedule('*/10 * * * * *', async () => {
 cron.schedule('0 */8 * * *', async () => {
   try {
     const now = new Date();
@@ -231,6 +236,13 @@ cron.schedule('0 */8 * * *', async () => {
       });
       if (deleted.deletedCount > 0) {
         console.log(`Cleaned up ${deleted.deletedCount} old bookmarks from ${category}`);
+      }
+      const expiredCustom = await Bookmark.deleteMany({
+        expiresAt: { $lt: now },
+      });
+  
+      if (expiredCustom.deletedCount > 0) {
+        console.log(`🗑️ Deleted ${expiredCustom.deletedCount} bookmarks with custom expiry dates`);
       }
     }
   } catch (err) {

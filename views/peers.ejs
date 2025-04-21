@@ -82,7 +82,7 @@
                     <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md peer-item space-y-2 sm:space-y-0" data-username="<%= peer.username %>">
                         <div class="flex items-center space-x-4 peer-link cursor-pointer" data-username="<%= peer.username %>">
                             <% if (peer.level >= 10) { %>
-                                <% if (peer.grade === 'Member') { %>
+                                <% if (peer.grade === 'Transcender') { %>
                                     <span class="text-green-500" title="Outer Circle">
                                         &#10004; </span>
                                 <% } else { %>
@@ -137,7 +137,7 @@
                     <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md rpeer-item space-y-2 sm:space-y-0" data-username="<%= user.username %>">
                         <div class="flex items-center space-x-4 user-link cursor-pointer" data-username="<%= user.username %>">
                             <% if (user.level >= 10) { %>
-                                <% if (user.grade === 'Member') { %>
+                                <% if (user.grade === 'Transcender') { %>
                                     <span class="text-green-500" title="Outer Circle">
                                         &#10004; </span>
                                 <% } else { %>

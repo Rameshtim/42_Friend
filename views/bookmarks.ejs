@@ -152,7 +152,8 @@
 															data-description="<%= bookmark.description || 'No description' %>"
 															data-created="<%= new Date(bookmark.createdAt).toLocaleDateString('en-GB') %>"
 															data-createdby="<%= bookmark.createdBy %>"
-															data-upvotes="<%= JSON.stringify(bookmark.upvotes) %>">
+															data-upvotes="<%= JSON.stringify(bookmark.upvotes) %>"
+															data-expiry="<%= bookmark.expiresAt ? new Date(bookmark.expiresAt).toLocaleDateString('en-GB') : '' %>">
 															Show
 														</button>
 													</td>
@@ -229,7 +230,7 @@
 							<option value="Transcendence">ft_transcendence</option>
 							<option value="Outer Core">Outer Core</option>
 						</optgroup>
-						<optgroup label="🗃️ All Categories">
+						<optgroup label="🗃️ Other Categories">
 							<% Object.keys(categories).forEach(category => { %>
 								<option value="<%= category %>"><%= category %></option>
 							<% }) %>
@@ -239,8 +240,14 @@
 				</div>
 				<div class="flex items-center space-x-2">
 					<input type="checkbox" id="anonymous" name="anonymous" class="form-checkbox h-4 w-4 text-blue-600 bg-gray-800 border-gray-600">
-					<label for="anonymous" class="text-sm text-gray-300">Post as Anonymous</label>
-				</div>				
+					<label for="anonymous" class="text-sm text-gray-300">Post as Anonymous !</label>
+
+					<div class="flex items-center space-x-2">
+						<input type="checkbox" id="enableExpiry" name="enableExpiry" class="form-checkbox h-4 w-4 text-blue-600 bg-gray-800 border-gray-600">
+						<label for="enableExpiry" class="text-sm text-gray-300">Set Expiry Date</label>
+					</div>
+					<input type="date" id="expiryDate" name="expiryDate" class="mt-2 w-full bg-gray-800 border-gray-600 rounded-md text-white hidden">
+				</div>								
 				<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 w-full">Add Bookmark</button>
 			</form>
 		</div>
@@ -269,6 +276,10 @@
 					<strong class="text-gray-300">Created:</strong>
 					<p id="modal-created" class="text-white"></p>
 				</div>
+				<div class="hidden">
+					<strong class="text-gray-300">Valid Till:</strong>
+					<p id="modal-expiry" class="text-white"></p>
+				</div>				
 				<div>
 					<strong class="text-gray-300">Created By:</strong>
 					<p id="modal-createdby" class="text-white"></p>
@@ -377,7 +388,7 @@
 				// Details modal handling
 				document.querySelectorAll(".show-details").forEach(button => {
 				button.addEventListener("click", () => {
-					const { title, url, description, created, createdby, upvotes } = button.dataset;
+					const { title, url, description, created, createdby, upvotes, expiry } = button.dataset;
 
 					document.getElementById("modal-title").textContent = title;
 					document.getElementById("modal-url").textContent = url;
@@ -385,6 +396,13 @@
 					document.getElementById("modal-description").textContent = description;
 					document.getElementById("modal-created").textContent = created;
 					document.getElementById("modal-createdby").textContent = createdby;
+					const expiryField = document.getElementById("modal-expiry");
+					if (expiry) {
+						expiryField.textContent = expiry;
+						expiryField.parentElement.classList.remove("hidden");
+					} else {
+						expiryField.parentElement.classList.add("hidden");
+					}
 
 					const upvotersList = document.getElementById("modal-upvoters");
 					upvotersList.innerHTML = "";
@@ -506,6 +524,20 @@
 			function closeInfoModal() {
 				document.getElementById('infoModal').classList.add('hidden');
 			}
+			const enableExpiryCheckbox = document.getElementById("enableExpiry");
+			const expiryDateInput = document.getElementById("expiryDate");
+
+			enableExpiryCheckbox.addEventListener("change", () => {
+				if (enableExpiryCheckbox.checked) {
+					expiryDateInput.classList.remove("hidden");
+					expiryDateInput.setAttribute("required", "required");
+				} else {
+					expiryDateInput.classList.add("hidden");
+					expiryDateInput.removeAttribute("required");
+					expiryDateInput.value = "";
+				}
+			});
+
 		</script>
 	</body>
 </html>
