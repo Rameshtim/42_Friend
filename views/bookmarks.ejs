@@ -98,8 +98,11 @@
 					<div class="space-y-8">
 						<% Object.entries(categories).forEach(([category, bookmarks]) => { %>
 							<div class="category-section" data-category="<%= category %>">
-								<h3 class="text-xl font-semibold mb-2 text-blue-400">
+								<h3 class="text-xl font-semibold mb-2 text-teal-400">
 									<%= categoryLabels[category] || category %>
+									<% if (bookmarks.length > 4) { %>
+										<span class="text-sm text-gray-400 ml-2 bookmark-count">(Showing 4 of <%= bookmarks.length %>)</span>
+									<% } %>
 								</h3>
 								<div class="overflow-x-auto">
 									<table class="min-w-[600px] w-full text-left border-collapse rounded-lg text-sm">
@@ -163,8 +166,8 @@
 									</table>
 								</div>
 								<% if (sortedBookmarks.length > 4) { %>
-									<button class="show-more mt-2 text-blue-400 hover:underline" data-category="<%= category %>">
-										Show More
+									<button class="show-more mt-2 text-white-400 hover:underline" data-category="<%= category %>">
+										Show More <span class="ml-1">▼</span>
 									</button>
 								<% } %>
 							</div>
@@ -449,17 +452,22 @@
 				document.querySelectorAll(".show-more").forEach(button => {
 					button.addEventListener("click", () => {
 						const category = button.dataset.category;
-						const hiddenBookmarks = document.querySelectorAll(`tr.bookmark-hidden[data-category="${category}"]`);
-						
-						if (button.textContent === "Show More") {
+						const section = button.closest(".category-section");
+						const hiddenBookmarks = section.querySelectorAll(`tr.bookmark-hidden[data-category="${category}"]`);
+						const countSpan = section.querySelector(".bookmark-count");
+
+						if (button.textContent.includes("Show More")) {
 							hiddenBookmarks.forEach(bookmark => bookmark.classList.remove("hidden"));
 							button.textContent = "Show Less";
+							if (countSpan) countSpan.classList.add("hidden");
 						} else {
 							hiddenBookmarks.forEach(bookmark => bookmark.classList.add("hidden"));
-							button.textContent = "Show More";
+							button.textContent = "Show More ▼";
+							if (countSpan) countSpan.classList.remove("hidden");
 						}
 					});
 				});
+
 	
 				// Notification handling
 				const urlParams = new URLSearchParams(window.location.search);
