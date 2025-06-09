@@ -161,6 +161,18 @@ app.get("/", (req, res) => {
 	});
 });
 
+app.get("/kidtube", (req, res) => {
+    const videoLinks = {
+        video1: 'https://www.youtube.com/watch?v=qXKsou9UmfY',
+        video2: 'https://www.youtube.com/watch?v=bOiYN7iU-W8',
+        video3: 'https://www.youtube.com/watch?v=Te6hlTrO0Bc',
+        video4: 'https://www.youtube.com/watch?v=XqZsoesa55w',
+        video5: 'https://www.youtube.com/watch?v=kHsUL-3BFr4',
+        video6: 'https://www.youtube.com/watch?v=7JurLOWlaBs'
+    };
+    res.render("kidTube", { videoLinks} );
+});
+
 app.get("/feedback", (req, res) => {
     if (!req.isAuthenticated()) return res.redirect("/auth/42?redirectTo=/feedback?message=You have been logged in Successfully!");
     res.render("feedback", { user: req.user, totalActiveUser });
