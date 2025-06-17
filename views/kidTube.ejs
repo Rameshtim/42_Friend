@@ -18,6 +18,9 @@
     .yt-button:hover {
       background-color: #cc0000 !important;
     }
+    #videoModal {
+      z-index: 1000; /* Ensure modal is above all other content */
+    }
   </style>
 </head>
 <body class="bg-gray-50 font-sans">
@@ -27,8 +30,22 @@
   </header>
 
   <main class="container mx-auto p-4">
-    <!-- Form -->
+    <!-- Form Section -->
     <section id="videoFormSection" class="mb-8 bg-white p-6 rounded-lg shadow-md hidden">
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-2">Search for a Video</h3>
+        <div class="flex flex-col md:flex-row gap-4 mb-3">
+          <input id="searchInput" type="text" placeholder="Search YouTube..." class="flex-1 p-2 border rounded-md focus:ring-red-500 focus:border-red-500" />
+          <select id="targetSlot" class="p-2 border rounded-md">
+            <% for (let i = 1; i <= 6; i++) { %>
+              <option value="video<%= i %>">Assign to Thumbnail <%= i %></option>
+            <% } %>
+          </select>
+          <button onclick="searchYouTube()" type="button" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Search</button>
+        </div>
+        <div id="searchResults" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
       <h2 class="text-xl md:text-2xl font-semibold mb-4 text-gray-900">Update YouTube Video Links</h2>
       <form id="videoForm" class="grid grid-cols-1 gap-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -47,15 +64,11 @@
     <section id="thumbnailSection" class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="thumbnail-container bg-white rounded-lg shadow-md overflow-hidden">
         <div id="thumbnail1" class="w-full h-48 bg-gray-200 flex items-center justify-center cursor-pointer"></div>
-        <div class="p-4">
-          <h3 class="text-lg font-semibold text-gray-900">Video 1</h3>
-        </div>
+        <div class="p-4"><h3 class="text-lg font-semibold text-gray-900">Video 1</h3></div>
       </div>
       <div class="thumbnail-container bg-white rounded-lg shadow-md overflow-hidden">
         <div id="thumbnail2" class="w-full h-48 bg-gray-200 flex items-center justify-center cursor-pointer"></div>
-        <div class="p-4">
-          <h3 class="text-lg font-semibold text-gray-900">Video 2</h3>
-        </div>
+        <div class="p-4"><h3 class="text-lg font-semibold text-gray-900">Video 2</h3></div>
       </div>
     </section>
 
@@ -65,50 +78,52 @@
     </section>
 
     <!-- Modal -->
-    <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden relative">
-      <!-- Overlay to block pause suggestions -->
+    <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden">
       <div id="videoOverlay" class="absolute top-0 left-0 w-full h-full z-50 hidden bg-black bg-opacity-60 cursor-pointer">
         <img id="overlayThumbnail" class="w-full h-full object-cover opacity-80" />
       </div>
 
-      <!-- Close button -->
-      <div class="w-full h-full">
-        <div class="flex justify-end p-2">
+      <div class="relative w-full h-full flex flex-col">
+        <div class="flex justify-end p-2 absolute top-0 right-0 z-10">
           <button id="closeModal" class="text-white text-2xl hover:text-gray-300">×</button>
         </div>
-        <iframe id="videoPlayer" class="w-full h-[calc(100%-2.5rem)]" frameborder="0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+        <iframe id="videoPlayer" class="w-full h-full" frameborder="0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
       </div>
     </div>
   </main>
 
+  <!-- JavaScript -->
   <script>
-    const defaultVideoLinks = {
-      video1: 'https://www.youtube.com/watch?v=qXKsou9UmfY',
-      video2: 'https://www.youtube.com/watch?v=bOiYN7iU-W8',
-      video3: 'https://www.youtube.com/watch?v=Te6hlTrO0Bc',
-      video4: 'https://www.youtube.com/watch?v=XqZsoesa55w',
-      video5: 'https://www.youtube.com/watch?v=kHsUL-3BFr4',
-      video6: 'https://www.youtube.com/watch?v=7JurLOWlaBs'
-    };
-
+    const defaultVideoLinks = <%- JSON.stringify(videoLinks) %>;
     let videoLinks = JSON.parse(localStorage.getItem('videoLinks')) || defaultVideoLinks;
     localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
 
     let currentPair = 0;
 
     function getYouTubeID(url) {
-      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]{11}).*/;
       const match = url.match(regExp);
-      return (match && match[2].length === 11) ? match[2] : null;
+      return (match && match[2]) ? match[2] : null;
     }
 
-    function updateThumbnails() {
+    async function checkIfEmbeddable(videoId) {
+      try {
+        const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+        if (!res.ok) throw new Error("Video cannot be embedded.");
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    async function updateThumbnails() {
       const startIndex = currentPair * 2 + 1;
       for (let i = 1; i <= 2; i++) {
         const thumbnail = document.getElementById(`thumbnail${i}`);
         const videoIndex = startIndex + i - 1;
-        const videoId = getYouTubeID(videoLinks[`video${videoIndex}`]);
-        if (videoId) {
+        const videoUrl = videoLinks[`video${videoIndex}`];
+        const videoId = getYouTubeID(videoUrl);
+        if (videoId && await checkIfEmbeddable(videoId)) {
           thumbnail.innerHTML = `<img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" class="w-full h-full object-cover">`;
         } else {
           thumbnail.innerHTML = `Thumbnail ${videoIndex}`;
@@ -119,14 +134,19 @@
 
     updateThumbnails();
 
-    document.getElementById('videoForm').addEventListener('submit', (e) => {
+    document.getElementById('videoForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       for (let i = 1; i <= 6; i++) {
         const url = document.getElementById(`video${i}`).value;
+        const videoId = getYouTubeID(url);
+        if (videoId && !(await checkIfEmbeddable(videoId))) {
+          alert(`Video ${i} cannot be embedded. Please choose another video.`);
+          return;
+        }
         videoLinks[`video${i}`] = url || defaultVideoLinks[`video${i}`];
       }
       localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
-      updateThumbnails();
+      await updateThumbnails();
       document.getElementById('videoFormSection').classList.add('hidden');
       alert('Video links updated!');
     });
@@ -141,41 +161,26 @@
     });
 
     for (let i = 1; i <= 2; i++) {
-		document.getElementById(`thumbnail${i}`).addEventListener('click', () => {
-			const videoIndex = document.getElementById(`thumbnail${i}`).dataset.videoIndex;
-			const videoUrl = videoLinks[`video${videoIndex}`];
-			const videoId = getYouTubeID(videoUrl);
-			if (videoId) {
-			const player = document.getElementById('videoPlayer');
-			const modal = document.getElementById('videoModal');
-
-			player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&modestbranding=1&rel=0&showinfo=0&controls=1&enablejsapi=1`;
-			modal.classList.remove('hidden');
-
-			// Request fullscreen
-			if (modal.requestFullscreen) {
-				modal.requestFullscreen();
-			} else if (modal.webkitRequestFullscreen) {
-				modal.webkitRequestFullscreen();
-			} else if (modal.msRequestFullscreen) {
-				modal.msRequestFullscreen();
-			}
-
-			// Notify YouTube iframe we want API events
-			player.onload = () => {
-				player.contentWindow.postMessage(JSON.stringify({
-				event: "listening",
-				id: "player1"
-				}), "*");
-			};
-			}
-		});
-	}
-
+      document.getElementById(`thumbnail${i}`).addEventListener('click', async () => {
+        const videoIndex = document.getElementById(`thumbnail${i}`).dataset.videoIndex;
+        const videoUrl = videoLinks[`video${videoIndex}`];
+        const videoId = getYouTubeID(videoUrl);
+        if (videoId && await checkIfEmbeddable(videoId)) {
+          const player = document.getElementById('videoPlayer');
+          const modal = document.getElementById('videoModal');
+          player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&modestbranding=1&rel=0&controls=1&fs=1`;
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden'; // Prevent scrolling
+        } else {
+          alert("This video cannot be embedded.");
+        }
+      });
+    }
 
     document.getElementById('closeModal').addEventListener('click', () => {
       document.getElementById('videoModal').classList.add('hidden');
       document.getElementById('videoPlayer').src = '';
+      document.body.style.overflow = ''; // Restore scrolling
       if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
         if (document.exitFullscreen) document.exitFullscreen();
         else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
@@ -183,30 +188,38 @@
       }
     });
 
-    // Handle YouTube player state changes
     window.addEventListener("message", (event) => {
       try {
         const data = JSON.parse(event.data);
         const overlay = document.getElementById("videoOverlay");
         const thumbnail = document.getElementById("overlayThumbnail");
+        const player = document.getElementById("videoPlayer");
+        const videoId = getYouTubeID(player.src);
+
+        if (!videoId) return;
 
         if (data.event === "onStateChange") {
-          const player = document.getElementById("videoPlayer");
-          const videoId = getYouTubeID(player.src);
-
-          if (data.info === 2) { // paused
-            overlay.classList.remove("hidden");
-            thumbnail.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-          } else if (data.info === 1) { // playing
-            overlay.classList.add("hidden");
+          switch (data.info) {
+            case 2: // paused
+            case 0: // ended
+              overlay.classList.remove("hidden");
+              thumbnail.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+              break;
+            case 1: // playing
+              overlay.classList.add("hidden");
+              break;
+            case -1: // unstarted
+            case 5: // cued
+              overlay.classList.remove("hidden");
+              thumbnail.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+              break;
           }
         }
       } catch (e) {
-        // ignore parsing errors
+        console.warn("Video event error", e);
       }
     });
 
-    // Resume playback on overlay click
     document.getElementById("videoOverlay").addEventListener("click", () => {
       const player = document.getElementById("videoPlayer");
       player.contentWindow.postMessage(JSON.stringify({
@@ -215,6 +228,72 @@
         args: []
       }), "*");
     });
+
+    async function searchYouTube() {
+      const query = document.getElementById('searchInput').value.trim();
+      const resultsDiv = document.getElementById('searchResults');
+      resultsDiv.innerHTML = "";
+
+      if (!query) {
+        alert("Please enter a search term.");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+
+        const data = await res.json();
+        if (data.error) return alert(data.error);
+
+        for (const video of data.results) {
+          if (await checkIfEmbeddable(video.videoId)) {
+            const div = document.createElement('div');
+            div.className = "flex gap-4 border rounded p-3 hover:bg-gray-100";
+            div.innerHTML = `
+              <img src="${video.thumbnail}" class="w-32 h-20 object-cover rounded" />
+              <div class="flex flex-col">
+                <strong class="text-gray-800">${video.title}</strong>
+                <span class="text-sm text-gray-500">https://youtu.be/${video.videoId}</span>
+                <button onclick="assignToSlot('${video.videoId}')" class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm w-fit">Assign to Slot</button>
+              </div>
+            `;
+            resultsDiv.appendChild(div);
+          }
+        }
+      } catch (e) {
+        alert("Search failed.");
+        console.error(e);
+      }
+    }
+
+    async function assignToSlot(videoId) {
+      const isEmbeddable = await checkIfEmbeddable(videoId);
+      if (!isEmbeddable) {
+        alert("This video cannot be embedded. Please choose another one.");
+        return;
+      }
+
+      const slot = document.getElementById("targetSlot").value;
+      const input = document.getElementById(slot);
+      const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+      if (input) {
+        input.value = videoUrl;
+        videoLinks[slot] = videoUrl;
+        localStorage.setItem("videoLinks", JSON.stringify(videoLinks));
+
+        document.getElementById("searchInput").value = "";
+        document.getElementById("searchResults").innerHTML = "";
+
+        await updateThumbnails();
+
+        alert(`Assigned to ${slot} successfully.`);
+      }
+    }
   </script>
 </body>
 </html>

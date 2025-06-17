@@ -2,6 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const { exec } = require("child_process");
 const passport = require("passport");
+const axios = require("axios");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 require("./config/passport");
@@ -104,6 +105,20 @@ app.locals.monitor = monitor;
 
 let totalActiveUser = 0;
 
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Too many requests — try again later."
+});
+
+app.use("/kidtube", limiter);
+app.use("/api/search", limiter);
+
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -170,8 +185,40 @@ app.get("/kidtube", (req, res) => {
         video5: 'https://www.youtube.com/watch?v=kHsUL-3BFr4',
         video6: 'https://www.youtube.com/watch?v=7JurLOWlaBs'
     };
-    res.render("kidTube", { videoLinks} );
+    res.render("kidTube", { videoLinks } );
 });
+
+// Handle YouTube Search (API key remains hidden)
+app.post("/api/search", async (req, res) => {
+    const { query } = req.body;
+    if (!query || typeof query !== "string") {
+      return res.status(400).json({ error: "Invalid query" });
+    }
+  
+    try {
+      const apiRes = await axios.get("https://www.googleapis.com/youtube/v3/search", {
+        params: {
+          part: "snippet",
+          q: query,
+          key: process.env.YOUTUBE_API,
+          maxResults: 5,
+          type: "video",
+          safeSearch: "strict"
+        }
+      });
+  
+      const results = apiRes.data.items.map(item => ({
+        title: item.snippet.title,
+        videoId: item.id.videoId,
+        thumbnail: item.snippet.thumbnails.medium.url
+      }));
+  
+      res.json({ results });
+    } catch (error) {
+      console.error("YouTube API Error:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to fetch from YouTube" });
+    }
+  });
 
 app.get("/feedback", (req, res) => {
     if (!req.isAuthenticated()) return res.redirect("/auth/42?redirectTo=/feedback?message=You have been logged in Successfully!");
