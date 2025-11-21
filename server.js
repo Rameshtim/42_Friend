@@ -689,7 +689,7 @@ app.post("/check-user", async (req, res) => {
 	}
 
 	let { username } = req.body;
-    username = username.replace(/[^a-zA-Z]/g, "").toLowerCase();
+    username = username.replace(/[^a-zA-Z0-9-]/g, "").toLowerCase();
 	const localTime = parseInt(req.body.localTime);
 	const userTimezone = `UTC${localTime >= 0 ? "-" : "+"}${Math.abs(localTime) / 60}`; // Convert to readable UTC offset
 
