@@ -245,8 +245,8 @@
 					<h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
 					<form action="/check-user" method="POST" class="mt-4" id="userForm" onsubmit="return startLoading()">
 						<label for="username" class="block">Enter 42 Username:</label>
-						<input type="text" name="username" id="username" required pattern="[a-zA-Z]+" 
-							title="Only letters (a-z | A-Z) are allowed." 
+						<input type="text" name="username" id="username" required pattern="[a-zA-Z0-9-]+" 
+							title="Only letters, digits (0-9), and dashes (-) are allowed." 
 							class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
 								   focus:outline-none focus:ring-2 focus:ring-blue-500">
 						<input type="hidden" name="localTime" id="localTime">
