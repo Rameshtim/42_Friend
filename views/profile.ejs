@@ -34,9 +34,9 @@
 
             <!-- Menu Links (Desktop) -->
             <div class="hidden md:flex space-x-6 items-center">
-                <a href="/about" class="hover:text-[#525252]">About Me</a>
-				<a href="/feedback" class="hover:text-[#525252]">Feedback</a>
-                <a href="/" class="hover:text-[#525252]">Home</a>
+                <a href="/about" class="px-2 py-1 rounded hover:bg-[#f1ede1] transition">About Me</a>
+				<a href="/feedback" class="px-2 py-1 rounded hover:bg-[#f1ede1] transition">Feedback</a>
+                <a href="/" class="px-2 py-1 rounded hover:bg-[#f1ede1] transition">Home</a>
                 <a href="/fetch-users" class="px-2 py-1 rounded hover:bg-[#f1ede1] dark:hover:bg-gray-700 transition" onclick="showLoading()">Peers</a>
 
                 <a href="/logout" class="px-2 py-1 rounded hover:bg-[#f1ede1] dark:hover:bg-gray-700 transition">Logout</a>
@@ -51,7 +51,7 @@
         <div id="mobileMenu" class="md:hidden mt-4 space-y-2 hidden flex-col items-start px-4">
             <div class="text-center w-full">Active Users: <%= totalActiveUser %></div>
             <a href="/about" class="block w-full hover:text-[#525252]">About Me</a>
-			<a href="/feedback" class="hover:text-[#525252]">Feedback</a>
+			<a href="/feedback" class="px-2 py-1 rounded hover:bg-[#f1ede1] transition">Feedback</a>
             <a href="/" class="block w-full hover:text-[#525252]">Home</a>
             <a href="/fetch-users" class="block w-full hover:text-[#525252]" onclick="showLoading()">Peers</a>
 
@@ -64,10 +64,10 @@
     </nav>
 
     <div class="pt-20 w-full max-w-5xl">
-        <div class="bg-white shadow-xl rounded-lg p-6 w-full">
+        <div class="bg-[#f1ede1] shadow-xl rounded-lg p-6 w-full">
             <div class="flex flex-col md:flex-row items-start space-y-6 md:space-x-8">
                 <!-- Current User Section -->
-                <div class="w-full md:w-1/3 bg-white p-6 rounded-lg shadow-md">
+                <div class="w-full md:w-1/3 bg-[#f1ede1] p-6 rounded-lg shadow-md">
                     <h1 class="text-2xl font-bold text-center">Welcome, <%= user.displayname %>!</h1>
                     <div class="flex justify-center my-4">
                         <div class="inline-block border-4 border-[#e5e5e5] rounded-lg">
@@ -89,7 +89,7 @@
 						</button>
 					</form>
 					
-                    <div class="w-full bg-white p-6 rounded-lg shadow-md">
+                    <div class="w-full bg-[#f1ede1] p-6 rounded-lg shadow-md">
 						<form action="/fetch-users-campus" method="POST" class="mt-4 space-y-4" id="fetchUsersForm">
 							<button type="button" onclick="toggleAdvancedSearch()" 
 									class="w-full bg-[#cee04b] hover:bg-[#b8cc40] text-[#1e3207] font-bold py-2 px-4 rounded-lg transition flex items-center justify-center hover:scale-[1.02]">
@@ -163,7 +163,7 @@
 							 }">
 									<label for="campus_id" class="block text-[#1a1b1a]">Campus :</label>
 									<select id="campus_id" name="campus_id" 
-											class="w-full px-3 py-2 bg-gray-600 border border-[#e5e5e5] rounded-lg 
+											class="w-full px-3 py-2 bg-[#f1ede1] border border-[#e5e5e5] rounded-lg 
 												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#1a1b1a]">
 										<template x-for="campus in campuses.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))" :key="campus.id">
 											<option :value="campus.id" x-text="campus.name" :selected="campus.id === userCampusId"></option>
@@ -173,7 +173,7 @@
 								<div>
 									<label for="cursus_s" class="block text-[#1a1b1a]">Student Type:</label>
 									<select id="cursus_s" name="cursus_s" required 
-											class="w-full px-3 py-2 bg-gray-600 border border-[#e5e5e5] rounded-lg 
+											class="w-full px-3 py-2 bg-[#f1ede1] border border-[#e5e5e5] rounded-lg 
 												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#1a1b1a]">
 										<option value="21" selected>Student</option>
 										<option value="9">Piscine</option>
@@ -182,7 +182,7 @@
 								<div>
 									<label for="l_level" class="block text-[#1a1b1a]">Level:</label>
 									<select id="l_level" name="l_level" required 
-											class="w-full px-3 py-2 bg-gray-600 border border-[#e5e5e5] rounded-lg 
+											class="w-full px-3 py-2 bg-[#f1ede1] border border-[#e5e5e5] rounded-lg 
 												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#1a1b1a]">
 										<option value="0" selected>0</option>
 										<option value="1">1</option>
@@ -206,13 +206,13 @@
 											<div class="flex items-center justify-center">
 												<span class="text-[#525252] cursor-help">ℹ️ Info</span>
 											</div>
-											<div class="absolute hidden group-hover:block w-64 p-2 bg-gray-600 text-[#1a1b1a] text-sm rounded-lg -mt-2 left-1/2 transform -translate-x-1/2">
+											<div class="absolute hidden group-hover:block w-64 p-2 bg-[#f1ede1] text-[#1a1b1a] text-sm rounded-lg -mt-2 left-1/2 transform -translate-x-1/2">
 												To find all active users of a selected campus, please select Level as 0 and Upper Level as 10+
 											</div>
 										</div>
 									</label>
 									<select id="u_level" name="u_level" 
-											class="w-full px-3 py-2 bg-gray-600 border border-[#e5e5e5] rounded-lg 
+											class="w-full px-3 py-2 bg-[#f1ede1] border border-[#e5e5e5] rounded-lg 
 												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#1a1b1a]">
 										<option value="" selected>Any</option>
 										<option value="1">1</option>
@@ -247,7 +247,7 @@
 						<label for="username" class="block">Enter 42 Username:</label>
 						<input type="text" name="username" id="username" required pattern="[a-zA-Z0-9-]+" 
 							title="Only letters, digits (0-9), and dashes (-) are allowed." 
-							class="w-full px-3 py-2 bg-gray-600 border border-[#e5e5e5] rounded-lg 
+							class="w-full px-3 py-2 bg-[#f1ede1] border border-[#e5e5e5] rounded-lg 
 								   focus:outline-none focus:ring-2 focus:ring-blue-500">
 						<input type="hidden" name="localTime" id="localTime">
 						<button type="submit" id="submitButton" 
