@@ -11,8 +11,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
-<body class="bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center min-h-screen p-4 text-white">
-    <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+<body class="bg-[#f5f5f7] flex flex-col items-center justify-center min-h-screen p-4 text-gray-900 font-sans">
+    <nav class="bg-white/80 backdrop-blur text-gray-900 p-4 shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <!-- Logo -->
             <a href="/" class="text-lg font-bold">42_Friend</a>
@@ -34,14 +34,14 @@
 
             <!-- Menu Links (Desktop) -->
             <div class="hidden md:flex space-x-6 items-center">
-                <a href="/about" class="hover:text-blue-400">About Me</a>
-				<a href="/feedback" class="hover:text-blue-400">Feedback</a>
-                <a href="/" class="hover:text-blue-400">Home</a>
-                <a href="/fetch-users" class="hover:text-blue-400" onclick="showLoading()">Peers</a>
+                <a href="/about" class="hover:text-gray-600">About Me</a>
+				<a href="/feedback" class="hover:text-gray-600">Feedback</a>
+                <a href="/" class="hover:text-gray-600">Home</a>
+                <a href="/fetch-users" class="hover:text-gray-600" onclick="showLoading()">Peers</a>
 
-                <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
+                <a href="/logout" class="text-gray-600 hover:text-gray-600">Logout</a>
                 <a href="https://github.com/rameshtim/42_friend" target="_blank"
-                   class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+                   class="bg-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-200 transition">
                     <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
                 </a>
             </div>
@@ -50,49 +50,49 @@
         <!-- Mobile Menu (hidden by default) -->
         <div id="mobileMenu" class="md:hidden mt-4 space-y-2 hidden flex-col items-start px-4">
             <div class="text-center w-full">Active Users: <%= totalActiveUser %></div>
-            <a href="/about" class="block w-full hover:text-blue-400">About Me</a>
-			<a href="/feedback" class="hover:text-blue-400">Feedback</a>
-            <a href="/" class="block w-full hover:text-blue-400">Home</a>
-            <a href="/fetch-users" class="block w-full hover:text-blue-400" onclick="showLoading()">Peers</a>
+            <a href="/about" class="block w-full hover:text-gray-600">About Me</a>
+			<a href="/feedback" class="hover:text-gray-600">Feedback</a>
+            <a href="/" class="block w-full hover:text-gray-600">Home</a>
+            <a href="/fetch-users" class="block w-full hover:text-gray-600" onclick="showLoading()">Peers</a>
 
-            <a href="/logout" class="block w-full text-red-400 hover:text-red-600">Logout</a>
+            <a href="/logout" class="block w-full text-gray-600 hover:text-gray-600">Logout</a>
             <a href="https://github.com/rameshtim/42_friend" target="_blank"
-               class="w-full bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+               class="w-full bg-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-200 transition">
                 <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
             </a>
         </div>
     </nav>
 
     <div class="pt-20 w-full max-w-5xl">
-        <div class="bg-gray-700 shadow-xl rounded-lg p-6 w-full">
+        <div class="bg-white shadow-xl rounded-lg p-6 w-full">
             <div class="flex flex-col md:flex-row items-start space-y-6 md:space-x-8">
                 <!-- Current User Section -->
-                <div class="w-full md:w-1/3 bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="w-full md:w-1/3 bg-white p-6 rounded-lg shadow-md">
                     <h1 class="text-2xl font-bold text-center">Welcome, <%= user.displayname %>!</h1>
                     <div class="flex justify-center my-4">
-                        <div class="inline-block border-4 border-gray-600 rounded-lg">
+                        <div class="inline-block border-4 border-gray-200 rounded-lg">
                             <img class="w-32 h-32 object-cover rounded-lg" src="/default-avatar.svg" referrerpolicy="no-referrer" alt="Your Profile Picture">
                         </div>
                     </div>
                     <div id="loadingIndicator" class="hidden text-center my-4">
                         <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
-                        <p class="text-gray-400 mt-2">Loading peers...</p>
+                        <p class="text-gray-500 mt-2">Loading peers...</p>
                     </div>
 					<br>
-					<button id="findPeersButton" onclick="fetchUsers()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+					<button id="findPeersButton" onclick="fetchUsers()" class="w-full bg-gray-900 hover:bg-white text-gray-900 font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
 						Find Online Peers
 					</button>		
 					<br>			
 					<form action="/fetch-piscine-users" method="POST" class="mt-4 space-y-4" id="fetchPiscineForm">
-						<button id="findPiscinersButton" onclick="fetchUsers()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+						<button id="findPiscinersButton" onclick="fetchUsers()" class="w-full bg-gray-900 hover:bg-gray-700 text-gray-900 font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
 							Ongoing Piscine
 						</button>
 					</form>
 					
-                    <div class="w-full bg-gray-800 p-6 rounded-lg shadow-md">
+                    <div class="w-full bg-white p-6 rounded-lg shadow-md">
 						<form action="/fetch-users-campus" method="POST" class="mt-4 space-y-4" id="fetchUsersForm">
 							<button type="button" onclick="toggleAdvancedSearch()" 
-									class="w-full bg-yellow-700 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center">
+									class="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 text-gray-900 font-bold py-2 px-4 rounded-lg transition flex items-center justify-center">
 								Advanced Search
 							</button>
 							
@@ -161,29 +161,29 @@
 								],
 								userCampusId: <%= user.campus_id %>
 							 }">
-									<label for="campus_id" class="block text-white">Campus :</label>
+									<label for="campus_id" class="block text-gray-900">Campus :</label>
 									<select id="campus_id" name="campus_id" 
-											class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
-												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+											class="w-full px-3 py-2 bg-gray-600 border border-gray-200 rounded-lg 
+												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900">
 										<template x-for="campus in campuses.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))" :key="campus.id">
 											<option :value="campus.id" x-text="campus.name" :selected="campus.id === userCampusId"></option>
 										</template>
 									</select>
 								</div>
 								<div>
-									<label for="cursus_s" class="block text-white">Student Type:</label>
+									<label for="cursus_s" class="block text-gray-900">Student Type:</label>
 									<select id="cursus_s" name="cursus_s" required 
-											class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
-												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+											class="w-full px-3 py-2 bg-gray-600 border border-gray-200 rounded-lg 
+												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900">
 										<option value="21" selected>Student</option>
 										<option value="9">Piscine</option>
 									</select>
 								</div>
 								<div>
-									<label for="l_level" class="block text-white">Level:</label>
+									<label for="l_level" class="block text-gray-900">Level:</label>
 									<select id="l_level" name="l_level" required 
-											class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
-												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+											class="w-full px-3 py-2 bg-gray-600 border border-gray-200 rounded-lg 
+												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900">
 										<option value="0" selected>0</option>
 										<option value="1">1</option>
 										<option value="2">2</option>
@@ -201,19 +201,19 @@
 								
 								<!-- Upper Level Selection -->
 								<div>
-									<label for="u_level" class="inline-flex items-center text-white">Upper Level (optional):
+									<label for="u_level" class="inline-flex items-center text-gray-900">Upper Level (optional):
 										<div class="relative group ml-11">
 											<div class="flex items-center justify-center">
-												<span class="text-gray-400 cursor-help">ℹ️ Info</span>
+												<span class="text-gray-500 cursor-help">ℹ️ Info</span>
 											</div>
-											<div class="absolute hidden group-hover:block w-64 p-2 bg-gray-600 text-white text-sm rounded-lg -mt-2 left-1/2 transform -translate-x-1/2">
+											<div class="absolute hidden group-hover:block w-64 p-2 bg-gray-600 text-gray-900 text-sm rounded-lg -mt-2 left-1/2 transform -translate-x-1/2">
 												To find all active users of a selected campus, please select Level as 0 and Upper Level as 10+
 											</div>
 										</div>
 									</label>
 									<select id="u_level" name="u_level" 
-											class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
-												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+											class="w-full px-3 py-2 bg-gray-600 border border-gray-200 rounded-lg 
+												   focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900">
 										<option value="" selected>Any</option>
 										<option value="1">1</option>
 										<option value="2">2</option>
@@ -231,7 +231,7 @@
 					
 							<!-- Submit Button -->
 								<button type="submit" id="findPeersButton1" onclick="showLoading()"
-										class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition">
+										class="w-full bg-gray-900 hover:bg-white text-gray-900 font-bold py-2 px-4 rounded-lg transition">
 									Find Peers
 								</button>
 							</div>
@@ -241,17 +241,17 @@
                 </div>
 
                 <!-- Search User Section -->
-				<div class="w-full md:w-2/3 bg-gray-800 p-6 rounded-lg shadow-md">
+				<div class="w-full md:w-2/3 bg-white p-6 rounded-lg shadow-md">
 					<h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
 					<form action="/check-user" method="POST" class="mt-4" id="userForm" onsubmit="return startLoading()">
 						<label for="username" class="block">Enter 42 Username:</label>
 						<input type="text" name="username" id="username" required pattern="[a-zA-Z0-9-]+" 
 							title="Only letters, digits (0-9), and dashes (-) are allowed." 
-							class="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg 
+							class="w-full px-3 py-2 bg-gray-600 border border-gray-200 rounded-lg 
 								   focus:outline-none focus:ring-2 focus:ring-blue-500">
 						<input type="hidden" name="localTime" id="localTime">
 						<button type="submit" id="submitButton" 
-							class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 
+							class="w-full bg-gray-900 hover:bg-white text-gray-900 font-bold py-2 px-4 
 								   rounded-lg mt-3 transition">
 							Check Status
 						</button>
@@ -260,52 +260,52 @@
 					<!-- Loader: Hidden by Default -->
 					<div id="loadingSpinner" class="hidden flex justify-center items-center mt-4">
 						<div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
-						<p class="ml-3 text-white font-semibold">Fetching Data...</p>
+						<p class="ml-3 text-gray-900 font-semibold">Fetching Data...</p>
 					</div>
 
                     <% if (searchedUser) { %>
-                    <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
+                    <div class="mt-6 p-4 bg-white rounded-lg shadow-inner">
                         <h3 class="text-lg font-semibold">Result for <%= searchedUser.displayname %>:</h3>
                         <div class="flex justify-center my-2">
-                            <div class="inline-block border-2 border-gray-500 rounded-lg">
+                            <div class="inline-block border-2 border-gray-200 rounded-lg">
                                 <img class="w-32 h-32 object-cover rounded-lg" src="/default-avatar.svg" referrerpolicy="no-referrer" alt="User Profile Picture">
                             </div>
                         </div>
 						<% if (searchedUser.location !== null) { %>
-							<p class="text-green-400 font-semibold text-center text-lg">
+							<p class="text-gray-600 font-semibold text-center text-lg">
 								✅ <%= searchedUser.displayname %> (Level: <%= level %>) is currently on campus since <%= formatted_time %> !
 							</p>
-							<p class="text-white font-semibold text-center mt-2"> 
+							<p class="text-gray-900 font-semibold text-center mt-2"> 
 								<span class="underline">Current Project(s):</span> 
 							</p>
 							<ul class="mt-1 text-center">
 								<% projectsInfo.split(', ').forEach(project => { %>
-									<% let statusColor = project.includes("in_progress") ? "text-green-400" : 
-														project.includes("searching_a_group") ? "text-yellow-400" : 
-														"text-blue-400"; %>
+									<% let statusColor = project.includes("in_progress") ? "text-gray-600" : 
+														project.includes("searching_a_group") ? "text-gray-600" : 
+														"text-gray-600"; %>
 									<li class="<%= statusColor %> font-medium">
 										🔹 <%= project %>
 									</li>
 								<% }); %>
 							</ul>
 						<% } else { %>
-							<p class="text-red-400 font-semibold text-center text-lg">
+							<p class="text-gray-600 font-semibold text-center text-lg">
 								❌ <%= searchedUser.displayname %> (Level: <%= level %>) is not on campus.
 							</p>
-							<p class="text-white font-semibold text-center mt-2"> 
+							<p class="text-gray-900 font-semibold text-center mt-2"> 
 								<span class="underline">Current Project(s):</span> 
 							</p>
 							<ul class="mt-1 text-center">
 								<% projectsInfo.split(', ').forEach(project => { %>
-									<% let statusColor = project.includes("in_progress") ? "text-green-400" : 
-														project.includes("searching_a_group") ? "text-yellow-400" : 
-														"text-blue-400"; %>
+									<% let statusColor = project.includes("in_progress") ? "text-gray-600" : 
+														project.includes("searching_a_group") ? "text-gray-600" : 
+														"text-gray-600"; %>
 									<li class="<%= statusColor %> font-medium">
 										🔹 <%= project %>
 									</li>
 								<% }); %>
 							</ul>
-							<p class="text-gray-400 italic text-center mt-2">
+							<p class="text-gray-500 italic text-center mt-2">
 								<% if (typeof black_holed === 'string' && black_holed.length > 0) { %>
 								  <% if (days_ago > 2) { %>
 									(Last Seen: <%= last_seen %>, <%= days_ago %> days ago at <%= formatted_time %> and Absorbed by black hole on <%= black_holed %>)
@@ -333,7 +333,7 @@
 
             <!-- Logout -->
             <div class="text-center mt-6">
-                <a href="/logout" class="text-red-400 font-semibold hover:underline">Logout</a>
+                <a href="/logout" class="text-gray-600 font-semibold hover:underline">Logout</a>
             </div>
         </div>
     </div>
@@ -342,19 +342,19 @@
 		<div class="bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
 		
 		<!-- Close Button -->
-		<button onclick="closeInfoModal()" class="absolute top-2 right-2 text-gray-400 hover:text-white">
+		<button onclick="closeInfoModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-900">
 			<i class="ph ph-x text-xl"></i>
 		</button>
 	
 		<!-- Title -->
-		<h2 class="text-3xl font-bold mb-6 text-blue-400 text-center">📘 How to Use</h2>
+		<h2 class="text-3xl font-bold mb-6 text-gray-600 text-center">📘 How to Use</h2>
 	
 		<!-- Sections -->
-		<div class="space-y-6 text-gray-300 text-sm sm:text-base">
+		<div class="space-y-6 text-gray-600 text-sm sm:text-base">
 			
 			<!-- Status Checker -->
 			<section>
-			<h3 class="text-blue-400 font-semibold mb-1">🔍 Check Your Friend's Campus Status</h3>
+			<h3 class="text-gray-600 font-semibold mb-1">🔍 Check Your Friend's Campus Status</h3>
 			<p>
 				Enter the intra name and click <strong>Check Status</strong>.<br>
 				You'll see their status (Online/Offline/Blackholed), login time, last seen, and their ongoing projects.
@@ -363,7 +363,7 @@
 	
 			<!-- Online Peers -->
 			<section>
-			<h3 class="text-green-400 font-semibold mb-1">👥 Find Online Peers</h3>
+			<h3 class="text-gray-600 font-semibold mb-1">👥 Find Online Peers</h3>
 			<p>
 				Shows students around your level who are online or have visited in the last 7 days. <br>
 				Level 10+? You’ll also see ft_transcendence finishers, with a tick ✅ if exam passed or ❓ if pending.
@@ -372,7 +372,7 @@
 	
 			<!-- Piscine Info -->
 			<section>
-			<h3 class="text-purple-400 font-semibold mb-1">🏊 Ongoing Piscine</h3>
+			<h3 class="text-gray-600 font-semibold mb-1">🏊 Ongoing Piscine</h3>
 			<p>
 				View current piscine students with green/red dots for online/offline status. <br>
 				Sort by level or filter to show only online students. Some test/ghost accounts may appear due to 42 API quirks.
@@ -381,11 +381,11 @@
 	
 			<!-- Advanced Search -->
 			<section>
-			<h3 class="text-yellow-400 font-semibold mb-1">🔎 Advanced Search</h3>
+			<h3 class="text-gray-600 font-semibold mb-1">🔎 Advanced Search</h3>
 			<p>
 				Browse students from any school and level. If you're in the result, you'll be shown at the top. <br>
 				Select a campus and level range — if you skip the upper level, we default to <strong>lower + 1</strong>. <br><br>
-				<span class="text-red-400 font-medium">Note:</span> A broad range (like 0–10+) triggers many API calls — performance may drop. <br>
+				<span class="text-gray-600 font-medium">Note:</span> A broad range (like 0–10+) triggers many API calls — performance may drop. <br>
 				<strong>Tip:</strong> Use higher lower levels like 8+ with 10+ to get top students without slowing things down.
 			</p>
 			</section>
@@ -395,7 +395,7 @@
 	</div>
 	
 	<!-- Floating Button -->
-	<button onclick="openInfoModal()" class="fixed bottom-6 right-6 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-500 transition">
+	<button onclick="openInfoModal()" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-gray-900 p-3 rounded-full shadow-lg hover:bg-gray-200 transition">
 		<i class="ph ph-info text-xl"></i>
 	</button>
   
@@ -511,13 +511,13 @@
 			const popup = document.createElement("div");
 			popup.innerText = message;
 
-			popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
-		        ${success ? "bg-green-500" : "bg-red-500"} opacity-0 w-[90vw] sm:w-auto sm:max-w-[25vw] break-words z-50`;
+			popup.className = `fixed top-20 right-5 p-4 rounded-lg text-gray-900 shadow-lg transition-opacity duration-300 ease-in-out
+		        ${success ? "bg-gray-900" : "bg-gray-200"} opacity-0 w-[90vw] sm:w-auto sm:max-w-[25vw] break-words z-50`;
 
       
 			const closeButton = document.createElement("button");
 			closeButton.innerText = "X";
-			closeButton.className = "absolute top-1 right-1 text-white text-xl font-bold bg-transparent border-none cursor-pointer hover:text-gray-200";
+			closeButton.className = "absolute top-1 right-1 text-gray-900 text-xl font-bold bg-transparent border-none cursor-pointer hover:text-gray-700";
 			closeButton.onclick = () => {
 				popup.classList.remove("opacity-100");
 				setTimeout(() => popup.remove(), 300); // Fade out and remove

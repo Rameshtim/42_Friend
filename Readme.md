@@ -1,48 +1,30 @@
 # Online Friend Notifier for 42 Campus
 
-## 🎯 Overview
-42 Friend is a containerized application designed initially to enhance collaboration among 42 students working on group projects. By tracking campus presence of team members, it helps project teams coordinate their work sessions and maximize in-person collaboration opportunities. After working some time on 42 API I find there is more information given in a single call which could be used to show other informations. I personally like "Find Online Peers" which roughly(meaning person with level 4.5 will see peers from level 3.5 till level 6) calculates the peers around the same level, which should find the peers who has recently finished the project or currently doing it or about to start.
+## Overview
+42 Friend is a containerized Node.js/Express web app for 42 campus students. It authenticates via the 42 (Intra) API (OAuth 2.0) and lets students find peers on campus, check projects, levels, and recent activity. Monitoring, email notifications, and bookmarks have been removed; the app now focuses on peer discovery and campus presence.
 
-## ✨ Features
-### Current Features
-- Users can see and track active Users in Campus
-- Check Projects with one click
-- Find the rank of all the users with Advanced Search
-- Real-time tracking of user who are almost at same level and their presence at 42 campus
-- Recent Users (Who has logged in past seven days) around same level
-- Email notification or Normal Notification when tracked users log in or log out
-- Monitor and Get Notified for more than 1 Friend
-- User lookup by intra username
-- User profile or Slack Profile with one click
-- Integration with 42 API for accurate status checks
+## Features
+- Login with 42 account
+- Find online peers around your level
+- Advanced campus search by campus and level range
+- View user profiles, projects, and last seen
+- Slack DM links for peers
+- Campus presence overview
 
-### Maybe
-- Slack DM notifications
-- User working on group projects can track their Team members with one click
-
-## 🛠️ Technologies
+## Technologies
+- Node.js / Express
+- EJS views
+- Redis (sessions)
 - Docker
-- Node.js
-- 42 API
-- JavaScript
-- OAuth 2.0 for authentication
+- 42 API (OAuth 2.0)
 
 ## Running Locally
-- Follow this [guide](images/locally.md)
+Follow this [guide](images/locally.md). Or use Docker: `make build`.
 
-## 🔒 Authentication
-The application uses OAuth 2.0 to authenticate with the 42 API. 
+## Authentication
+OAuth 2.0 with the 42 API.
 
-
-
-## 🙏 Acknowledgments
-- 42 School for providing the API
-
-## 📞 Contact
-
+## Contact
 Connect on [LinkedIn](https://www.linkedin.com/in/ramesh-timsina)
-
-
 Github - [@rtimsina](https://github.com/Rameshtim)
-
 Project Link: [https://github.com/Rameshtim/42_Friend](https://github.com/Rameshtim/42_Friend)
