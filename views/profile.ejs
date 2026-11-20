@@ -5,20 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check Campus Status</title>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            body { background-color: #000; color: #f5f5f7; }
-            nav { background-color: rgba(28,28,30,0.8); color: #f5f5f7; border-color: #2c2c2e; }
-            .bg-\[#f5f5f7\] { background-color: #000 !important; }
-            .bg-white { background-color: #1c1c1e !important; }
-            .bg-gray-200 { background-color: #2c2c2e !important; }
-            .text-gray-900 { color: #f5f5f7 !important; }
-            .text-gray-700 { color: #d1d1d6 !important; }
-            .text-gray-600 { color: #a1a1a6 !important; }
-            .text-gray-500 { color: #8e8e93 !important; }
-            .border-gray-200 { border-color: #2c2c2e !important; }
-        }
-    </style>
     <link rel="icon" href="/favicon.ico" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
@@ -93,12 +79,12 @@
                         <p class="text-gray-500 mt-2">Loading peers...</p>
                     </div>
 					<br>
-					<button id="findPeersButton" onclick="fetchUsers()" class="w-full bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+					<button id="findPeersButton" onclick="fetchUsers()" class="w-full bg-gray-900 hover:bg-white text-gray-900 font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
 						Find Online Peers
 					</button>		
 					<br>			
 					<form action="/fetch-piscine-users" method="POST" class="mt-4 space-y-4" id="fetchPiscineForm">
-						<button id="findPiscinersButton" onclick="fetchUsers()" class="w-full bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
+						<button id="findPiscinersButton" onclick="fetchUsers()" class="w-full bg-gray-900 hover:bg-gray-700 text-gray-900 font-bold py-2 px-4 rounded-lg mt-3 transition text-center block">
 							Ongoing Piscine
 						</button>
 					</form>
@@ -245,7 +231,7 @@
 					
 							<!-- Submit Button -->
 								<button type="submit" id="findPeersButton1" onclick="showLoading()"
-										class="w-full bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition">
+										class="w-full bg-gray-900 hover:bg-white text-gray-900 font-bold py-2 px-4 rounded-lg transition">
 									Find Peers
 								</button>
 							</div>
@@ -265,7 +251,7 @@
 								   focus:outline-none focus:ring-2 focus:ring-blue-500">
 						<input type="hidden" name="localTime" id="localTime">
 						<button type="submit" id="submitButton" 
-							class="w-full bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 
+							class="w-full bg-gray-900 hover:bg-white text-gray-900 font-bold py-2 px-4 
 								   rounded-lg mt-3 transition">
 							Check Status
 						</button>
@@ -409,7 +395,7 @@
 	</div>
 	
 	<!-- Floating Button -->
-	<button onclick="openInfoModal()" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-white p-3 rounded-full shadow-lg hover:bg-gray-200 transition">
+	<button onclick="openInfoModal()" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-gray-900 p-3 rounded-full shadow-lg hover:bg-gray-200 transition">
 		<i class="ph ph-info text-xl"></i>
 	</button>
   
