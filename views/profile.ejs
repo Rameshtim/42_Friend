@@ -34,14 +34,14 @@
 
             <!-- Menu Links (Desktop) -->
             <div class="hidden md:flex space-x-6 items-center">
-                <a href="/about" class="px-2 py-1 rounded hover:bg-[#f1ede1] transition">About Me</a>
-				<a href="/feedback" class="px-2 py-1 rounded hover:bg-[#f1ede1] transition">Feedback</a>
-                <a href="/" class="px-2 py-1 rounded hover:bg-[#f1ede1] transition">Home</a>
-                <a href="/fetch-users" class="px-2 py-1 rounded hover:bg-[#f1ede1] dark:hover:bg-gray-700 transition" onclick="showLoading()">Peers</a>
+                <a href="/about" class="bg-none px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">About Me</a>
+				<a href="/feedback" class="bg-none px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">Feedback</a>
+                <a href="/" class="bg-none px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">Home</a>
+                <a href="/fetch-users" class="bg-none px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition" onclick="showLoading()">Peers</a>
 
-                <a href="/logout" class="px-2 py-1 rounded hover:bg-[#f1ede1] dark:hover:bg-gray-700 transition">Logout</a>
+                <a href="/logout" class="bg-none px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">Logout</a>
                 <a href="https://github.com/rameshtim/42_friend" target="_blank"
-                   class="bg-white px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">
+                   class="bg-none px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">
                     <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
                 </a>
             </div>
@@ -51,13 +51,13 @@
         <div id="mobileMenu" class="md:hidden mt-4 space-y-2 hidden flex-col items-start px-4">
             <div class="text-center w-full">Active Users: <%= totalActiveUser %></div>
             <a href="/about" class="block w-full hover:text-[#525252]">About Me</a>
-			<a href="/feedback" class="px-2 py-1 rounded hover:bg-[#f1ede1] transition">Feedback</a>
+			<a href="/feedback" class="bg-none px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">Feedback</a>
             <a href="/" class="block w-full hover:text-[#525252]">Home</a>
             <a href="/fetch-users" class="block w-full hover:text-[#525252]" onclick="showLoading()">Peers</a>
 
             <a href="/logout" class="block w-full text-[#525252] hover:text-[#525252]">Logout</a>
             <a href="https://github.com/rameshtim/42_friend" target="_blank"
-               class="w-full bg-white px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">
+               class="w-full bg-none px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">
                 <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
             </a>
         </div>
@@ -241,7 +241,7 @@
                 </div>
 
                 <!-- Search User Section -->
-				<div class="w-full md:w-2/3 bg-white p-6 rounded-lg shadow-md">
+				<div class="w-full md:w-2/3 bg-[#f1ede1] p-6 rounded-lg shadow-md">
 					<h2 class="text-xl font-semibold text-center">Check Your Friend's Campus Status</h2>
 					<form action="/check-user" method="POST" class="mt-4" id="userForm" onsubmit="return startLoading()">
 						<label for="username" class="block">Enter 42 Username:</label>
