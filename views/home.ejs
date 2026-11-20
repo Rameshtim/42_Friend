@@ -112,7 +112,7 @@
 			<div class="hidden md:flex space-x-4 items-center">
 				<a href="/about" class="hover:text-blue-400">About Me</a>
 				<a href="/feedback" class="hover:text-blue-400">Feedback</a>
-				<a href="/bookmarks" class="hover:text-blue-400">Bookmarks</a>
+	
 				<% if (user) { %>
 					<a href="/profile" class="hover:text-blue-400">Profile</a>
 					<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
@@ -129,7 +129,7 @@
 			<div class="text-center">Active Users: <%= totalActiveUser %></div>
 			<a href="/about" class="hover:text-blue-400">About Me</a>
 			<a href="/feedback" class="hover:text-blue-400">Feedback</a>
-			<a href="/bookmarks" class="hover:text-blue-400">Bookmarks</a>
+
 			<% if (user) { %>
 				<a href="/profile" class="hover:text-blue-400">Profile</a>
 				<a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
@@ -285,7 +285,7 @@
 			<div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg relative caption-container min-h-20">
 				<div class="caption active" data-index="0">
 					<h3 class="text-xl font-bold mb-2 text-blue-300">Check Status</h3>
-					<p class="text-gray-200">With check status it is possible to see users' projects, last login/logout from 42 API to show exact time and date and also to monitor and get notified by email/browser when they arrive at school.</p>
+					<p class="text-gray-200">With check status it is possible to see users' projects and last login/logout from 42 API to show exact time and date.</p>
 				</div>
 				<div class="caption hidden" data-index="1">
 					<h3 class="text-xl font-bold mb-2 text-blue-300">Find Online Peers</h3>

@@ -37,7 +37,7 @@
 				<a href="/feedback" class="hover:text-blue-400">Feedback</a>
                 <a href="/" class="hover:text-blue-400">Home</a>
                 <a href="/profile" class="hover:text-blue-400">Profile</a>
-                <a href="/bookmarks" class="hover:text-blue-400">Bookmarks</a>
+
                 <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
                 <a href="https://github.com/rameshtim/42_friend" target="_blank"
                    class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
@@ -53,7 +53,7 @@
             <a href="/feedback" class="hover:text-blue-400">Feedback</a>
             <a href="/" class="hover:text-blue-400">Home</a>
             <a href="/profile" class="hover:text-blue-400">Profile</a>
-            <a href="/bookmarks" class="hover:text-blue-400">Bookmarks</a>
+
             <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
             <a href="https://github.com/rameshtim/42_friend" target="_blank"
                class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
@@ -65,11 +65,6 @@
     <div class="pt-20 w-full max-w-4xl px-4">
         
         <div class="flex flex-col sm:flex-row justify-between items-start mb-4">
-            <div>
-                <h3 class="text-lg font-semibold">Live Notifications</h3>
-                <ul id="notificationList" class="mt-2 space-y-2"></ul>
-            </div>
-        </div>
         <div id="profilePopup" class="fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg bg-gray-800 hidden w-80">
             <button onclick="closePopup()" class="absolute top-2 right-2 text-red-400 hover:text-red-600">✖</button>
             <div id="profileContent" class="p-2"></div>
@@ -92,7 +87,7 @@
                             <% } else { %>
                                 <span></span>
                             <% } %>
-                            <img src="<%= peer.image %>" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
+                            <img src="/default-avatar.svg" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
                             <div class="text-center sm:text-left">
                                 <h2 class="text-lg font-semibold"><%= peer.displayname %></h2>
                                 <p class="text-gray-400">@<%= peer.username %>, Level: <%= peer.level %></p>
@@ -147,17 +142,14 @@
                             <% } else { %>
                                 <span></span>
                             <% } %>
-                            <img src="<%= user.image %>" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full" alt="<%= user.username %>">
+                            <img src="/default-avatar.svg" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full" alt="<%= user.username %>">
                             <div class="text-center sm:text-left">
                                 <h2 class="text-lg font-semibold"><%= user.displayname %></h2>
                                 <p class="text-gray-400">@<%= user.username %>, Level: <%= user.level %> <br> (Last Seen: <%= user.last_seen %>, <%= user.days_ago %> ) at <%= user.formatted_time %></p>
                             </div>
                         </div>
                         <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
-                            <button onclick="startMonitoringPeer('<%= user.username %>')" 
-                                class="bg-green-500 hover:bg-green-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
-                                Start Monitoring
-                            </button>
+                            
                             <button onclick="openSlack('<%= user.username %>')" 
                                 class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
                                 DM on Slack
@@ -189,189 +181,14 @@
             });
         });
 
-        function startMonitoringPeer(username) {
-            fetch("/send-email", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: 'include',
-                body: JSON.stringify({ username })
-            })
-            .then(response => {
-                // Handle redirect manually without following it
-                if (response.redirected) {
-                    const urlParams = new URL(response.url).searchParams;
-                    const message = urlParams.get("message"); // Extract the success message
-                    const error = urlParams.get("error");
-                    if (message) {
-                        showPopup(message + ' <br> Your <b>monitoring list</b> will be shown in your <a href="/profile" style="font-size: 1.1em; font-weight: bold; color: white; text-decoration: underline;">profile page</a>.', true);
-                    } else if (error) {
-                        showPopup(error, false);
-                    }
-                }
-                const peerItem = document.querySelector(`.peer-item[data-username="${username}"]`);
-                const rpeerItem = document.querySelector(`.rpeer-item[data-username="${username}"]`);
-                if (peerItem) {
-                    console.log("hiding button for ", username);
-                    peerItem.style.opacity = "0"; // Fade out first
-                    setTimeout(() => peerItem.style.display = "none", 300); // Then hide it
-                }
-                if (rpeerItem) {
-                    console.log("hiding button for ", username);
-                    rpeerItem.style.opacity = "0"; // Fade out first
-                    setTimeout(() => rpeerItem.style.display = "none", 300); // Then hide it
-                }
-            })
-            .catch(error => {
-                showPopup("Error starting monitoring: " + error, false);
-            });
-        }
-
-        // Function to show a pop-up notification
-        function showPopup(message, success) {
-			const popup = document.createElement("div");
-			popup.innerText = message;
-
-			popup.className = `fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg transition-opacity duration-300 ease-in-out
-                ${success ? "bg-green-500" : "bg-red-500"} opacity-0 w-[90vw] sm:w-auto sm:max-w-[25vw] break-words z-50`;
-
-      
-            const closeButton = document.createElement("button");
-            closeButton.innerText = "X";
-            closeButton.className = "absolute top-1 right-1 text-white text-xl font-bold bg-transparent border-none cursor-pointer hover:text-gray-200";
-            closeButton.onclick = () => {
-                popup.classList.remove("opacity-100");
-                setTimeout(() => popup.remove(), 300); // Fade out and remove
-            };
-
-            popup.appendChild(closeButton); 
-			document.body.appendChild(popup);
-
-			// Fade in effect
-			setTimeout(() => {
-				popup.classList.add("opacity-100");
-			}, 50);
-
-			// Remove after timeout
-			setTimeout(() => {
-				popup.classList.remove("opacity-100");
-				setTimeout(() => popup.remove(), 300);
-			}, 50000);
-		}
-
-
-        function toggleRecentPeers(button) {
-            const recentPeersSection = document.getElementById("recentPeersSection");
-            const imageSection = document.getElementById("imageSection");
-
-            recentPeersSection.classList.toggle("hidden");
-
-            if (imageSection) {
-                imageSection.style.display = "none";
-            }
-
-            if (recentPeersSection.classList.contains("hidden")) {
-                button.textContent = "Show Recently Active Users";
-            } else {
-                button.textContent = "Hide Recently Active Users";
+        function toggleRecentPeers(btn) {
+            const section = document.getElementById('recentPeersSection');
+            if (section) {
+                section.classList.toggle('hidden');
+                btn.textContent = section.classList.contains('hidden') ? 'Show Recently Active Users' : 'Hide Recently Active Users';
             }
         }
 
-        function openSlack(slackUsername) {
-          const slackUrl = `https://42born2code.slack.com/team/selected_team_id=T039P7U66&u=${slackUsername}`; // Include the message
-      
-          window.open(slackUrl, '_blank'); // Open in a new tab/window
-        }
-
-        function checkUserProfile(username, button, num) {
-            if (num === 1) {
-                button.parentElement.querySelector('#loadingIndicator1').classList.remove("hidden");
-            } else {
-                button.parentElement.querySelector('#loadingIndicator2').classList.remove("hidden");
-            }
-            fetch("/check-user", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ username })
-            })
-            .then(response => response.text())  // Get the HTML response
-            .then(html => {
-                // Parse the HTML response
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(html, "text/html");
-
-                // Extract the projectsInfo data from the rendered HTML
-                let projectElements = doc.querySelectorAll("ul.mt-1.text-center li");
-                if (projectElements.length === 0) {
-                    showPopupProj(button, "No active projects found.", false);
-                    return;
-                }
-
-                // Convert project list into formatted HTML
-                let projectList = Array.from(projectElements).map(el => el.outerHTML).join("");
-
-                let popupContent = `
-                    <div class="mt-2 p-3 bg-gray-700 rounded-lg shadow-lg text-white w-64">
-                        <h3 class="text-lg font-semibold text-center">Active Projects</h3>
-                        <ul class="mt-2">${projectList}</ul>
-                    </div>
-                `;
-                if (num === 1) {
-                    button.parentElement.querySelector('#loadingIndicator1').classList.add("hidden");
-                } else {
-                    button.parentElement.querySelector('#loadingIndicator2').classList.add("hidden");
-                }
-                showPopupProj(button, popupContent, true);
-            })
-            .catch(error => {
-                document.getElementById("loadingIndicator1").classList.add("hidden"); // Show loading spinner
-                document.getElementById("loadingIndicator2").classList.add("hidden"); // Show loading spinner
-                showPopupProj(button, "Error fetching projects." + error, false);
-            });
-        }
-
-        function showPopupProj(button, content, isHTML = false) {
-            // Remove any existing popups
-            document.querySelectorAll(".profile-popup").forEach(el => el.remove());
-
-            let popup = document.createElement("div");
-            popup.className = "absolute profile-popup bg-gray-800 text-white p-3 rounded-lg shadow-lg";
-            popup.style.position = "absolute";
-            popup.style.top = `${button.offsetTop - 60}px`;
-            popup.style.left = `${button.offsetLeft}px`;
-
-            // Create close button
-            let closeButton = document.createElement("button");
-            closeButton.innerHTML = "&times;"; // "×" character
-            closeButton.className = "absolute top-1 right-1 text-red-500 hover:text-red-700 font-bold text-xl p-2 rounded-full bg-gray-700 bg-opacity-50";
-            closeButton.onclick = function() {
-                popup.remove();
-            };
-
-            // Add content
-            if (isHTML) {
-                popup.innerHTML = content;
-            } else {
-                popup.innerText = content;
-            }
-
-            // Append close button and content to popup
-            popup.appendChild(closeButton);
-            button.parentNode.appendChild(popup);
-
-            // Set timeout for automatic removal
-            let timeoutId = setTimeout(() => popup.remove(), 30000);
-
-            // Override the timeout if the close button is clicked.
-            closeButton.onclick = function() {
-                clearTimeout(timeoutId);
-                popup.remove();
-            };
-        }
-        function toggleMenu() {
-			const menu = document.getElementById('mobileMenu');
-			menu.classList.toggle('hidden');
-		}
-    </script>
+        </script>
 </body>
 </html>

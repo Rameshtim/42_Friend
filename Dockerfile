@@ -1,5 +1,5 @@
 # Use the official Node.js image
-FROM node:23-alpine
+FROM node:23.11.1-alpine
 
 # RUN apt update && apt install -y redis-server
 RUN apk add --no-cache redis

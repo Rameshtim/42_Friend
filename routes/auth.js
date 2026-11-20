@@ -47,7 +47,6 @@ router.get(
 
 router.get("/logout", (req, res) => {
   req.logout(() => {
-    req.app.locals.monitor.stopAll();
     req.session.destroy((err) => {
       if (err) {
         console.error('Session destruction error:', err);

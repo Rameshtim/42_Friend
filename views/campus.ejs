@@ -8,9 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen text-white">
+<body class="bg-[#f5f5f7] flex items-center justify-center min-h-screen text-gray-900 font-sans">
     
-    <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+    <nav class="bg-white/80 backdrop-blur text-gray-900 p-4 shadow-sm fixed top-0 left-0 right-0 z-50 border-b border-gray-200">
         <div class="container mx-auto flex justify-between items-center">
             <!-- Logo -->
             <a href="/" class="text-lg font-bold">42_Friend</a>
@@ -36,7 +36,7 @@
 				<a href="/feedback" class="hover:text-blue-400">Feedback</a>
                 <a href="/" class="hover:text-blue-400">Home</a>
                 <a href="/profile" class="hover:text-blue-400">Profile</a>
-                <a href="/bookmarks" class="hover:text-blue-400">Bookmarks</a>
+
                 <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
                 <a href="https://github.com/rameshtim/42_friend" target="_blank"
                    class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
@@ -126,11 +126,19 @@
 
     <script>
         const loggedUser = "<%= user.username %>"; // Pass the logged-in username from the backend
+        const loggedInUserData = {
+            username: "<%= user.username %>",
+            displayname: "<%= user.displayname %>",
+            level: <%= (user.cursus_users && user.cursus_users.find(c => c.cursus_id === 21)) ? user.cursus_users.find(c => c.cursus_id === 21).level : 0 %>,
+            location: null
+        };
         let allUsers = [];
         let currentFilter = 'all'; // 'all', 'online', or 'offline'
         let currentSort = 'desc'; // 'asc' or 'desc'
         const userList = document.getElementById("userList");
         const loggedInUserSection = document.getElementById("loggedInUserSection");
+        // Show logged-in user immediately at top
+        updateLoggedInUser(loggedInUserData, 0);
         const imageSection = document.getElementById("imageSection");
         const imageSection1 = document.getElementById("imageSection1");
         const totalActiveUsers = document.getElementById("totalActiveUsers");
@@ -247,7 +255,7 @@
                                   style="background-color: ${loggedInUser.location !== null ? 'green' : 'red'};"
                                   title="${loggedInUser.location !== null ? 'Online' : 'Offline'}">
                             </span>
-                            <img src="${loggedInUser.image}" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
+                            <img src="/default-avatar.svg" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
                             <div class="text-center sm:text-left">
                                 <h2 class="text-lg font-semibold">${loggedInUser.displayname} (You)</h2>
                                 <p class="text-gray-400">@${loggedInUser.username}, Level: ${loggedInUser.level}</p>
@@ -269,7 +277,7 @@
                           style="background-color: ${user.location !== null ? 'green' : 'red'};"
                           title="${user.location !== null ? 'Online' : 'Offline'}">
                     </span>
-                    <img src="${user.image}" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
+                    <img src="/default-avatar.svg" alt="Profile Picture" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full">
                     <div class="text-center sm:text-left">
                         <h2 class="text-lg font-semibold">${user.displayname}</h2>
                         <p class="text-gray-400">@${user.username}, Level: ${user.level}</p>

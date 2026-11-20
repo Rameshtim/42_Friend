@@ -38,7 +38,7 @@
 				<a href="/feedback" class="hover:text-blue-400">Feedback</a>
                 <a href="/" class="hover:text-blue-400">Home</a>
                 <a href="/fetch-users" class="hover:text-blue-400" onclick="showLoading()">Peers</a>
-                <a href="/bookmarks" class="hover:text-blue-400">Bookmarks</a>
+
                 <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
                 <a href="https://github.com/rameshtim/42_friend" target="_blank"
                    class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
@@ -54,7 +54,7 @@
 			<a href="/feedback" class="hover:text-blue-400">Feedback</a>
             <a href="/" class="block w-full hover:text-blue-400">Home</a>
             <a href="/fetch-users" class="block w-full hover:text-blue-400" onclick="showLoading()">Peers</a>
-            <a href="/bookmarks" class="block w-full hover:text-blue-400">Bookmarks</a>
+
             <a href="/logout" class="block w-full text-red-400 hover:text-red-600">Logout</a>
             <a href="https://github.com/rameshtim/42_friend" target="_blank"
                class="w-full bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
@@ -71,7 +71,7 @@
                     <h1 class="text-2xl font-bold text-center">Welcome, <%= user.displayname %>!</h1>
                     <div class="flex justify-center my-4">
                         <div class="inline-block border-4 border-gray-600 rounded-lg">
-                            <img class="w-32 h-32 object-cover rounded-lg" src="<%= user.image.versions.medium %>" alt="Your Profile Picture">
+                            <img class="w-32 h-32 object-cover rounded-lg" src="/default-avatar.svg" referrerpolicy="no-referrer" alt="Your Profile Picture">
                         </div>
                     </div>
                     <div id="loadingIndicator" class="hidden text-center my-4">
@@ -268,7 +268,7 @@
                         <h3 class="text-lg font-semibold">Result for <%= searchedUser.displayname %>:</h3>
                         <div class="flex justify-center my-2">
                             <div class="inline-block border-2 border-gray-500 rounded-lg">
-                                <img class="w-32 h-32 object-cover rounded-lg" src="<%= searchedUser.image.versions.large %>" alt="User Profile Picture">
+                                <img class="w-32 h-32 object-cover rounded-lg" src="/default-avatar.svg" referrerpolicy="no-referrer" alt="User Profile Picture">
                             </div>
                         </div>
 						<% if (searchedUser.location !== null) { %>
@@ -323,69 +323,12 @@
 						<% } %>						
                     </div>
 					<div>
-						<h3 class="mt-4 text-lg font-semibold">Send Email Notification</h3>
-						<form action="/send-email" method="POST" class="mt-2">
-							<input type="hidden" name="username" value="<%= searchedUser.login %>">
-							<input type="hidden" name="displayname" value="<%= searchedUser.displayname %>">
-							<input type="hidden" name="reqUsername" value="<%= user.displayname %>">
-							<input type="hidden" name="email" value="<%= user.email %>">
-							<input type="hidden" name="searchedUserEmail" value="<%= searchedUser.email %>">
-							<input type="hidden" name="location" value="<%= searchedUser.location %>">
-							<input type="hidden" name="accessToken" value="<%= user.access_token %>">
-		
-							<label for="duration">Monitor for:</label>
-							<select name="duration" id="1duration" class="bg-gray-700 text-white p-2 rounded-lg">
-								<option value="30min">30 Minutes</option>
-								<option value="1hour" selected>1 Hour</option>
-								<option value="2hours">2 Hours</option>
-								<option value="4hours">4 Hours</option>
-							</select>
-				<br>
-				<br>
-							<label for="intervall">Every______:</label>
-							<select name="intervall" id="intervall" class="bg-gray-700 text-white p-2 rounded-lg">
-								<option value="1min">1 Minute</option>
-								<option value="5min" selected>5 Minutes</option>
-								<option value="10min">10 Minutes</option>
-							</select>
-							<div class="flex items-center mt-2">
-								<input type="checkbox" name="sendEmail" value="on" id="sendEmail" class="mr-2">
-								<label for="sendEmail">📧 Send me an email</label>
-							</div>
-							<div class="flex items-center mt-2">
-								<input type="checkbox" name="alsoSendEmail" value="on" id="alsoSendEmail" class="mr-2">
-								<label for="alsoSendEmail">📤 Send this person also an email</label>
-							</div>
-							<button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition">Start Monitoring</button>
-						</form>
+						</div>
+						</div>
+						
 					</div>
                     <% } %>
                 </div>
-            </div>
-
-            <!-- Monitoring Section -->
-            <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
-                <h3 class="text-lg font-semibold">Currently Monitored Users</h3>
-                <ul id="monitoredUsersList" class="mt-2 space-y-2">
-                    <% if (activeMonitors.length === 0) { %>
-                    	<p class="text-gray-400">No active monitoring sessions.</p>
-                    <% } else { %>
-						<% activeMonitors.forEach(username => { %>
-							<li class="flex justify-between items-center bg-gray-800 p-2 rounded-lg shadow">
-								<span><%= username %></span>
-								<button onclick="stopMonitoring('<%= username %>')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg">
-									Stop
-								</button>
-							</li>
-						<% }) %>
-                    <% } %>
-                </ul>
-            </div>
-
-            <!-- Live Notifications Section -->
-            <div class="mt-6 p-4 bg-gray-700 rounded-lg shadow-inner">
-                <h3 class="text-lg font-semibold">Live Notifications</h3>
-                <ul id="notificationList" class="mt-2 space-y-2"></ul>
             </div>
 
             <!-- Logout -->
@@ -458,8 +401,6 @@
   
 
 	<script>
-		let notificationInterval; // Store interval ID
-
 		document.addEventListener("DOMContentLoaded", () => {
 			const urlParams = new URLSearchParams(window.location.search);
 			const message = urlParams.get("message");
@@ -474,11 +415,6 @@
 			if (message || error) {
 				const newUrl = window.location.pathname; 
 				window.history.replaceState({}, document.title, newUrl);
-			}
-			const activeMonitors = <%- typeof activeMonitors !== 'undefined' ? JSON.stringify(activeMonitors) : '[]' %>;
-			if (activeMonitors.length > 0) {
-				console.log("will start fetching notifications");
-				startFetchingNotifications();
 			}
 			
 			addCredentialsToLinks();
@@ -549,27 +485,6 @@
 					});
 				});
 			});
-		}
-
-		async function stopMonitoring(username) {
-			try {
-				const response = await fetch("/stop-monitoring", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					credentials: 'include',
-					body: JSON.stringify({ username })
-				});
-
-				const data = await response.json();
-				showPopup(data.message, data.success);
-
-				if (data.success) {
-					// Remove user from the UI
-					document.location.reload(); // Refresh page to update monitored list
-				}
-			} catch (error) {
-				showPopup("Failed to stop monitoring", false);
-			}
 		}
 
 		function checkInput(input) {
@@ -659,41 +574,6 @@
 			document.getElementById("findPeersButton1").classList.add("opacity-50", "cursor-not-allowed"); // Disable button
 		}
 
-		async function fetchNotifications() {
-			try {
-				const response = await fetch(`/get-notifications?user=<%= user.login %>`, {
-					credentials: 'include'
-				});
-
-				// If the server responds with an error, stop fetching
-				if (!response.ok) {
-					throw new Error(`Server error: ${response.status}`);
-				}
-
-				const notifications = await response.json();
-				const notificationList = document.getElementById("notificationList");
-				notificationList.innerHTML = ""; // Clear previous notifications
-
-				notifications.forEach((notif) => {
-					const li = document.createElement("li");
-					li.textContent = `${notif.message} at ${notif.timestamp}`;
-					li.className = "bg-gray-800 p-2 rounded-lg shadow";
-					notificationList.appendChild(li);
-				});
-
-			} catch (error) {
-				console.error("Failed to fetch notifications:", error);
-				clearInterval(notificationInterval); // Stop polling if the server is down
-				showPopup("Server is down. Stopping notifications.", false);
-			}
-		}
-
-		function startFetchingNotifications() {
-			if (notificationInterval) return; // Prevent multiple intervals
-				
-			notificationInterval = setInterval(fetchNotifications, 30000);
-			fetchNotifications(); // Fetch immediately
-		}
 		function startLoading() {
 			document.getElementById("userForm").classList.add("hidden");
 			const localTime = new Date().getTimezoneOffset().toString();

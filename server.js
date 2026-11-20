@@ -89,19 +89,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const authRoutes = require("./routes/auth");
-const emailRoutes = require("./routes/email");
-const bookmarkRoutes = require("./routes/bookmarks");
-app.use(authRoutes);
-app.use(emailRoutes);
-app.use(bookmarkRoutes);
-app.use(express.static('images')); 
-
-const { StatusMonitor } = require('./routes/statusMonitor');
 const { EmailService } = require('./routes/emailService');
-const { time } = require("console");
-const monitor = new StatusMonitor();
-const emailService = new EmailService();
-app.locals.monitor = monitor;
+app.use(authRoutes);
+app.use(express.static('images'));
 
 let totalActiveUser = 0;
 
@@ -140,27 +130,8 @@ app.use(async (req, res, next) => {
 
 
 
-monitor.on('statusChange', async (status) => {
-		console.log("this monitor event is triggered in server js.");
-		await emailService.sendStatusChangeEmail(status.email, status.username, status);
-		app.locals.monitor.stopMonitoring(status.username);
-});
-
-monitor.on('monitoringExpired', async ({ username, email }) => {
-		await emailService.sendStatusChangeEmail(
-				email,
-				username,
-				{ isOnline: false, error: 'Monitoring period has expired' }
-		);
-});
-
-monitor.on('error', (error) => {
-		console.error('Monitor error:', error);
-});
-
 process.on('SIGINT', () => {
-		monitor.stopAll();
-		process.exit();
+	process.exit();
 });
 
 
@@ -271,37 +242,14 @@ app.get("/profile", (req, res) => {
 		return res.redirect("/?error=Oh, brilliant. User not authenticated—as if the system’s gatekeeper has suddenly decided you’re not worthy of its precious digital kingdom. What a surprise, another hoop to jump through in this grand farce we call technology. Perhaps you should flash your credentials again, or maybe just weep quietly in the corner. Either way, I’m sure it’ll be a deeply fulfilling experience.");
 	}
 
-	const activeMonitors = app.locals.monitor?.activeMonitors 
-		? Array.from(app.locals.monitor.activeMonitors.keys()) 
-		: [];
-	console.log('activeMonitors: ', activeMonitors);
-
 	res.render("profile", { 
-		user: req.user, 
-		searchedUser: null, 
-		activeMonitors,
-		totalActiveUser 
-	});
+			user: req.user, 
+			searchedUser: null, 
+			activeMonitors: [],
+			totalActiveUser 
+		});
 });
 
-
-app.post("/stop-monitoring", (req, res) => {
-	const { username } = req.body;
-	const success = app.locals.monitor.stopMonitoring(username);
-
-	if (success) {
-		res.json({ success: true, message: `Stopped monitoring ${username}` });
-	} else {
-		res.json({ success: false, message: `Failed to stop monitoring ${username}` });
-	}
-});
-
-app.get("/get-notifications", (req, res) => {
-		const user = req.query.user;
-		console.log(`[${new Date().toISOString()}] /get-notifications - Session ID:`, req.sessionID);
-		console.log(`[${new Date().toISOString()}] /get-notifications - User:`, req.user?.username);
-		res.json(app.locals.monitor.getNotifications(user));
-});
 
 function getLevelRange(coreLevel) {
 		let l_level, u_level;
@@ -702,7 +650,7 @@ app.post("/check-user", async (req, res) => {
 			return res.render("profile", { 
 					user: req.user, 
 					searchedUser: null, 
-					activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()), 
+					activeMonitors: [], 
 					error: "You need to log in again." 
 			});
 	}
@@ -776,7 +724,7 @@ app.post("/check-user", async (req, res) => {
 					res.render("profile", { 
 						user: req.user, 
 						searchedUser: null, 
-						activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()),
+						activeMonitors: [],
 						error: erromsg,
 						totalActiveUser,
 					});
@@ -785,7 +733,7 @@ app.post("/check-user", async (req, res) => {
 			res.render("profile", { 
 					user: req.user, 
 					searchedUser: user, 
-					activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()), 
+					activeMonitors: [], 
 					// last_seen: updatedAt.toLocaleDateString("en-GB"),
 					// formatted_time: updatedAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
 					// nlast_seen: updatedAt.toISO(),
@@ -803,10 +751,14 @@ app.post("/check-user", async (req, res) => {
 			res.render("profile", { 
 					user: req.user, 
 					searchedUser: null, 
-					activeMonitors: Array.from(app.locals.monitor.activeMonitors.keys()),
+					activeMonitors: [],
 					error: "User not found or an error occurred." 
 			});
 	}
+});
+
+app.get("/health", (req, res) => {
+	res.json({ status: "ok", uptime: process.uptime() });
 });
 
 async function startServer() {
