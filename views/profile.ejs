@@ -11,7 +11,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
-<body class="bg-[#f5f5f7] flex flex-col items-center justify-center min-h-screen p-4 text-gray-900 font-sans">
+<body class="bg-[#f5f5f7] dark:bg-black flex flex-col items-center justify-center min-h-screen p-4 text-gray-900 dark:text-gray-100 font-sans">
     <nav class="bg-white/80 backdrop-blur text-gray-900 p-4 shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <!-- Logo -->
@@ -37,9 +37,9 @@
                 <a href="/about" class="hover:text-gray-600">About Me</a>
 				<a href="/feedback" class="hover:text-gray-600">Feedback</a>
                 <a href="/" class="hover:text-gray-600">Home</a>
-                <a href="/fetch-users" class="hover:text-gray-600" onclick="showLoading()">Peers</a>
+                <a href="/fetch-users" class="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition" onclick="showLoading()">Peers</a>
 
-                <a href="/logout" class="text-gray-600 hover:text-gray-600">Logout</a>
+                <a href="/logout" class="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">Logout</a>
                 <a href="https://github.com/rameshtim/42_friend" target="_blank"
                    class="bg-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-200 transition">
                     <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
