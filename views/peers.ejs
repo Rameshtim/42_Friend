@@ -9,9 +9,9 @@
 	<script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3"></script>
 
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen text-white">
+<body class="bg-[#f8f6f0] flex items-center justify-center min-h-screen text-[#1a1b1a]">
     
-    <nav class="bg-gray-900 text-white p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
+    <nav class="bg-[#f8f6f0] text-[#1a1b1a] p-4 shadow-lg fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <!-- Logo -->
             <a href="/" class="text-lg font-bold">42_Friend</a>
@@ -33,14 +33,14 @@
     
             <!-- Desktop Menu -->
             <div class="hidden md:flex space-x-4 items-center">
-                <a href="/about" class="hover:text-blue-400">About Me</a>
-				<a href="/feedback" class="hover:text-blue-400">Feedback</a>
-                <a href="/" class="hover:text-blue-400">Home</a>
-                <a href="/profile" class="hover:text-blue-400">Profile</a>
+                <a href="/about" class="hover:text-[#525252]">About Me</a>
+				<a href="/feedback" class="hover:text-[#525252]">Feedback</a>
+                <a href="/" class="hover:text-[#525252]">Home</a>
+                <a href="/profile" class="hover:text-[#525252]">Profile</a>
 
                 <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
                 <a href="https://github.com/rameshtim/42_friend" target="_blank"
-                   class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+                   class="bg-[#f1ede1] px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">
                     <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
                 </a>
             </div>
@@ -49,14 +49,14 @@
         <!-- Mobile Menu -->
         <div id="mobileMenu" class="hidden md:hidden mt-4 px-4 space-y-2 flex flex-col">
             <div class="text-center">Active Users: <%= totalActiveUser %></div>
-            <a href="/about" class="hover:text-blue-400">About Me</a>
-            <a href="/feedback" class="hover:text-blue-400">Feedback</a>
-            <a href="/" class="hover:text-blue-400">Home</a>
-            <a href="/profile" class="hover:text-blue-400">Profile</a>
+            <a href="/about" class="hover:text-[#525252]">About Me</a>
+            <a href="/feedback" class="hover:text-[#525252]">Feedback</a>
+            <a href="/" class="hover:text-[#525252]">Home</a>
+            <a href="/profile" class="hover:text-[#525252]">Profile</a>
 
             <a href="/logout" class="text-red-400 hover:text-red-600">Logout</a>
             <a href="https://github.com/rameshtim/42_friend" target="_blank"
-               class="bg-gray-800 px-4 py-2 rounded-lg flex items-center hover:bg-blue-500 transition">
+               class="bg-[#f1ede1] px-4 py-2 rounded-lg flex items-center hover:bg-[#f1ede1] transition">
                 <i class="ph ph-github-logo text-xl mr-2"></i>Contribute
             </a>
         </div>
@@ -65,7 +65,7 @@
     <div class="pt-20 w-full max-w-4xl px-4">
         
         <div class="flex flex-col sm:flex-row justify-between items-start mb-4">
-        <div id="profilePopup" class="fixed top-20 right-5 p-4 rounded-lg text-white shadow-lg bg-gray-800 hidden w-80">
+        <div id="profilePopup" class="fixed top-20 right-5 p-4 rounded-lg text-[#1a1b1a] shadow-lg bg-[#f1ede1] hidden w-80">
             <button onclick="closePopup()" class="absolute top-2 right-2 text-red-400 hover:text-red-600">✖</button>
             <div id="profileContent" class="p-2"></div>
         </div>
@@ -74,7 +74,7 @@
             <h1 class="text-lg font-semibold">Online Peers</h1>
             <ul class="mt-2 space-y-2 overflow-x-auto" id="peerList">
                 <% peers.forEach(peer => { %>
-                    <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md peer-item space-y-2 sm:space-y-0" data-username="<%= peer.username %>">
+                    <li class="flex flex-col sm:flex-row items-center justify-between bg-[#f1ede1] p-4 rounded-lg shadow-md peer-item space-y-2 sm:space-y-0" data-username="<%= peer.username %>">
                         <div class="flex items-center space-x-4 peer-link cursor-pointer" data-username="<%= peer.username %>">
                             <% if (peer.level >= 10) { %>
                                 <% if (peer.grade === 'Transcender') { %>
@@ -95,15 +95,15 @@
                         </div>
                         <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
                             <button onclick="openSlack('<%= peer.username %>')" 
-                                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                class="bg-[#cee04b] hover:bg-[#b8cc40] text-[#1e3207] font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
                                 DM on Slack
                             </button>
                             <button onclick="checkUserProfile('<%= peer.username %>', this, 1)" 
-                                class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                class="bg-[#cee04b] hover:bg-[#b8cc40] text-[#1e3207] font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
                                 Check Projects
                             </button>
                             <div id="loadingIndicator1" class="hidden text-center my-4">
-                                <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
+                                <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-[#cee04b] mx-auto"></div>
                                 <p class="text-gray-400 mt-2">Loading Projects...</p>
                             </div>
                         </div>
@@ -111,7 +111,7 @@
                 <% }); %>
             </ul>
             <button onclick="toggleRecentPeers(this)" 
-                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg mt-3 transition w-full sm:w-auto">
+                class="bg-[#cee04b] hover:bg-[#b8cc40] text-[#1e3207] font-bold py-2 px-4 rounded-lg mt-3 transition w-full sm:w-auto">
                 Show Recently Active Users
             </button>
 
@@ -129,7 +129,7 @@
             <h3 class="text-lg font-semibold">Recently Active Users (Last 7 Days)</h3>
             <ul class="mt-2 space-y-2 overflow-x-auto" id="rpeerList">
                 <% recentPeers.forEach(user => { %>
-                    <li class="flex flex-col sm:flex-row items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md rpeer-item space-y-2 sm:space-y-0" data-username="<%= user.username %>">
+                    <li class="flex flex-col sm:flex-row items-center justify-between bg-[#f1ede1] p-4 rounded-lg shadow-md rpeer-item space-y-2 sm:space-y-0" data-username="<%= user.username %>">
                         <div class="flex items-center space-x-4 user-link cursor-pointer" data-username="<%= user.username %>">
                             <% if (user.level >= 10) { %>
                                 <% if (user.grade === 'Transcender') { %>
@@ -151,15 +151,15 @@
                         <div class="flex space-x-4 w-full sm:w-auto justify-center sm:justify-end">
                             
                             <button onclick="openSlack('<%= user.username %>')" 
-                                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                class="bg-[#cee04b] hover:bg-[#b8cc40] text-[#1e3207] font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
                                 DM on Slack
                             </button>
                             <button onclick="checkUserProfile('<%= user.username %>', this, 2)" 
-                                class="bg-purple-500 hover:bg-purple-600 text-white font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
+                                class="bg-[#cee04b] hover:bg-[#b8cc40] text-[#1e3207] font-medium py-1.5 px-3 rounded-md text-sm shadow-sm transition w-full sm:w-auto">
                                 Check Projects
                             </button>
                             <div id="loadingIndicator2" class=" hidden text-center my-1 flex" >
-                                <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 mx-auto"></div>
+                                <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-[#cee04b] mx-auto"></div>
                                 <p class="text-gray-400 mt-2">Loading Projects...</p>
                             </div>
                         </div>
